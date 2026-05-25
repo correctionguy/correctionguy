@@ -1,0 +1,14 @@
+{
+  "name": "correctionguy",
+  "description": "Correction Guy plugin marketplace - keeps Claude honest with live Codex review",
+  "owner": {
+    "name": "correctionguy"
+  },
+  "plugins": [
+    {
+      "name": "correctionguy",
+      "source": "./",
+      "description": "Claude Code plugin: live Codex review and discipline hooks."
+    }
+  ]
+}

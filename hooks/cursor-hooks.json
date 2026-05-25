@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "hooks": {
+    "sessionStart": [
+      {
+        "command": "bun \"${CURSOR_PLUGIN_ROOT}/scripts/cursor-correctionguy-hook.ts\" sessionStart"
+      }
+    ],
+    "postToolUse": [
+      {
+        "command": "bun \"${CURSOR_PLUGIN_ROOT}/scripts/cursor-correctionguy-hook.ts\" postToolUse",
+        "timeout": 180
+      }
+    ],
+    "stop": [
+      {
+        "command": "bun \"${CURSOR_PLUGIN_ROOT}/scripts/cursor-correctionguy-hook.ts\" stop",
+        "timeout": 180,
+        "loop_limit": null
+      }
+    ]
+  }
+}

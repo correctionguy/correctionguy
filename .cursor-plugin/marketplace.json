@@ -1,0 +1,14 @@
+{
+  "name": "correctionguy",
+  "description": "Correction Guy plugin marketplace: live Codex review and discipline hooks for Cursor",
+  "owner": {
+    "name": "correctionguy"
+  },
+  "plugins": [
+    {
+      "name": "correctionguy",
+      "source": "./",
+      "description": "Cursor plugin: live Codex review and discipline hooks."
+    }
+  ]
+}

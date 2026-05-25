@@ -1,0 +1,13 @@
+{
+  "name": "correctionguy",
+  "displayName": "Correction Guy",
+  "version": "2.1.3",
+  "description": "Cursor plugin: live Codex review and discipline hooks.",
+  "author": {
+    "name": "correctionguy"
+  },
+  "repository": "https://github.com/correctionguy/correctionguy",
+  "keywords": ["codex", "discipline", "review", "workflow", "cursor"],
+  "skills": "./skills/",
+  "hooks": "./hooks/cursor-hooks.json"
+}

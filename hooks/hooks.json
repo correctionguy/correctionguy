@@ -1,0 +1,48 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bun",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/correctionguy-hook.ts",
+              "SessionStart"
+            ]
+          }
+        ]
+      }
+    ],
+    "PostToolBatch": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bun",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/correctionguy-hook.ts",
+              "PostToolBatch"
+            ],
+            "timeout": 180
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bun",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/correctionguy-hook.ts",
+              "Stop"
+            ],
+            "timeout": 180
+          }
+        ]
+      }
+    ]
+  }
+}
