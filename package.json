@@ -1,13 +1,13 @@
 {
   "name": "correctionguy",
   "version": "2.1.3",
-  "description": "Claude Code plugin: live Codex review and discipline hooks.",
+  "description": "Claude Code and Cursor plugin: live Codex review and discipline hooks.",
   "type": "module",
   "scripts": {
     "check": "ultracite check",
     "fix": "ultracite fix",
     "typecheck": "tsc",
-    "validate": "claude plugin validate .claude-plugin/plugin.json --strict && claude plugin validate .claude-plugin/marketplace.json --strict && claude plugin validate .cursor-plugin/plugin.json --strict && claude plugin validate .cursor-plugin/marketplace.json --strict"
+    "validate": "bun scripts/validate.ts"
   },
   "dependencies": {
     "@openai/codex-sdk": "^0.130.0",

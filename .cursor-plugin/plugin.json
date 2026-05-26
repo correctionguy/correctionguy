@@ -8,6 +8,7 @@
   },
   "repository": "https://github.com/correctionguy/correctionguy",
   "keywords": ["codex", "discipline", "review", "workflow", "cursor"],
+  "commands": "./commands/",
   "skills": "./skills/",
   "hooks": "./hooks/cursor-hooks.json"
 }

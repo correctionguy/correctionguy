@@ -37,22 +37,16 @@ By default the hook reviews run Codex in a read-only sandbox. Set `CORRECTIONGUY
 
 ### Cursor
 
-From the repo root (after `bun install`):
+Install from the [Cursor Marketplace](https://cursor.com/docs/plugins) when the listing is available, or use [local testing](https://cursor.com/docs/plugins#test-plugins-locally) from this checkout:
 
 ```sh
-# Install from a local checkout
-cursor plugin marketplace add /path/to/correctionguy
-cursor plugin install correctionguy@correctionguy
+mkdir -p ~/.cursor/plugins/local/correctionguy
+rsync -a --delete --exclude .git --exclude node_modules ./ ~/.cursor/plugins/local/correctionguy/
+cd ~/.cursor/plugins/local/correctionguy
+bun install
 ```
 
-Or symlink for immediate local development:
-
-```sh
-ln -sf "$(pwd)" ~/.cursor/plugins/local/correctionguy
-cd ~/.cursor/plugins/local/correctionguy && bun install
-```
-
-Restart Cursor, then confirm the plugin and hooks appear under **Settings, Plugins** and **Settings, Hooks**.
+Restart Cursor or run **Developer: Reload Window**, then confirm the plugin and hooks appear under **Settings, Plugins** and **Settings, Hooks**.
 
 ## Configuration
 
@@ -80,12 +74,16 @@ There is no automated test suite in this repo. Hook logic is exercised manually 
 
 Inspect the hooks and skills inside your editor:
 
+Claude Code:
+
 ```text
-# Claude Code
 /hooks
 /correctionguy:correctionguy
+```
 
-# Cursor
+Cursor:
+
+```text
 Settings, Hooks
 Settings, Plugins, correctionguy
 /correctionguy
