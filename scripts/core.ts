@@ -1,4 +1,4 @@
-import { takeRight } from "es-toolkit";
+import { compact, takeRight } from "es-toolkit";
 import { z } from "zod/v4";
 
 export const jsonString = <T extends z.ZodType>(schema: T) =>
@@ -83,12 +83,14 @@ const LiveMonitorContext = z.object({
 });
 const StopContext = z.object({
   last_assistant_message: z.string().optional(),
+  last_user_request: z.string().optional(),
   transcript: z.string(),
 });
 
 const RECENT_TRANSCRIPT_LINES = 60;
 const STOP_TRANSCRIPT_LINES = 120;
 const MAX_CONTEXT_CHARS = 100_000;
+const MAX_FIELD_CHARS = 32_000;
 export const correctionguyMessage = (message: string) =>
   `(Correction Guy) ${message.trim()}`;
 
@@ -179,20 +181,85 @@ export const liveMonitorOutput = (review: Review) =>
 export const stopReviewContext = (input: {
   lastAssistantMessage?: string;
   lines: string[];
+  records: TranscriptRecord[];
 }): string | null => {
-  const transcript = takeRight(input.lines, STOP_TRANSCRIPT_LINES).join("\n");
-  if (!(transcript || input.lastAssistantMessage)) {
+  let transcript = takeRight(input.lines, STOP_TRANSCRIPT_LINES).join("\n");
+
+  let extractedAssistant = "";
+  for (const record of input.records.toReversed()) {
+    if (record.type !== "assistant") {
+      continue;
+    }
+    const text = (record.message?.content ?? [])
+      .flatMap((block) => {
+        const parsed = TextContentBlock.safeParse(block);
+        return parsed.success ? [parsed.data.text] : [];
+      })
+      .join("\n")
+      .trim();
+    if (text) {
+      extractedAssistant = text.slice(-MAX_FIELD_CHARS);
+      break;
+    }
+  }
+
+  let extractedUser = "";
+  for (const record of input.records.toReversed()) {
+    if (record.type !== "user") {
+      continue;
+    }
+    const text = (record.message?.content ?? [])
+      .flatMap((block) => {
+        const parsed = TextContentBlock.safeParse(block);
+        return parsed.success ? [parsed.data.text] : [];
+      })
+      .join("\n")
+      .trim();
+    if (text) {
+      extractedUser = text.slice(0, MAX_FIELD_CHARS);
+      break;
+    }
+  }
+
+  const lastAssistantMessage =
+    extractedAssistant || input.lastAssistantMessage?.slice(-MAX_FIELD_CHARS);
+  const lastUserRequest = extractedUser || undefined;
+
+  if (
+    compact([transcript, lastAssistantMessage, lastUserRequest]).length === 0
+  ) {
     return null;
   }
-  const serialized = JSON.stringify(
+
+  let serialized = JSON.stringify(
     StopContext.parse({
-      last_assistant_message: input.lastAssistantMessage,
+      last_assistant_message: lastAssistantMessage,
+      last_user_request: lastUserRequest,
       transcript,
     })
   );
-  return serialized.length <= MAX_CONTEXT_CHARS
-    ? serialized
-    : `${TRUNCATED_PREFIX}\n${serialized.slice(-MAX_CONTEXT_CHARS)}`;
+  let attempts = 0;
+  while (
+    serialized.length > MAX_CONTEXT_CHARS &&
+    transcript.length > 0 &&
+    attempts < 6
+  ) {
+    const overshoot = serialized.length - MAX_CONTEXT_CHARS;
+    const newLen = Math.max(0, transcript.length - overshoot - 256);
+    transcript =
+      newLen > 0
+        ? `${TRUNCATED_PREFIX}\n${transcript.slice(-newLen)}`
+        : TRUNCATED_PREFIX;
+    serialized = JSON.stringify(
+      StopContext.parse({
+        last_assistant_message: lastAssistantMessage,
+        last_user_request: lastUserRequest,
+        transcript,
+      })
+    );
+    attempts += 1;
+  }
+  return serialized;
 };
 
 export const stopOutput = (review: StopReview, alreadyBlocked: boolean) => {

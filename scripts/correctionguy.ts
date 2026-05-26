@@ -50,10 +50,11 @@ const handlers: Record<Command, (ctx: HookContext) => Promise<object | null>> =
       Promise.resolve(hookContextOutput("SessionStart", SESSION_START)),
 
     Stop: async ({ deps, hookInput }) => {
-      const { lines } = await deps.readTranscript();
+      const { lines, records } = await deps.readTranscript();
       const context = stopReviewContext({
         lastAssistantMessage: hookInput.last_assistant_message,
         lines,
+        records,
       });
       if (context === null) {
         return null;

@@ -3,6 +3,13 @@ export const SESSION_START =
 
 export const STOP_PROMPT = `Final check: Did Claude deliver as requested?
 
+The context JSON always has a \`transcript\` field, and includes the following when they could be extracted:
+- \`last_user_request\`: the latest user prompt Claude was answering.
+- \`last_assistant_message\`: Claude's final reply text.
+The structured fields and transcript are each independently truncated when long; trailing ellipsis is implicit.
+
+Compare \`last_assistant_message\` against \`last_user_request\` first, then use \`transcript\` for context.
+
 Decide a verdict:
 - "ok": Claude delivered, or is reasonably waiting (on uninferrable user input, a named blocker, or in-progress subagents).
 - "nudge": a minor or borderline issue is worth surfacing, but stopping is acceptable.

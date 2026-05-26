@@ -16,5 +16,5 @@ Facts the repository owner has stated about this project. They are sourced by th
 
 - No CI workflow is intentional. Lint, formatting, typechecking, and manifest validation run locally via `bun run check`, `bun run typecheck`, and `bun run validate`. (2026-05-26)
 - There is no automated test suite in this repo by design; hook logic is validated manually in live Claude Code sessions. (2026-05-26)
-- Never use helper functions; use es-toolkit.
+- Never use helper functions; use es-toolkit. Inline closures (e.g. `const buildJson = (t) => ...`) created just to deduplicate a few lines also count as helpers — duplicate the lines instead, and if cyclomatic complexity then trips the linter, hoist repeated `||`/`??` expressions into single `const` bindings before reaching for a function. (2026-05-27)
 - Never add comments. If you see one, delete it.
