@@ -1,6 +1,6 @@
 {
   "name": "correctionguy",
-  "description": "Correction Guy plugin marketplace - keeps Claude honest with live Codex review",
+  "description": "Steers drifting agents back on track in Claude Code.",
   "owner": {
     "name": "correctionguy"
   },
@@ -8,7 +8,7 @@
     {
       "name": "correctionguy",
       "source": "./",
-      "description": "Claude Code plugin: live Codex review and discipline hooks."
+      "description": "Agents often drift and waste time on the wrong work. Correction Guy watches from the sidelines and steers them back on track."
     }
   ]
 }

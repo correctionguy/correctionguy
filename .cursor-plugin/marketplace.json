@@ -1,6 +1,6 @@
 {
   "name": "correctionguy",
-  "description": "Correction Guy plugin marketplace: live Codex review and discipline hooks for Cursor",
+  "description": "Steers drifting agents back on track in Cursor.",
   "owner": {
     "name": "correctionguy"
   },
@@ -8,7 +8,7 @@
     {
       "name": "correctionguy",
       "source": "./",
-      "description": "Cursor plugin: live Codex review and discipline hooks.",
+      "description": "Agents often drift and waste time on the wrong work. Correction Guy watches from the sidelines and steers them back on track.",
       "category": "developer-tools",
       "tags": ["codex", "discipline", "review", "hooks"]
     }
