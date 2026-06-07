@@ -1,6 +1,6 @@
 {
   "name": "correctionguy",
-  "version": "2.1.4",
+  "version": "2.1.5",
   "description": "Claude Code and Cursor plugin: live Codex review and discipline hooks.",
   "type": "module",
   "scripts": {
