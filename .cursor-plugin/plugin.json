@@ -7,8 +7,8 @@
     "name": "correctionguy"
   },
   "repository": "https://github.com/correctionguy/correctionguy",
+  "license": "MIT",
   "keywords": ["codex", "discipline", "review", "workflow", "cursor"],
-  "commands": "./commands/",
-  "skills": "./skills/",
+  "logo": "images/logo.jpg",
   "hooks": "./hooks/cursor-hooks.json"
 }

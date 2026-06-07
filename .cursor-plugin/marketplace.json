@@ -8,7 +8,9 @@
     {
       "name": "correctionguy",
       "source": "./",
-      "description": "Cursor plugin: live Codex review and discipline hooks."
+      "description": "Cursor plugin: live Codex review and discipline hooks.",
+      "category": "developer-tools",
+      "tags": ["codex", "discipline", "review", "hooks"]
     }
   ]
 }

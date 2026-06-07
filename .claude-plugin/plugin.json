@@ -6,6 +6,7 @@
     "name": "correctionguy"
   },
   "repository": "https://github.com/correctionguy/correctionguy",
+  "license": "MIT",
   "keywords": ["codex", "discipline", "review", "workflow"],
   "skills": "./skills/"
 }

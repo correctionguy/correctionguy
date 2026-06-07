@@ -1,5 +1,7 @@
 # Correction Guy
 
+![Correction Guy](images/logo.jpg)
+
 Correction Guy keeps the agent honest. It reviews tool batches for drift and bad assumptions, and holds the agent back from stopping with unfinished work.
 
 It talks to Codex directly through the [Codex SDK](https://developers.openai.com/codex/sdk/), no other plugin required.
@@ -37,7 +39,7 @@ By default the hook reviews run Codex in a read-only sandbox. Set `CORRECTIONGUY
 
 ### Cursor
 
-Install from the [Cursor Marketplace](https://cursor.com/docs/plugins) when the listing is available, or use [local testing](https://cursor.com/docs/plugins#test-plugins-locally) from this checkout:
+Install from the [Cursor Marketplace](https://cursor.com/marketplace) when listed, or use [local testing](https://cursor.com/docs/plugins#test-plugins-locally) from this checkout:
 
 ```sh
 mkdir -p ~/.cursor/plugins/local/correctionguy
@@ -88,3 +90,9 @@ Settings, Hooks
 Settings, Plugins, correctionguy
 /correctionguy
 ```
+
+## Publishing (Cursor Marketplace)
+
+Before submitting, run `bun run check`, `bun run typecheck`, and `bun run validate`.
+
+Submit the public repository at [cursor.com/marketplace/publish](https://cursor.com/marketplace/publish). Licensed under [MIT](LICENSE).
