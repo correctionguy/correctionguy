@@ -1,0 +1,31 @@
+.claude-plugin/plugin.json
+  s_b480f1e0554a04::t_17709df6222a52 9
+.cursor-plugin/marketplace.json
+  s_b480f1e0554a04::t_145693d2619701 11-13
+.cursor-plugin/plugin.json
+  s_b480f1e0554a04::t_559ecb104d266e 10
+  s_b480f1e0554a04::t_e61ea8f8866ec3 12
+README.md
+  s_b480f1e0554a04::t_d46b67f5bf8444 3-4
+  s_b480f1e0554a04::t_0be21c9f554837 93-97
+  s_b480f1e0554a04::t_0ce0d34d8b80fd 42
+  s_b480f1e0554a04::t_658ea6d5ed527d 98
+LICENSE
+  s_b480f1e0554a04::t_1bc112526152dc 1-21
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.3",
+  "base_commit_sha": "21ee6cc666ee80ee525cf447a2c6d8c4125e5312",
+  "prompts": {},
+  "sessions": {
+    "s_b480f1e0554a04": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "26d99edd-97e4-494e-9720-1c22c9631f1c",
+        "model": "default"
+      },
+      "human_author": "Sunghyun Cho <hey@cho.sh>"
+    }
+  }
+}
