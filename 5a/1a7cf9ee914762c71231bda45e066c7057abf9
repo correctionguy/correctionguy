@@ -1,0 +1,33 @@
+scripts/correctionguy.ts
+  s_3265de715a6981::t_e2f084ec4330a7 58
+.claude-plugin/plugin.json
+  s_3265de715a6981::t_f5bf297520465b 3
+.cursor-plugin/plugin.json
+  s_3265de715a6981::t_f069f3cf856192 4
+scripts/core.ts
+  s_3265de715a6981::t_bbdd616b5510cd 241
+  s_3265de715a6981::t_b968fe4103a9d2 186
+  s_3265de715a6981::t_d72c8630c9535a 88
+  s_3265de715a6981::t_60c6d3812af44c 261
+scripts/prompts.ts
+  s_3265de715a6981::t_7398430649c4b5 4,6,9-10,12,14,17-19,21
+  s_3265de715a6981::t_37ac4c1c389f23 25,28-33
+package.json
+  s_3265de715a6981::t_830d0101c9aa4a 3
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.9",
+  "base_commit_sha": "5a1a7cf9ee914762c71231bda45e066c7057abf9",
+  "prompts": {},
+  "sessions": {
+    "s_3265de715a6981": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "8b67b7ed-f10c-4c66-99b5-e963ab140be9",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Sunghyun Cho <hey@cho.sh>"
+    }
+  }
+}
