@@ -85,6 +85,7 @@ const StopContext = z.object({
   last_assistant_message: z.string().optional(),
   last_user_request: z.string().optional(),
   transcript: z.string(),
+  transcript_path: z.string().optional(),
 });
 
 const RECENT_TRANSCRIPT_LINES = 60;
@@ -182,6 +183,7 @@ export const stopReviewContext = (input: {
   lastAssistantMessage?: string;
   lines: string[];
   records: TranscriptRecord[];
+  transcriptPath?: string;
 }): string | null => {
   let transcript = takeRight(input.lines, STOP_TRANSCRIPT_LINES).join("\n");
 
@@ -236,6 +238,7 @@ export const stopReviewContext = (input: {
       last_assistant_message: lastAssistantMessage,
       last_user_request: lastUserRequest,
       transcript,
+      transcript_path: input.transcriptPath,
     })
   );
   let attempts = 0;
@@ -255,6 +258,7 @@ export const stopReviewContext = (input: {
         last_assistant_message: lastAssistantMessage,
         last_user_request: lastUserRequest,
         transcript,
+        transcript_path: input.transcriptPath,
       })
     );
     attempts += 1;

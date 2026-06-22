@@ -55,6 +55,7 @@ const handlers: Record<Command, (ctx: HookContext) => Promise<object | null>> =
         lastAssistantMessage: hookInput.last_assistant_message,
         lines,
         records,
+        transcriptPath: hookInput.transcript_path,
       });
       if (context === null) {
         return null;
