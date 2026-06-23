@@ -1,0 +1,26 @@
+.claude-plugin/plugin.json
+  s_a3ebc8eec90fed::t_b492d1cd2c8aa4 3
+.cursor-plugin/plugin.json
+  s_a3ebc8eec90fed::t_ea0f5bb7fe5df4 4
+scripts/prompts.ts
+  s_a3ebc8eec90fed::t_e84833ffaba2ce 18
+  s_a3ebc8eec90fed::t_9c6b705cb1ac6f 14
+package.json
+  s_a3ebc8eec90fed::t_fe6860d247fae6 3
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.9",
+  "base_commit_sha": "7c3ec777ccfba7626d3b3cf74038f5772df60b4f",
+  "prompts": {},
+  "sessions": {
+    "s_a3ebc8eec90fed": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b8467b19-73df-4ee5-a317-6fc21fbf94ec",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Sunghyun Cho <hey@cho.sh>"
+    }
+  }
+}
