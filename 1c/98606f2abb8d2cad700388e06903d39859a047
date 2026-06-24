@@ -1,0 +1,33 @@
+package.json
+  s_7c21ba54d5cbfb::t_63591830e6725e 3
+README.md
+  s_7c21ba54d5cbfb::t_9be4bad7f5d821 13,15
+scripts/prompts.ts
+  s_7c21ba54d5cbfb::t_24eaddbbbd6b6f 18-19
+  s_7c21ba54d5cbfb::t_d956491ef9824b 2
+  s_7c21ba54d5cbfb::t_2140222074c2b6 34
+commands/correctionguy.md
+  s_7c21ba54d5cbfb::t_84c7bae9e2c0b1 11-15
+.claude-plugin/plugin.json
+  s_7c21ba54d5cbfb::t_2471af2e39b1d6 3
+.cursor-plugin/plugin.json
+  s_7c21ba54d5cbfb::t_a515ecf8cac213 4
+skills/correctionguy/SKILL.md
+  s_7c21ba54d5cbfb::t_e2a2fdd1e4a9cd 12-15
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.11",
+  "base_commit_sha": "1c98606f2abb8d2cad700388e06903d39859a047",
+  "prompts": {},
+  "sessions": {
+    "s_7c21ba54d5cbfb": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "1d9070cc-515e-452d-9d6f-f4e30cf3231a",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Sunghyun Cho <hey@cho.sh>"
+    }
+  }
+}
