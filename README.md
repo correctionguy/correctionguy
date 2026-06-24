@@ -10,9 +10,9 @@ Works in **Claude Code** and **Cursor**.
 
 ## What it does
 
-**Live monitor.** Every few completed tool batches, a Codex pass scans the recent transcript for instruction violations, unsupported assumptions, and drift. Anything off is surfaced in the session and fed back before the agent continues.
+**Live monitor.** Every few completed tool batches, a Codex pass scans the recent transcript for instruction violations, unsupported assumptions, drift, and a todo list that has fallen out of sync on multi-step work. Anything off is surfaced in the session and fed back before the agent continues.
 
-**Session prelude.** At session start, the agent is reminded to check memory, restate the task, surface useful tools, verify third-party behavior before editing, finish the full work, and run the code.
+**Session prelude.** At session start, the agent is reminded to check memory, restate the task, surface useful tools, verify third-party behavior before editing, keep a todo list current on multi-step work, finish the full work, and run the code.
 
 **Stop check.** When the agent tries to stop, a Codex pass reviews the last response and returns a verdict. A minor issue is surfaced as an advisory message; a serious failure (asking permission instead of delivering, a stub, abandoned work, ignored review feedback, or skipping a required run) blocks the stop and feeds the correction back so work continues.
 

@@ -1,5 +1,5 @@
 export const SESSION_START =
-  "Recall memory, restate the task, and list key memories and tools in use. Explore the project and enumerate every external topic you will touch: APIs, CLIs, platforms, library behavior. Your knowledge cutoff is stale; never guess from memory. Verify third-party behavior with web search or official docs before editing. Do the full requested work (no stubs or hidden scope cuts). Run the code before stopping; if you cannot, say what blocked you.";
+  "Recall memory, restate the task, and list key memories and tools in use. Explore the project and enumerate every external topic you will touch: APIs, CLIs, platforms, library behavior. Your knowledge cutoff is stale; never guess from memory. Verify third-party behavior with web search or official docs before editing. For any multi-step task, keep a todo list and keep it current — capture the steps up front, mark each one in progress when you start it and done the moment you finish, and add new steps as they surface, using whatever task-tracking tool the session provides (TodoWrite, a task list, or whatever is set up). Do the full requested work (no stubs or hidden scope cuts). Run the code before stopping; if you cannot, say what blocked you.";
 
 export const STOP_PROMPT = `Final check: did Claude accomplish what the user was actually trying to get done?
 
@@ -15,8 +15,8 @@ Before concluding the work is unfinished, try to read \`transcript_path\` to see
 
 Decide a verdict:
 - "ok": Claude delivered the goal, or is reasonably waiting (on uninferrable user input, a named blocker, or in-progress subagents).
-- "nudge": a genuine but non-blocking gap is worth surfacing, yet stopping is acceptable — this includes durable learnings the session produced (a user correction, a stated preference, or a non-obvious project fact) that belong in memory but were never written there, so remind Claude to record them. Do not nudge on style, naming, formatting, or cast/helper structure.
-- "block": a serious failure must be fixed before Claude stops — it asked permission instead of delivering, shipped a stub or hidden scope cut, abandoned the task, ignored earlier review feedback, did not run the code when it should have, asserted third-party library or API behavior without sourced verification, or shipped code that clearly violates repo instructions.
+- "nudge": a genuine but non-blocking gap is worth surfacing, yet stopping is acceptable — this includes durable learnings the session produced (a user correction, a stated preference, or a non-obvious project fact) that belong in memory but were never written there, so remind Claude to record them. It also includes a todo list (or whatever task-tracking system is set up) that Claude let fall out of sync on multi-step work — finished steps left unmarked, or the list never reconciled with what actually shipped — so remind Claude to bring it current. Do not nudge on style, naming, formatting, or cast/helper structure.
+- "block": a serious failure must be fixed before Claude stops — it asked permission instead of delivering, shipped a stub or hidden scope cut (including claiming the work is done while its own todo list or task tracker still shows unstarted or in-progress steps it silently dropped), abandoned the task, ignored earlier review feedback, did not run the code when it should have, asserted third-party library or API behavior without sourced verification, or shipped code that clearly violates repo instructions.
 
 Do not edit files. Set additionalContext to the issue with a short quote (under 30 words), or leave it empty for "ok". Reading or failing to read the file changes only your verdict, never the reply shape.
 
@@ -31,5 +31,6 @@ Flag if:
 4. Failing tool output is ignored — a failing test, build, typecheck, lint, or a required check left unaddressed.
 5. Claude asserts or relies on third-party library, API, or platform behavior without sourced verification (web search or official docs) — but treat facts the repo owner has stated (e.g. a "User's Claim" section in AGENTS.md or CLAUDE.md) as already sourced; do not flag those.
 6. A broad catch block or fallback swallows a real error instead of surfacing it.
+7. On clearly multi-step work, Claude is not keeping its todo list (or whatever task-tracking system is set up) in sync — it never created one, finished steps are left unmarked, the step in progress was never marked started, or new work was never added. Tell it to bring the list current. Only flag this for genuinely multi-step work, never for a trivial one-step change, and never treat the snapshot's missing tool calls as proof a list does not exist.
 
 Reply with JSON only: \`{"lgtm":true,"additionalContext":""}\` or \`{"lgtm":false,"additionalContext":"<correction and quote less than 30 words>"}\`.`;

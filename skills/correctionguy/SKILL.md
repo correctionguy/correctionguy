@@ -9,6 +9,10 @@ description: "Work carefully: understand, source claims, run it, and ask for can
 
 Please pause before coding: understand the ask, inspect the code, and make a short plan. Your knowledge cutoff is stale, so do not trust memory for APIs, tooling, or platform behavior. Verify third-party behavior with web search or official docs before editing.
 
+## Track your work
+
+For any multi-step task, keep a todo list and update it as you go — capture the steps, mark each one in progress when you start it and done the moment you finish, and add new steps as they surface. Use whatever task-tracking tool is set up, and keep it in sync; do not let it drift behind the real state.
+
 ## Finish the work
 
 Do the requested task. No demo, skeleton, or hidden scope cut. If blocked, say why early.
