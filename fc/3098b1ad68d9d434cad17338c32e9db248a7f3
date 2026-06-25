@@ -1,0 +1,29 @@
+scripts/prompts.ts
+  s_08e50acde98c04::t_e1fa4398e2fdba 2,18,35
+AGENTS.md
+  s_08e50acde98c04::t_e1fa4398e2fdba 21
+.cursor-plugin/plugin.json
+  s_08e50acde98c04::t_e1fa4398e2fdba 4
+package.json
+  s_08e50acde98c04::t_e1fa4398e2fdba 3
+.claude-plugin/plugin.json
+  s_08e50acde98c04::t_e1fa4398e2fdba 3
+commands/correctionguy.md
+  s_08e50acde98c04::t_e1fa4398e2fdba 12
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.13",
+  "base_commit_sha": "fc3098b1ad68d9d434cad17338c32e9db248a7f3",
+  "prompts": {},
+  "sessions": {
+    "s_08e50acde98c04": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019efdb5-b80c-7601-96f8-510cea2c02d1",
+        "model": "gpt-5.5"
+      },
+      "human_author": "Sunghyun Cho <hey@cho.sh>"
+    }
+  }
+}
