@@ -2,103 +2,48 @@
 
 ![Correction Guy](images/logo.jpg)
 
-Correction Guy keeps the agent honest. It reviews tool batches for drift and bad assumptions, and holds the agent back from stopping with unfinished work.
-
-It talks to Codex directly through the [Codex SDK](https://developers.openai.com/codex/sdk/), no other plugin required. The review prompts — and the corrections Codex sends back — are written in compressed "caveman" style to cut tokens.
+A second pair of eyes for your coding agent. Correction Guy watches from the sidelines and steers the work back on track — it never touches the work itself.
 
 Works in **Claude Code** and **Cursor**.
 
+## Why
+
+An agent grading its own work is the weakest check there is. It is biased toward declaring victory: it papers over stubs, asserts things it never verified, asks permission instead of delivering, and forgets what it just learned. A sharper self-prompt doesn't fix this — the agent is still inside its own story.
+
+So Correction Guy hands the review to someone else. A different model (Codex, through the [Codex SDK](https://developers.openai.com/codex/sdk/) — no other plugin required) reads the session as an outsider, with no stake in the agent's narrative, and calls out what the agent talked itself past. It is deliberately narrow: it flags real failures — wrong scope, stubs, unsourced claims, ignored test failures, abandoned work, drift, a to-do list or memory gone stale — and stays quiet on taste like naming, formatting, and structure. It steps in at the three moments that matter: as work begins, while it is underway, and the instant the agent tries to call it done.
+
 ## What it does
 
-**Live monitor.** Every few completed tool batches, a Codex pass scans the recent transcript — plus the session's current to-do list (reconstructed from the transcript's task tool calls) and its title (the explicit session name when one is set, otherwise the auto-generated one) — for instruction violations, unsupported assumptions, drift, a to-do list or session title that has fallen out of sync on multi-step work, and project memory that is out of sync with what the session learned. (On hosts that don't expose to-dos or a title, such as Cursor, those are simply omitted.) Anything off is surfaced in the session and fed back before the agent continues.
+- **Session prelude** — sets expectations up front: restate the task, check memory, keep the to-do list and session title honest, verify third-party behavior, finish the work, run the code.
+- **Live monitor** — every few tool batches, an outside pass catches drift, bad assumptions, stale to-dos, and contradicted memory before they compound.
+- **Stop check** — when the agent tries to stop, the reviewer can block a premature "done" — a stub, abandoned work, ignored feedback, an unrun build — and feed the correction back.
+- **On-demand** — `/correctionguy` restates the discipline whenever you want it.
 
-**Session prelude.** At session start, the agent is reminded to check memory, restate the task, name the session, keep project memory in the repo's `.memory` folder with the traditional location symlinked into it and record new learnings to it, surface useful tools, verify third-party behavior before editing, keep a todo list current on multi-step work, finish the full work, and run the code.
-
-**Stop check.** When the agent tries to stop, a Codex pass reviews the last response and returns a verdict. A minor issue is surfaced as an advisory message; a serious failure (asking permission instead of delivering, a stub, abandoned work, ignored review feedback, skipping a required run, or contradicting recorded project memory) blocks the stop and feeds the correction back so work continues.
-
-**On-demand reminder.** A `/correctionguy` command (Cursor) or `/correctionguy:correctionguy` slash command (Claude Code) reminds the agent to understand the task, keep memory current, do the full work, run the code, and ask for candid review.
+The review prompts, and the corrections that come back, are written in compressed "caveman" style to save tokens.
 
 ## Memory
 
-Correction Guy keeps the agent's memory in a project-local `.memory` folder that holds the real memory files. The agent's traditional memory directory is symlinked into `.memory`, so memories live and travel with the repo; if the real files sit in the traditional location or a folder rename leaves them elsewhere, the agent moves them into `.memory` and symlinks the old path to it. Whenever the user corrects the agent or it learns something non-obvious, it records the fact to `.memory`.
-
-The live monitor and stop check read `.memory` and flag when the session contradicts a recorded memory or produced a durable learning that was never written down.
-
-## YOLO mode
-
-By default the hook reviews run Codex in a read-only sandbox. Set `CORRECTIONGUY_YOLO=1` to drop the OS sandbox: Codex threads get full filesystem and network access, with their limits conveyed by prompt text instead.
+Memory belongs with the code it describes. Correction Guy keeps the agent's memory in a project-local `.memory` folder, so it lives alongside the work instead of in a global store, and it treats facts you state about the project as sourced — recorded, trusted, and never second-guessed for lacking a citation. The reviewer flags when a session contradicts what is written there, or learns something worth keeping and never writes it down.
 
 ## Requirements
 
 - [Bun](https://bun.sh)
-- Codex authenticated. Run `codex login` once, or set an API key.
-- **Claude Code** ([claude.ai/code](https://claude.ai/code)) or **Cursor**
+- Codex authenticated — run `codex login` once, or set an API key.
+- **Claude Code** or **Cursor**
 
-## Installation
+## Install
 
-### Claude Code
+**Claude Code**
 
 ```sh
 /plugin marketplace add correctionguy/correctionguy
 /plugin install correctionguy@correctionguy
 ```
 
-### Cursor
-
-Install from the [Cursor Marketplace](https://cursor.com/marketplace) when listed, or use [local testing](https://cursor.com/docs/plugins#test-plugins-locally) from this checkout:
-
-```sh
-mkdir -p ~/.cursor/plugins/local/correctionguy
-rsync -a --delete --exclude .git --exclude node_modules ./ ~/.cursor/plugins/local/correctionguy/
-cd ~/.cursor/plugins/local/correctionguy
-bun install
-```
-
-Restart Cursor or run **Developer: Reload Window**, then confirm the plugin and hooks appear under **Settings, Plugins** and **Settings, Hooks**.
+**Cursor** — install from the [Cursor Marketplace](https://cursor.com/marketplace), or [test locally](https://cursor.com/docs/plugins#test-plugins-locally) from a checkout.
 
 ## Configuration
 
-All knobs are environment variables; everything else is hardcoded.
+Everything is tuned through `CORRECTIONGUY_*` environment variables — model, reasoning effort, review cadence, and a `CORRECTIONGUY_YOLO` switch that drops the read-only sandbox for the reviews. Defaults live in `scripts/codex.ts`.
 
-| Variable                               | Default   | Description                                                                |
-| -------------------------------------- | --------- | -------------------------------------------------------------------------- |
-| `CORRECTIONGUY_MODEL`                  | `gpt-5.5` | Codex model used for live-monitor and stop reviews                         |
-| `CORRECTIONGUY_MODEL_REASONING_EFFORT` | `xhigh`   | Reasoning effort: `minimal`, `low`, `medium`, `high`, or `xhigh`           |
-| `CORRECTIONGUY_SERVICE_TIER`           | `fast`    | Codex service tier (e.g. `fast`, `flex`, `priority`)                       |
-| `CORRECTIONGUY_FAST_MODE`              | `true`    | Enable Codex fast mode (`true`/`false`, `1`/`0`, `on`/`off`)               |
-| `CORRECTIONGUY_MONITOR_EVERY_BATCHES`  | `3`       | Completed tool batches between live-monitor reviews; `0` disables it       |
-| `CORRECTIONGUY_YOLO`                   | `false`   | Drop the OS sandbox for hook reviews (`true`/`false`, `1`/`0`, `on`/`off`) |
-
-## Development
-
-```sh
-bun install
-bun run check      # lint + format (ultracite)
-bun run typecheck  # tsc
-bun run validate   # validate the plugin and marketplace manifests
-```
-
-There is no automated test suite in this repo. Hook logic is exercised manually in live Claude Code sessions; Codex-backed reviews need auth and the network.
-
-Inspect the hooks and skills inside your editor:
-
-Claude Code:
-
-```text
-/hooks
-/correctionguy:correctionguy
-```
-
-Cursor:
-
-```text
-Settings, Hooks
-Settings, Plugins, correctionguy
-/correctionguy
-```
-
-## Publishing (Cursor Marketplace)
-
-Before submitting, run `bun run check`, `bun run typecheck`, and `bun run validate`.
-
-Submit the public repository at [cursor.com/marketplace/publish](https://cursor.com/marketplace/publish). Licensed under [MIT](LICENSE).
+Licensed under [MIT](LICENSE).
