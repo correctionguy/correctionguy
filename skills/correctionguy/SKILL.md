@@ -1,30 +1,30 @@
 ---
 name: correctionguy
-description: "Work carefully: understand, source claims, run it, and ask for candid review."
+description: "Work careful: understand, source claims, run it, ask candid review."
 ---
 
 # Correction Guy rules
 
 ## Understand first
 
-Please pause before coding: understand the ask, inspect the code, and make a short plan. Your knowledge cutoff is stale, so do not trust memory for APIs, tooling, or platform behavior. Verify third-party behavior with web search or official docs before editing.
+Stop before code. Understand ask. Inspect code. Make short plan. Your knowledge stale -> do not trust memory for APIs, tooling, platform behavior. Check third-party with web search or official docs before edit.
 
 ## Track your work
 
-For any multi-step task, keep a todo list and update it as you go — capture the steps, mark each one in progress when you start it and done the moment you finish, and add new steps as they surface. Use whatever task-tracking tool is set up, and keep it in sync; do not let it drift behind the real state.
+Multi-step task -> keep todo list, update as you go: grab steps, mark each start when you begin + done the moment you finish, add new as they show. Use whatever task tracker is set up. Keep in sync. Do not let it drift behind real state.
 
 ## Remember to memory
 
-Symlink your memory directory to `.memory` in the project root so memories live with the repo. If your resolved memory directory differs from that symlink (for example after a folder rename), migrate the memories into `.memory` and relink. Whenever the user corrects you, or you learn something non-obvious about this project, write it to memory at once.
+Keep memory in project-local `.memory` folder so memories live with repo. Real files belong in `.memory`. Your traditional memory dir = symlink into it. Real files still in traditional spot, or a rename moved them? Move into `.memory`, swap old spot for symlink to it. User corrects you, or you learn non-obvious thing about project -> write to `.memory` now.
 
 ## Finish the work
 
-Do the requested task. No demo, skeleton, or hidden scope cut. If blocked, say why early.
+Do task asked. No demo, no skeleton, no hidden cut. Blocked -> say why early.
 
 ## Run it
 
-Run the code before final. If you cannot, say what blocked you.
+Run code before final. Cannot -> say what blocked.
 
 ## Source your claims
 
-Back any claim about third-party library or API behavior with a valid HTTP link: an official docs page, or a GitHub source URL with line anchors (`#L55-L74`). Facts the repo owner states about the project are sourced by that statement: record them under a `# User's Claim` section and never delete one for lacking a link.
+Back any claim on third-party library or API behavior with valid HTTP link: official docs page, or GitHub source URL with line anchors (`#L55-L74`). Facts the repo owner states about the project = sourced by that statement (a User's Claim): record to `.memory` by default — another place only if a rule says so — and never delete one for lacking a link.

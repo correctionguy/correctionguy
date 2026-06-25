@@ -43,6 +43,30 @@ const TextContentBlock = TranscriptContentBlock.extend({
   type: z.literal("text"),
 });
 
+const ToolUseBlock = z.looseObject({
+  id: z.string().optional(),
+  input: z.unknown(),
+  name: z.string(),
+  type: z.literal("tool_use"),
+});
+const ToolResultBlock = z.looseObject({
+  content: z.unknown(),
+  tool_use_id: z.string().optional(),
+  type: z.literal("tool_result"),
+});
+const AiTitleRecord = z.looseObject({
+  aiTitle: z.string(),
+  type: z.literal("ai-title"),
+});
+const TodoWriteInput = z.looseObject({
+  todos: z.array(z.looseObject({ content: z.string(), status: z.string() })),
+});
+const TaskUpdateInput = z.looseObject({
+  status: z.string().optional(),
+  subject: z.string().optional(),
+  taskId: z.string(),
+});
+
 export const parseTranscript = (text: string): Transcript => {
   const lines = text.trim().split("\n").filter(Boolean);
   const records = z.array(TranscriptLine).parse(lines);
@@ -62,6 +86,8 @@ export type PostToolBatchToolCall = z.output<typeof PostToolBatchToolCall>;
 
 export const HookInput = z.object({
   last_assistant_message: z.string().optional(),
+  session_id: z.string().optional(),
+  session_title: z.string().optional(),
   stop_hook_active: z.boolean().optional(),
   tool_calls: z.array(PostToolBatchToolCall).optional(),
   transcript_path: z.string(),
@@ -82,10 +108,13 @@ export const StopReview = z.object({
 });
 export type StopReview = z.output<typeof StopReview>;
 
+const TodoItem = z.object({ content: z.string(), status: z.string() });
 const LiveMonitorContext = z.object({
   current_tool_batch: z.array(PostToolBatchToolCall),
   latest_assistant_message: z.string(),
   recent_transcript: z.string(),
+  session_title: z.string(),
+  todos: z.array(TodoItem),
 });
 const StopContext = z.object({
   last_assistant_message: z.string().optional(),
@@ -131,13 +160,71 @@ export const hookContextOutput = (
 
 const TRUNCATED_PREFIX = "[earlier review context truncated to fit the model]";
 
+const currentTodos = (
+  records: TranscriptRecord[]
+): z.output<typeof TodoItem>[] => {
+  const tasks = new Map<string, z.output<typeof TodoItem>>();
+  let snapshot: z.output<typeof TodoItem>[] | null = null;
+  for (const record of records) {
+    for (const block of record.message?.content ?? []) {
+      const toolUse = ToolUseBlock.safeParse(block);
+      if (toolUse.success) {
+        const { input, name } = toolUse.data;
+        if (name === "TodoWrite") {
+          const write = TodoWriteInput.safeParse(input);
+          if (write.success) {
+            snapshot = write.data.todos.map((todo) => ({
+              content: todo.content,
+              status: todo.status,
+            }));
+          }
+          continue;
+        }
+        const update = TaskUpdateInput.safeParse(input);
+        const task =
+          name === "TaskUpdate" && update.success
+            ? tasks.get(update.data.taskId)
+            : undefined;
+        if (task && update.success) {
+          if (update.data.status === "deleted") {
+            tasks.delete(update.data.taskId);
+          } else {
+            task.status = update.data.status ?? task.status;
+            task.content = update.data.subject ?? task.content;
+          }
+        }
+        continue;
+      }
+      const result = ToolResultBlock.safeParse(block);
+      if (!result.success) {
+        continue;
+      }
+      const text = [result.data.content]
+        .flat()
+        .map((part) =>
+          typeof part === "string"
+            ? part
+            : ((part as { text?: string }).text ?? "")
+        )
+        .join("");
+      const match = /Task #(\d+) created successfully: (.+)/u.exec(text);
+      if (match) {
+        const [, taskId, subject] = match;
+        tasks.set(taskId, { content: subject, status: "pending" });
+      }
+    }
+  }
+  return snapshot ?? [...tasks.values()];
+};
+
 export const liveMonitorContext = (input: {
   cadence: number;
+  explicitTitle?: string;
   lines: string[];
   records: TranscriptRecord[];
   toolCalls: PostToolBatchToolCall[];
 }): string | null => {
-  const { cadence, lines, records, toolCalls } = input;
+  const { cadence, explicitTitle, lines, records, toolCalls } = input;
   const batchCount = records.filter(
     (record) =>
       record.type === "assistant" &&
@@ -165,16 +252,51 @@ export const liveMonitorContext = (input: {
     }
   }
 
-  const serialized = JSON.stringify(
+  let aiTitle = "";
+  for (const record of records.toReversed()) {
+    const titleRecord = AiTitleRecord.safeParse(record);
+    if (titleRecord.success) {
+      ({ aiTitle } = titleRecord.data);
+      break;
+    }
+  }
+
+  const todos = currentTodos(records);
+  const sessionTitle = explicitTitle || aiTitle;
+  let recentTranscript = takeRight(lines, RECENT_TRANSCRIPT_LINES).join("\n");
+  let serialized = JSON.stringify(
     LiveMonitorContext.parse({
       current_tool_batch: toolCalls,
       latest_assistant_message: latestAssistant,
-      recent_transcript: takeRight(lines, RECENT_TRANSCRIPT_LINES).join("\n"),
+      recent_transcript: recentTranscript,
+      session_title: sessionTitle,
+      todos,
     })
   );
-  return serialized.length <= MAX_CONTEXT_CHARS
-    ? serialized
-    : `${TRUNCATED_PREFIX}\n${serialized.slice(-MAX_CONTEXT_CHARS)}`;
+  let attempts = 0;
+  while (
+    serialized.length > MAX_CONTEXT_CHARS &&
+    recentTranscript.length > 0 &&
+    attempts < 6
+  ) {
+    const overshoot = serialized.length - MAX_CONTEXT_CHARS;
+    const newLen = Math.max(0, recentTranscript.length - overshoot - 256);
+    recentTranscript =
+      newLen > 0
+        ? `${TRUNCATED_PREFIX}\n${recentTranscript.slice(-newLen)}`
+        : TRUNCATED_PREFIX;
+    serialized = JSON.stringify(
+      LiveMonitorContext.parse({
+        current_tool_batch: toolCalls,
+        latest_assistant_message: latestAssistant,
+        recent_transcript: recentTranscript,
+        session_title: sessionTitle,
+        todos,
+      })
+    );
+    attempts += 1;
+  }
+  return serialized;
 };
 
 export const liveMonitorOutput = (review: Review): ContextOutput | null =>

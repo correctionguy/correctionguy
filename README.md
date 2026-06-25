@@ -4,15 +4,15 @@
 
 Correction Guy keeps the agent honest. It reviews tool batches for drift and bad assumptions, and holds the agent back from stopping with unfinished work.
 
-It talks to Codex directly through the [Codex SDK](https://developers.openai.com/codex/sdk/), no other plugin required.
+It talks to Codex directly through the [Codex SDK](https://developers.openai.com/codex/sdk/), no other plugin required. The review prompts — and the corrections Codex sends back — are written in compressed "caveman" style to cut tokens.
 
 Works in **Claude Code** and **Cursor**.
 
 ## What it does
 
-**Live monitor.** Every few completed tool batches, a Codex pass scans the recent transcript for instruction violations, unsupported assumptions, drift, a todo list that has fallen out of sync on multi-step work, and project memory that is out of sync with what the session learned. Anything off is surfaced in the session and fed back before the agent continues.
+**Live monitor.** Every few completed tool batches, a Codex pass scans the recent transcript — plus the session's current to-do list (reconstructed from the transcript's task tool calls) and its title (the explicit session name when one is set, otherwise the auto-generated one) — for instruction violations, unsupported assumptions, drift, a to-do list or session title that has fallen out of sync on multi-step work, and project memory that is out of sync with what the session learned. (On hosts that don't expose to-dos or a title, such as Cursor, those are simply omitted.) Anything off is surfaced in the session and fed back before the agent continues.
 
-**Session prelude.** At session start, the agent is reminded to check memory, restate the task, name the session, link and migrate project memory under `.memory` and record new learnings to it, surface useful tools, verify third-party behavior before editing, keep a todo list current on multi-step work, finish the full work, and run the code.
+**Session prelude.** At session start, the agent is reminded to check memory, restate the task, name the session, keep project memory in the repo's `.memory` folder with the traditional location symlinked into it and record new learnings to it, surface useful tools, verify third-party behavior before editing, keep a todo list current on multi-step work, finish the full work, and run the code.
 
 **Stop check.** When the agent tries to stop, a Codex pass reviews the last response and returns a verdict. A minor issue is surfaced as an advisory message; a serious failure (asking permission instead of delivering, a stub, abandoned work, ignored review feedback, skipping a required run, or contradicting recorded project memory) blocks the stop and feeds the correction back so work continues.
 
@@ -20,7 +20,7 @@ Works in **Claude Code** and **Cursor**.
 
 ## Memory
 
-Correction Guy keeps the agent's memory in a project-local `.memory` folder. The agent symlinks its memory system there so memories live and travel with the repo, and migrates them if a folder rename leaves the resolved directory elsewhere. Whenever the user corrects the agent or it learns something non-obvious, it records the fact to `.memory`.
+Correction Guy keeps the agent's memory in a project-local `.memory` folder that holds the real memory files. The agent's traditional memory directory is symlinked into `.memory`, so memories live and travel with the repo; if the real files sit in the traditional location or a folder rename leaves them elsewhere, the agent moves them into `.memory` and symlinks the old path to it. Whenever the user corrects the agent or it learns something non-obvious, it records the fact to `.memory`.
 
 The live monitor and stop check read `.memory` and flag when the session contradicts a recorded memory or produced a durable learning that was never written down.
 

@@ -13,6 +13,8 @@ import type { HookOutput, Review, StopReview, Transcript } from "./core.ts";
 import { LIVE_MONITOR_PROMPT, SESSION_START, STOP_PROMPT } from "./prompts.ts";
 
 interface HookDeps {
+  loadTitle: (sessionId: string) => Promise<string | null>;
+  persistTitle: (sessionId: string, title: string) => Promise<void>;
   readTranscript: () => Promise<Transcript>;
   review: (prompt: string, context: string) => Promise<Review>;
   stopReview: (prompt: string, context: string) => Promise<StopReview>;
@@ -30,8 +32,12 @@ const handlers: Record<
 > = {
   PostToolBatch: async ({ cadence, deps, hookInput }) => {
     const { lines, records } = await deps.readTranscript();
+    const explicitTitle = hookInput.session_id
+      ? ((await deps.loadTitle(hookInput.session_id)) ?? undefined)
+      : undefined;
     const context = liveMonitorContext({
       cadence,
+      explicitTitle,
       lines,
       records,
       toolCalls: hookInput.tool_calls ?? [],
@@ -49,8 +55,12 @@ const handlers: Record<
     }
   },
 
-  SessionStart: () =>
-    Promise.resolve(hookContextOutput("SessionStart", SESSION_START)),
+  SessionStart: async ({ deps, hookInput }) => {
+    if (hookInput.session_id && hookInput.session_title) {
+      await deps.persistTitle(hookInput.session_id, hookInput.session_title);
+    }
+    return hookContextOutput("SessionStart", SESSION_START);
+  },
 
   Stop: async ({ deps, hookInput }) => {
     const { lines, records } = await deps.readTranscript();
@@ -88,6 +98,8 @@ export const runHook = (
 export interface HookIo {
   argv: readonly string[];
   cadenceEnv: string | undefined;
+  loadTitle: (sessionId: string) => Promise<string | null>;
+  persistTitle: (sessionId: string, title: string) => Promise<void>;
   readFile: (path: string) => Promise<string>;
   readStdin: () => Promise<unknown>;
   review: (prompt: string, context: string) => Promise<Review>;
@@ -99,6 +111,8 @@ export const main = async (io: HookIo): Promise<string | null> => {
   const hookInput = HookInput.parse(await io.readStdin());
   const cadence = MonitorCadence.parse(io.cadenceEnv ?? 3);
   const output = await runHook(command, hookInput, cadence, {
+    loadTitle: io.loadTitle,
+    persistTitle: io.persistTitle,
     readTranscript: async () =>
       parseTranscript(await io.readFile(hookInput.transcript_path)),
     review: io.review,

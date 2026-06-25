@@ -1,3 +1,6 @@
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+
 import { runReview, runStopReview } from "./codex.ts";
 import { MonitorCadence, parseTranscript } from "./core.ts";
 import { runHook } from "./correctionguy.ts";
@@ -20,6 +23,21 @@ try {
   );
 
   const output = await runHook(command, hookInput, cadence, {
+    loadTitle: async (sessionId) => {
+      const file = Bun.file(join(tmpdir(), `correctionguy-title-${sessionId}`));
+      if (!(await file.exists())) {
+        return null;
+      }
+      const contents = await file.text();
+      const text = contents.trim();
+      return text.length > 0 ? text : null;
+    },
+    persistTitle: async (sessionId, title) => {
+      await Bun.write(
+        join(tmpdir(), `correctionguy-title-${sessionId}`),
+        title
+      );
+    },
     readTranscript: async () =>
       parseTranscript(await Bun.file(hookInput.transcript_path).text()),
     review: runReview,
