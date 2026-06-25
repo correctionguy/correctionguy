@@ -9,7 +9,7 @@ Pause and confirm:
 
 1. **Understand.** Restate the task and inspect relevant code before changing anything.
 2. **Track.** Keep a todo list for multi-step work and update it as you go — mark steps in progress and done, and keep it in sync, using whatever task tracker is set up.
-3. **Remember.** Symlink your memory to `.memory` and migrate it if a folder rename left the resolved directory elsewhere. Whenever the user corrects you, or you learn something non-obvious, record it to memory — as an [Open Knowledge Format](https://github.com/GoogleCloudPlatform/knowledge-catalog/tree/main/okf) bundle: one markdown file per fact, frontmatter with a required `type`, an `index.md` listing.
+3. **Remember.** Symlink your memory to `.memory` and migrate it if a folder rename left the resolved directory elsewhere. Whenever the user corrects you, or you learn something non-obvious, record it to memory.
 4. **Verify.** Your knowledge cutoff is stale. Use web search or official docs before asserting third-party behavior.
 5. **Finish.** Do the full requested work. No stubs, demos, or hidden scope cuts.
 6. **Run it.** Execute the code before stopping. If you cannot, say what blocked you.

@@ -18,4 +18,4 @@ Facts the repository owner has stated about this project. They are sourced by th
 - There is no automated test suite in this repo by design; hook logic is validated manually in live Claude Code sessions. (2026-05-26)
 - Never use helper functions; use es-toolkit. Inline closures (e.g. `const buildJson = (t) => ...`) created just to deduplicate a few lines also count as helpers — duplicate the lines instead, and if cyclomatic complexity then trips the linter, hoist repeated `||`/`??` expressions into single `const` bindings before reaching for a function. (2026-05-27)
 - Never add comments. If you see one, delete it.
-- Agent memory lives in a project-local `.memory` folder, structured as an Open Knowledge Format (OKF v0.1) bundle: markdown files with YAML frontmatter whose only required field is `type`, an `index.md` listing, an optional `log.md`, and bundle-relative `/…md` links. Spec: https://github.com/GoogleCloudPlatform/knowledge-catalog/tree/main/okf ; background: https://cloud.google.com/blog/products/data-analytics/how-the-open-knowledge-format-can-improve-data-sharing/ (2026-06-25)
+- Agent memory lives in a project-local `.memory` folder. (2026-06-25)

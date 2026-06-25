@@ -22,8 +22,6 @@ Works in **Claude Code** and **Cursor**.
 
 Correction Guy keeps the agent's memory in a project-local `.memory` folder. The agent symlinks its memory system there so memories live and travel with the repo, and migrates them if a folder rename leaves the resolved directory elsewhere. Whenever the user corrects the agent or it learns something non-obvious, it records the fact to `.memory`.
 
-`.memory` is an [Open Knowledge Format](https://github.com/GoogleCloudPlatform/knowledge-catalog/tree/main/okf) (OKF v0.1) bundle: a directory of markdown files, one **concept** (fact) per file, each with YAML frontmatter whose only required field is `type` — with optional `title`, `description`, `tags`, and an ISO 8601 `timestamp`. An `index.md` lists the bundle for progressive disclosure, an optional `log.md` records history, memories cross-link with bundle-relative `/…md` links, and external sources go under a `# Citations` heading. OKF is a vendor-neutral, plain-markdown knowledge format from Google Cloud — readable by humans, parseable by agents, and diffable in git ([announcement](https://cloud.google.com/blog/products/data-analytics/how-the-open-knowledge-format-can-improve-data-sharing/), [spec](https://github.com/GoogleCloudPlatform/knowledge-catalog/tree/main/okf)).
-
 The live monitor and stop check read `.memory` and flag when the session contradicts a recorded memory or produced a durable learning that was never written down.
 
 ## YOLO mode
