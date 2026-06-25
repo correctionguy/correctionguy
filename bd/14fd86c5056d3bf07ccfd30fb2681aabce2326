@@ -1,0 +1,58 @@
+scripts/correctionguy.ts
+  s_a7b34daef15589::t_a5f5ba642b6ae0 27-30
+  s_a7b34daef15589::t_3649294828872d 12
+  s_a7b34daef15589::t_01fb86b4786d80 31-50,52-53,55-78,85-86
+scripts/core.ts
+  s_a7b34daef15589::t_70b70b74568f37 272-275
+  s_a7b34daef15589::t_01fb86b4786d80 29-32
+  s_a7b34daef15589::t_1865f419c6bd49 23-28
+  s_a7b34daef15589::t_a1e881ede0063c 106-123,127
+  s_a7b34daef15589::t_7ac9f7c1e5c8e1 141-144
+  s_a7b34daef15589::t_17ee3152837d02 180
+.claude-plugin/plugin.json
+  s_a7b34daef15589::t_c2d44e1e39d7d7 3
+.cursor-plugin/plugin.json
+  s_a7b34daef15589::t_ed48f1cf3e6b2d 4
+README.md
+  s_a7b34daef15589::t_63586fa6534a4d 15
+  s_a7b34daef15589::t_d5e564fe6787de 13
+  s_a7b34daef15589::t_e58150142a4d51 19
+  s_a7b34daef15589::t_b292a240aa96ac 17
+  s_a7b34daef15589::t_661883f4ee3df6 21-27
+skills/correctionguy/SKILL.md
+  s_a7b34daef15589::t_d7908debcb3434 18
+  s_a7b34daef15589::t_f8d7cacc87b2e4 16-17,19
+  s_a7b34daef15589::t_b4e9ff5239530b 20-21
+commands/correctionguy.md
+  s_a7b34daef15589::t_4bf77e61b195a3 12
+  s_a7b34daef15589::t_63d3abffa76314 13-16
+scripts/cursor-adapter.ts
+  s_a7b34daef15589::t_d83d0561530f1c 2
+  s_a7b34daef15589::t_df8bcebe8bc2d0 78,86-87,89,92-100
+package.json
+  s_a7b34daef15589::t_e0a4359da5d608 3
+AGENTS.md
+  s_a7b34daef15589::t_4a2e558e9b648a 21
+scripts/prompts.ts
+  s_a7b34daef15589::t_ddda6aadb9fe31 18
+  s_a7b34daef15589::t_43fa10d26d67e6 2
+  s_a7b34daef15589::t_392b580fc83990 14
+  s_a7b34daef15589::t_7e76ad090d373e 19
+  s_a7b34daef15589::t_74d3c8428c2788 35
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.13",
+  "base_commit_sha": "bd14fd86c5056d3bf07ccfd30fb2681aabce2326",
+  "prompts": {},
+  "sessions": {
+    "s_a7b34daef15589": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "045a4c87-80fb-470b-8401-176f5dad66d2",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Sunghyun Cho <hey@cho.sh>"
+    }
+  }
+}
