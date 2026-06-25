@@ -1,5 +1,5 @@
 import { HookInput, correctionguyMessage } from "./core.ts";
-import type { Command, PostToolBatchToolCall } from "./core.ts";
+import type { Command, HookOutput, PostToolBatchToolCall } from "./core.ts";
 
 const CURSOR_EVENTS = {
   postToolUse: "PostToolBatch",
@@ -74,61 +74,30 @@ export const mapCursorInput = (
   return HookInput.parse(hookInput);
 };
 
-interface ClaudeHookOutput {
-  continue?: boolean;
-  decision?: "block";
-  hookSpecificOutput?: {
-    additionalContext?: string;
-    hookEventName?: string;
-    permissionDecision?: "deny";
-    permissionDecisionReason?: string;
-  };
-  reason?: string;
-  systemMessage?: string;
-}
-
 export const mapCursorOutput = (
-  output: object | null,
+  output: HookOutput | null,
   command: Command
 ): object | null => {
   if (output === null) {
     return null;
   }
 
-  const hook = output as ClaudeHookOutput;
-  const specific = hook.hookSpecificOutput;
-
-  if (specific?.permissionDecision === "deny") {
-    const reason =
-      specific.permissionDecisionReason ??
-      hook.systemMessage ??
-      "Blocked by Correction Guy.";
-    return {
-      agent_message: reason,
-      permission: "deny",
-      user_message: correctionguyMessage(reason),
-    };
-  }
-
   if (command === "Stop") {
-    if (hook.decision === "block" && hook.reason) {
-      return { followup_message: correctionguyMessage(hook.reason) };
+    if ("decision" in output && output.decision === "block") {
+      return { followup_message: correctionguyMessage(output.reason) };
     }
-    if (hook.systemMessage) {
-      return { followup_message: hook.systemMessage };
-    }
-    return null;
+    return { followup_message: output.systemMessage };
   }
 
-  const context = specific?.additionalContext;
-  if (!context) {
-    return null;
-  }
-
-  const message = correctionguyMessage(context);
-
-  if (command === "SessionStart" || command === "PostToolBatch") {
-    return { additional_context: message };
+  if (
+    "hookSpecificOutput" in output &&
+    output.hookSpecificOutput.additionalContext
+  ) {
+    return {
+      additional_context: correctionguyMessage(
+        output.hookSpecificOutput.additionalContext
+      ),
+    };
   }
 
   return null;

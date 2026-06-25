@@ -9,7 +9,7 @@ import {
   stopOutput,
   stopReviewContext,
 } from "./core.ts";
-import type { Review, StopReview, Transcript } from "./core.ts";
+import type { HookOutput, Review, StopReview, Transcript } from "./core.ts";
 import { LIVE_MONITOR_PROMPT, SESSION_START, STOP_PROMPT } from "./prompts.ts";
 
 interface HookDeps {
@@ -24,59 +24,66 @@ interface HookContext {
   hookInput: HookInput;
 }
 
-const handlers: Record<Command, (ctx: HookContext) => Promise<object | null>> =
-  {
-    PostToolBatch: async ({ cadence, deps, hookInput }) => {
-      const { lines, records } = await deps.readTranscript();
-      const context = liveMonitorContext({
-        cadence,
-        lines,
-        records,
-        toolCalls: hookInput.tool_calls ?? [],
-      });
-      if (context === null) {
-        return null;
-      }
-      try {
-        return liveMonitorOutput(
-          await deps.review(LIVE_MONITOR_PROMPT, context)
-        );
-      } catch {
-        return null;
-      }
-    },
+const handlers: Record<
+  Command,
+  (ctx: HookContext) => Promise<HookOutput | null>
+> = {
+  PostToolBatch: async ({ cadence, deps, hookInput }) => {
+    const { lines, records } = await deps.readTranscript();
+    const context = liveMonitorContext({
+      cadence,
+      lines,
+      records,
+      toolCalls: hookInput.tool_calls ?? [],
+    });
+    if (context === null) {
+      return null;
+    }
+    try {
+      return liveMonitorOutput(await deps.review(LIVE_MONITOR_PROMPT, context));
+    } catch (error) {
+      console.error(
+        `correctionguy live-monitor review failed: ${error instanceof Error ? error.message : String(error)}`
+      );
+      return null;
+    }
+  },
 
-    SessionStart: () =>
-      Promise.resolve(hookContextOutput("SessionStart", SESSION_START)),
+  SessionStart: () =>
+    Promise.resolve(hookContextOutput("SessionStart", SESSION_START)),
 
-    Stop: async ({ deps, hookInput }) => {
-      const { lines, records } = await deps.readTranscript();
-      const context = stopReviewContext({
-        lastAssistantMessage: hookInput.last_assistant_message,
-        lines,
-        records,
-        transcriptPath: hookInput.transcript_path,
-      });
-      if (context === null) {
-        return null;
-      }
-      try {
-        return stopOutput(
-          await deps.stopReview(STOP_PROMPT, context),
-          hookInput.stop_hook_active ?? false
-        );
-      } catch {
-        return null;
-      }
-    },
-  };
+  Stop: async ({ deps, hookInput }) => {
+    const { lines, records } = await deps.readTranscript();
+    const context = stopReviewContext({
+      lastAssistantMessage: hookInput.last_assistant_message,
+      lines,
+      records,
+      transcriptPath: hookInput.transcript_path,
+    });
+    if (context === null) {
+      return null;
+    }
+    try {
+      return stopOutput(
+        await deps.stopReview(STOP_PROMPT, context),
+        hookInput.stop_hook_active ?? false
+      );
+    } catch (error) {
+      console.error(
+        `correctionguy stop review failed: ${error instanceof Error ? error.message : String(error)}`
+      );
+      return null;
+    }
+  },
+};
 
 export const runHook = (
   command: Command,
   hookInput: HookInput,
   cadence: number,
   deps: HookDeps
-): Promise<object | null> => handlers[command]({ cadence, deps, hookInput });
+): Promise<HookOutput | null> =>
+  handlers[command]({ cadence, deps, hookInput });
 
 export interface HookIo {
   argv: readonly string[];

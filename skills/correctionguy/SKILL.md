@@ -13,6 +13,12 @@ Please pause before coding: understand the ask, inspect the code, and make a sho
 
 For any multi-step task, keep a todo list and update it as you go — capture the steps, mark each one in progress when you start it and done the moment you finish, and add new steps as they surface. Use whatever task-tracking tool is set up, and keep it in sync; do not let it drift behind the real state.
 
+## Remember to memory
+
+Symlink your memory directory to `.memory` in the project root so memories live with the repo. If your resolved memory directory differs from that symlink (for example after a folder rename), migrate the memories into `.memory` and relink. Whenever the user corrects you, or you learn something non-obvious about this project, write it to memory at once.
+
+Store `.memory` as an Open Knowledge Format (OKF v0.1) bundle ([spec](https://github.com/GoogleCloudPlatform/knowledge-catalog/tree/main/okf)): one markdown file per fact with YAML frontmatter carrying a required `type` (plus optional `title`, `description`, `tags`, and an ISO 8601 `timestamp`), an `index.md` listing for progressive disclosure, an optional `log.md` history, bundle-relative `/…md` links between related memories, and a `# Citations` section when a memory rests on an external source.
+
 ## Finish the work
 
 Do the requested task. No demo, skeleton, or hidden scope cut. If blocked, say why early.

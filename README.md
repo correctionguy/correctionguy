@@ -10,13 +10,21 @@ Works in **Claude Code** and **Cursor**.
 
 ## What it does
 
-**Live monitor.** Every few completed tool batches, a Codex pass scans the recent transcript for instruction violations, unsupported assumptions, drift, and a todo list that has fallen out of sync on multi-step work. Anything off is surfaced in the session and fed back before the agent continues.
+**Live monitor.** Every few completed tool batches, a Codex pass scans the recent transcript for instruction violations, unsupported assumptions, drift, a todo list that has fallen out of sync on multi-step work, and project memory that is out of sync with what the session learned. Anything off is surfaced in the session and fed back before the agent continues.
 
-**Session prelude.** At session start, the agent is reminded to check memory, restate the task, surface useful tools, verify third-party behavior before editing, keep a todo list current on multi-step work, finish the full work, and run the code.
+**Session prelude.** At session start, the agent is reminded to check memory, restate the task, name the session, link and migrate project memory under `.memory` and record new learnings to it, surface useful tools, verify third-party behavior before editing, keep a todo list current on multi-step work, finish the full work, and run the code.
 
-**Stop check.** When the agent tries to stop, a Codex pass reviews the last response and returns a verdict. A minor issue is surfaced as an advisory message; a serious failure (asking permission instead of delivering, a stub, abandoned work, ignored review feedback, or skipping a required run) blocks the stop and feeds the correction back so work continues.
+**Stop check.** When the agent tries to stop, a Codex pass reviews the last response and returns a verdict. A minor issue is surfaced as an advisory message; a serious failure (asking permission instead of delivering, a stub, abandoned work, ignored review feedback, skipping a required run, or contradicting recorded project memory) blocks the stop and feeds the correction back so work continues.
 
-**On-demand reminder.** A `/correctionguy` command (Cursor) or `/correctionguy:correctionguy` slash command (Claude Code) reminds the agent to understand the task, do the full work, run the code, and ask for candid review.
+**On-demand reminder.** A `/correctionguy` command (Cursor) or `/correctionguy:correctionguy` slash command (Claude Code) reminds the agent to understand the task, keep memory current, do the full work, run the code, and ask for candid review.
+
+## Memory
+
+Correction Guy keeps the agent's memory in a project-local `.memory` folder. The agent symlinks its memory system there so memories live and travel with the repo, and migrates them if a folder rename leaves the resolved directory elsewhere. Whenever the user corrects the agent or it learns something non-obvious, it records the fact to `.memory`.
+
+`.memory` is an [Open Knowledge Format](https://github.com/GoogleCloudPlatform/knowledge-catalog/tree/main/okf) (OKF v0.1) bundle: a directory of markdown files, one **concept** (fact) per file, each with YAML frontmatter whose only required field is `type` — with optional `title`, `description`, `tags`, and an ISO 8601 `timestamp`. An `index.md` lists the bundle for progressive disclosure, an optional `log.md` records history, memories cross-link with bundle-relative `/…md` links, and external sources go under a `# Citations` heading. OKF is a vendor-neutral, plain-markdown knowledge format from Google Cloud — readable by humans, parseable by agents, and diffable in git ([announcement](https://cloud.google.com/blog/products/data-analytics/how-the-open-knowledge-format-can-improve-data-sharing/), [spec](https://github.com/GoogleCloudPlatform/knowledge-catalog/tree/main/okf)).
+
+The live monitor and stop check read `.memory` and flag when the session contradicts a recorded memory or produced a durable learning that was never written down.
 
 ## YOLO mode
 

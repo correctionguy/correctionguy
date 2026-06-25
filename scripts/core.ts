@@ -20,10 +20,16 @@ const TranscriptContent = z.union([
   z.string().transform((text) => [{ text, type: "text" }]),
 ]);
 const TranscriptMessage = z.looseObject({ content: TranscriptContent });
-const TranscriptRecord = z.looseObject({
-  message: TranscriptMessage.optional(),
-  type: z.string(),
-});
+const TranscriptRecord = z
+  .looseObject({
+    message: TranscriptMessage.optional(),
+    role: z.string().optional(),
+    type: z.string().optional(),
+  })
+  .transform((record) => ({
+    ...record,
+    type: record.type ?? record.role ?? "",
+  }));
 export type TranscriptRecord = z.output<typeof TranscriptRecord>;
 
 const TranscriptLine = jsonString(TranscriptRecord);
@@ -97,10 +103,28 @@ export const correctionguyMessage = (message: string) =>
 
 type ContextHookEvent = "SessionStart" | "PostToolBatch";
 
+export interface ContextOutput {
+  hookSpecificOutput: {
+    additionalContext: string;
+    hookEventName: ContextHookEvent;
+  };
+  systemMessage: string;
+}
+export interface StopBlockOutput {
+  decision: "block";
+  reason: string;
+  systemMessage: string;
+}
+export interface ContinueOutput {
+  continue: true;
+  systemMessage: string;
+}
+export type HookOutput = ContextOutput | StopBlockOutput | ContinueOutput;
+
 export const hookContextOutput = (
   hookEventName: ContextHookEvent,
   additionalContext: string
-) => ({
+): ContextOutput => ({
   hookSpecificOutput: { additionalContext, hookEventName },
   systemMessage: correctionguyMessage(additionalContext),
 });
@@ -114,32 +138,11 @@ export const liveMonitorContext = (input: {
   toolCalls: PostToolBatchToolCall[];
 }): string | null => {
   const { cadence, lines, records, toolCalls } = input;
-  let batchCount = records.filter(
-    (r) =>
-      r.type === "user" &&
-      (r.message?.content ?? []).some(
-        (b) =>
-          typeof b === "object" &&
-          b !== null &&
-          "type" in b &&
-          (b as { type: string }).type === "tool_result"
-      )
+  const batchCount = records.filter(
+    (record) =>
+      record.type === "assistant" &&
+      (record.message?.content ?? []).some((block) => block.type === "tool_use")
   ).length;
-  if (toolCalls.length) {
-    const lastUser = records.findLast((r) => r.type === "user");
-    const flushed = lastUser
-      ? (lastUser.message?.content ?? []).filter(
-          (b) =>
-            typeof b === "object" &&
-            b !== null &&
-            "type" in b &&
-            (b as { type: string }).type === "tool_result"
-        ).length
-      : 0;
-    if (flushed < toolCalls.length) {
-      batchCount += 1;
-    }
-  }
   if (!(batchCount > 0 && cadence > 0 && batchCount % cadence === 0)) {
     return null;
   }
@@ -174,7 +177,7 @@ export const liveMonitorContext = (input: {
     : `${TRUNCATED_PREFIX}\n${serialized.slice(-MAX_CONTEXT_CHARS)}`;
 };
 
-export const liveMonitorOutput = (review: Review) =>
+export const liveMonitorOutput = (review: Review): ContextOutput | null =>
   review.lgtm
     ? null
     : hookContextOutput("PostToolBatch", review.additionalContext);
@@ -266,7 +269,10 @@ export const stopReviewContext = (input: {
   return serialized;
 };
 
-export const stopOutput = (review: StopReview, alreadyBlocked: boolean) => {
+export const stopOutput = (
+  review: StopReview,
+  alreadyBlocked: boolean
+): StopBlockOutput | ContinueOutput | null => {
   if (review.verdict === "ok") {
     return null;
   }
