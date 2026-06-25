@@ -1,0 +1,19 @@
+README.md
+  s_c6afc0610d01be::t_732dfe535521ea 5,9,11,13,15,17-20,22,24,26,31-32,34,36,43,47,49
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.13",
+  "base_commit_sha": "76aa16b99871948aa77dc2191c3eb87084115f72",
+  "prompts": {},
+  "sessions": {
+    "s_c6afc0610d01be": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7d794e3e-047e-4797-acba-d66bff7e5e28",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Sunghyun Cho <hey@cho.sh>"
+    }
+  }
+}
