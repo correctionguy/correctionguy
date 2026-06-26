@@ -1,0 +1,31 @@
+package.json
+  s_9304a235556a15::t_ece4b4d859388d 3
+.claude-plugin/plugin.json
+  s_9304a235556a15::t_9d23ee1baceb5f 3
+.cursor-plugin/plugin.json
+  s_9304a235556a15::t_86d3e0ceea8cd1 4
+skills/correctionguy/SKILL.md
+  s_9304a235556a15::t_d6ae8907958bf9 14
+commands/correctionguy.md
+  s_9304a235556a15::t_b27428a7d228f3 11
+scripts/prompts.ts
+  s_9304a235556a15::t_c0b20bd99115ea 20
+  s_9304a235556a15::t_a9a6bef2ddf49e 2
+  s_9304a235556a15::t_5a2f783561b3e8 40
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.3",
+  "base_commit_sha": "ff9850ca4b443290b13d96d1d99e7d7a7fbc0c6e",
+  "prompts": {},
+  "sessions": {
+    "s_9304a235556a15": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d5f7027b-34ab-48b3-a36d-29efd9f52086",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Sunghyun Cho <hey@cho.sh>"
+    }
+  }
+}
