@@ -1,6 +1,4 @@
-<p align="right" style="width:200px">
-  <img src="images/logo.jpg" alt="Correction Guy" width="500">
-</p>
+<img src="images/logo.jpg" alt="Correction Guy" width="200" align="right">
 
 # Correction Guy
 
