@@ -54,10 +54,6 @@ const ToolResultBlock = z.looseObject({
   tool_use_id: z.string().optional(),
   type: z.literal("tool_result"),
 });
-const AiTitleRecord = z.looseObject({
-  aiTitle: z.string(),
-  type: z.literal("ai-title"),
-});
 const TodoWriteInput = z.looseObject({
   todos: z.array(z.looseObject({ content: z.string(), status: z.string() })),
 });
@@ -87,7 +83,6 @@ export type PostToolBatchToolCall = z.output<typeof PostToolBatchToolCall>;
 export const HookInput = z.object({
   last_assistant_message: z.string().optional(),
   session_id: z.string().optional(),
-  session_title: z.string().optional(),
   stop_hook_active: z.boolean().optional(),
   tool_calls: z.array(PostToolBatchToolCall).optional(),
   transcript_path: z.string(),
@@ -113,7 +108,6 @@ const LiveMonitorContext = z.object({
   current_tool_batch: z.array(PostToolBatchToolCall),
   latest_assistant_message: z.string(),
   recent_transcript: z.string(),
-  session_title: z.string(),
   todos: z.array(TodoItem),
 });
 const StopContext = z.object({
@@ -219,12 +213,11 @@ const currentTodos = (
 
 export const liveMonitorContext = (input: {
   cadence: number;
-  explicitTitle?: string;
   lines: string[];
   records: TranscriptRecord[];
   toolCalls: PostToolBatchToolCall[];
 }): string | null => {
-  const { cadence, explicitTitle, lines, records, toolCalls } = input;
+  const { cadence, lines, records, toolCalls } = input;
   const batchCount = records.filter(
     (record) =>
       record.type === "assistant" &&
@@ -252,24 +245,13 @@ export const liveMonitorContext = (input: {
     }
   }
 
-  let aiTitle = "";
-  for (const record of records.toReversed()) {
-    const titleRecord = AiTitleRecord.safeParse(record);
-    if (titleRecord.success) {
-      ({ aiTitle } = titleRecord.data);
-      break;
-    }
-  }
-
   const todos = currentTodos(records);
-  const sessionTitle = explicitTitle || aiTitle;
   let recentTranscript = takeRight(lines, RECENT_TRANSCRIPT_LINES).join("\n");
   let serialized = JSON.stringify(
     LiveMonitorContext.parse({
       current_tool_batch: toolCalls,
       latest_assistant_message: latestAssistant,
       recent_transcript: recentTranscript,
-      session_title: sessionTitle,
       todos,
     })
   );
@@ -290,7 +272,6 @@ export const liveMonitorContext = (input: {
         current_tool_batch: toolCalls,
         latest_assistant_message: latestAssistant,
         recent_transcript: recentTranscript,
-        session_title: sessionTitle,
         todos,
       })
     );

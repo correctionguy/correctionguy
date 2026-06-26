@@ -25,7 +25,6 @@ interface CursorHookPayload {
   last_assistant_message?: string;
   loop_count?: number;
   session_id?: string;
-  session_title?: string;
   tool_input?: unknown;
   tool_name?: string;
   tool_output?: string;
@@ -49,9 +48,6 @@ export const mapCursorInput = (
   const sessionId = payload.session_id ?? payload.conversation_id;
   if (sessionId) {
     hookInput.session_id = sessionId;
-  }
-  if (payload.session_title) {
-    hookInput.session_title = payload.session_title;
   }
 
   if (command === "Stop") {

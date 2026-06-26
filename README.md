@@ -1,6 +1,6 @@
 <img src="images/logo.jpg" alt="Correction Guy" width="200" align="right">
 
-A second pair of eyes for your coding agent. Correction Guy watches from the sidelines and steers the work back on track — it never touches the work itself. Works in **Claude Code** and **Cursor**.
+A second pair of eyes for your coding agent. Correction Guy watches from the sidelines and steers the work back on track — it never touches the work itself. Works in **Claude Code**, **Cursor**, and **Pi**.
 
 An agent grading its own work is the weakest check there is. It is biased toward declaring victory: it papers over stubs, asserts things it never verified, asks permission instead of delivering, and forgets what it just learned. A sharper self-prompt doesn't fix this — the agent is still inside its own story.
 
@@ -21,9 +21,9 @@ Memory belongs with the code it describes. Correction Guy keeps the agent's memo
 
 ## Requirements
 
-- [Bun](https://bun.sh)
+- [Bun](https://bun.sh) — for the Claude Code and Cursor hooks
 - Codex authenticated — run `codex login` once, or set an API key.
-- **Claude Code** or **Cursor**
+- **Claude Code**, **Cursor**, or **Pi**
 
 ## Install
 
@@ -38,6 +38,14 @@ Memory belongs with the code it describes. Correction Guy keeps the agent's memo
 ```
 
 **Cursor** — install from the [Cursor Marketplace](https://cursor.com/marketplace), or [test locally](https://cursor.com/docs/plugins#test-plugins-locally) from a checkout.
+
+**Pi**
+
+```sh
+pi install git:github.com/correctionguy/correctionguy
+```
+
+Or try it for a single run with `pi -e git:github.com/correctionguy/correctionguy`.
 
 ## Configuration
 

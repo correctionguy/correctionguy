@@ -1,7 +1,14 @@
 {
   "name": "correctionguy",
-  "version": "2.3.0",
+  "version": "3.0.0",
   "description": "Agents often drift and waste time on the wrong work. Correction Guy watches from the sidelines and steers them back on track.",
+  "keywords": [
+    "codex",
+    "discipline",
+    "pi-package",
+    "review",
+    "workflow"
+  ],
   "type": "module",
   "scripts": {
     "check": "ultracite check",
@@ -15,11 +22,20 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@earendil-works/pi-coding-agent": "^0.80.2",
     "@types/bun": "latest",
     "oxfmt": "^0.53.0",
     "oxlint": "^1.68.0",
     "oxlint-plugin-eslint": "^1.68.0",
     "typescript": "^6.0.3",
     "ultracite": "7.8.1"
+  },
+  "peerDependencies": {
+    "@earendil-works/pi-coding-agent": "*"
+  },
+  "pi": {
+    "extensions": [
+      "./scripts/pi-extension.ts"
+    ]
   }
 }

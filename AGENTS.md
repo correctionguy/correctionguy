@@ -3,7 +3,6 @@
 Working notes for agents in this repo.
 
 - When asked to surface or "make visible" existing content (e.g. a hook's output), show it verbatim. Do not summarize, reword, shorten, or substitute your own phrasing for text the user did not explicitly ask to change. "Make X visible" changes the delivery channel, not the content.
-- Keep shell commands atomic — one action per call. Chaining with `&&` can mask a failure in an earlier or later step and obscures which command failed.
 - Verify changes with `bun run check`, `bun run typecheck`, and `bun run validate` before committing.
 - Back any claim about third-party library or API behavior with a valid HTTP link — an official docs page, or a GitHub source URL with line anchors (e.g. `#L55-L74`).
 - When you add or change a `package.json` script, run it once before committing. A script that has never been executed is unverified.

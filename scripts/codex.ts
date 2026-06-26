@@ -9,29 +9,34 @@ import { z } from "zod/v4";
 import { Review, StopReview, jsonString } from "./core.ts";
 
 export const cwd =
-  Bun.env.CLAUDE_PROJECT_DIR ?? Bun.env.CURSOR_PROJECT_DIR ?? process.cwd();
+  process.env.CLAUDE_PROJECT_DIR ??
+  process.env.CURSOR_PROJECT_DIR ??
+  process.cwd();
 
-const yolo = z.stringbool().default(false).parse(Bun.env.CORRECTIONGUY_YOLO);
+const yolo = z
+  .stringbool()
+  .default(false)
+  .parse(process.env.CORRECTIONGUY_YOLO);
 
 const serviceTier = z
   .string()
   .default("fast")
-  .parse(Bun.env.CORRECTIONGUY_SERVICE_TIER);
+  .parse(process.env.CORRECTIONGUY_SERVICE_TIER);
 
 const fastMode = z
   .stringbool()
   .default(true)
-  .parse(Bun.env.CORRECTIONGUY_FAST_MODE);
+  .parse(process.env.CORRECTIONGUY_FAST_MODE);
 
 const reviewModel = z
   .string()
   .default("gpt-5.5")
-  .parse(Bun.env.CORRECTIONGUY_MODEL);
+  .parse(process.env.CORRECTIONGUY_MODEL);
 
 const reviewEffort = z
   .enum(["minimal", "low", "medium", "high", "xhigh"])
   .default("xhigh")
-  .parse(Bun.env.CORRECTIONGUY_MODEL_REASONING_EFFORT);
+  .parse(process.env.CORRECTIONGUY_MODEL_REASONING_EFFORT);
 
 const threadOptions = (
   model: string,
