@@ -1,0 +1,14 @@
+README.md
+  h_ad54589be7f3b4 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.3",
+  "base_commit_sha": "ed9a12d6c1cc7f612ab0fe1836dd4d170e4b76e3",
+  "prompts": {},
+  "humans": {
+    "h_ad54589be7f3b4": {
+      "author": "Sunghyun Cho <hey@cho.sh>"
+    }
+  }
+}
