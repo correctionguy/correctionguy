@@ -1,0 +1,64 @@
+scripts/pi-adapter.ts
+  s_5f2fac84950708::t_088c6f65a54e71 16-23
+  s_5f2fac84950708::t_6c6526c3042b14 59,61,69
+  s_5f2fac84950708::t_c1264eea4dee47 1-4
+  s_5f2fac84950708::t_36d80743375092 5,12-15,24-58,60,62-68,70-160
+  s_5f2fac84950708::t_76acdf9c1adf3a 6-11
+README.md
+  s_5f2fac84950708::t_658b917b084447 3
+  s_5f2fac84950708::t_4c55b75ccb00d2 42-49
+  s_5f2fac84950708::t_5903d5a6125382 24,26
+package.json
+  s_5f2fac84950708::t_d4d79706dafb58 25
+  s_5f2fac84950708::t_c1264eea4dee47 5-11,32-39
+  s_5f2fac84950708::t_00e703c3a163ca 3
+scripts/correctionguy.ts
+  s_7f2da9ec829e73::t_5138f8bfad663c 52-53
+.cursor-plugin/plugin.json
+  s_5f2fac84950708::t_fd1766a8632c43 4
+scripts/pi-extension.ts
+  s_5f2fac84950708::t_3d112643e36e8f 59-60
+  s_5f2fac84950708::t_44add97c4360fa 4-5,20
+  s_5f2fac84950708::t_006e3d38a82b0a 1-3,6-19,21-58,61-78,81-117
+  s_5f2fac84950708::t_43b74165a52c38 79-80
+scripts/codex.ts
+  s_5f2fac84950708::t_f5fce8409b30eb 12-14,24,29,34,39
+  s_5f2fac84950708::t_c1264eea4dee47 16-19
+scripts/core.ts
+  s_7f2da9ec829e73::t_bde8e9a3ac06df 220
+scripts/prompts.ts
+  s_7f2da9ec829e73::t_6e0c5b4a095a54 40
+  s_7f2da9ec829e73::t_d1efb8ddb83d4f 2
+  s_7f2da9ec829e73::t_f9072c5ee69ec8 31
+.claude-plugin/plugin.json
+  s_5f2fac84950708::t_bbeb8b65982a8a 3
+scripts/validate.ts
+  s_5f2fac84950708::t_f1e64c34e7fb26 1-4,26-35
+  s_5f2fac84950708::t_e83ef821fa7258 36-37
+bun.lock
+  s_5f2fac84950708::t_317655114c8bca 13,24-77,82-115,132-135,212-249,254-257,260-265,268-269,272-273,280-283,286-289,292-293,300-309,312-327,330-335,338-343,346-347,352-357,360-361,368-371,378-387,392-393,400-405,410-411,414-415,418-419,423-432
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.3",
+  "base_commit_sha": "33324dd98d12b1c05d1cec8d8cd4d960c2b30887",
+  "prompts": {},
+  "sessions": {
+    "s_5f2fac84950708": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "39bc0537-f3c6-499a-8d90-ded0850ec1a1",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Sunghyun Cho <hey@cho.sh>"
+    },
+    "s_7f2da9ec829e73": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "9702eef8-0c56-43d1-9679-8a48648b43af",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Sunghyun Cho <hey@cho.sh>"
+    }
+  }
+}
