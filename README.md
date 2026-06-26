@@ -37,6 +37,9 @@ Memory belongs with the code it describes. Correction Guy keeps the agent's memo
 
 ```sh
 /plugin marketplace add correctionguy/correctionguy
+```
+
+```sh
 /plugin install correctionguy@correctionguy
 ```
 
