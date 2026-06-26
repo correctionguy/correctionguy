@@ -1,8 +1,8 @@
-# Correction Guy
-
-<p align="right" style="width:500px; float:right; margin-left:32px;">
+<p align="right" style="width:200px">
   <img src="images/logo.jpg" alt="Correction Guy" width="500">
 </p>
+
+# Correction Guy
 
 A second pair of eyes for your coding agent. Correction Guy watches from the sidelines and steers the work back on track — it never touches the work itself.
 
