@@ -1,12 +1,6 @@
 <img src="images/logo.jpg" alt="Correction Guy" width="200" align="right">
 
-# Correction Guy
-
-A second pair of eyes for your coding agent. Correction Guy watches from the sidelines and steers the work back on track — it never touches the work itself.
-
-Works in **Claude Code** and **Cursor**.
-
-## Why
+A second pair of eyes for your coding agent. Correction Guy watches from the sidelines and steers the work back on track — it never touches the work itself. Works in **Claude Code** and **Cursor**.
 
 An agent grading its own work is the weakest check there is. It is biased toward declaring victory: it papers over stubs, asserts things it never verified, asks permission instead of delivering, and forgets what it just learned. A sharper self-prompt doesn't fix this — the agent is still inside its own story.
 
