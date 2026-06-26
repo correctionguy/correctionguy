@@ -11,7 +11,7 @@ Stop before code. Understand ask. Inspect code. Make short plan. Your knowledge 
 
 ## Track your work
 
-Multi-step task -> keep todo list, update as you go: grab steps, mark each start when you begin + done the moment you finish, add new as they show. Use whatever task tracker is set up. Keep in sync. Do not let it drift behind real state.
+Multi-step task -> keep todo list, update as you go: grab steps, mark each start when you begin + done the moment you finish, add new as they show. Use whatever task tracker is set up. Keep in sync. Do not let it drift behind real state. User piles on many asks, or keeps adding or repeating requests -> log each as its own todo right away, never just hold them in your head; memory drops asks, a tracked list does not.
 
 ## Remember to memory
 
