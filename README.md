@@ -1,6 +1,8 @@
 # Correction Guy
 
-![Correction Guy](images/logo.jpg)
+<p align="right" style="width:500px; float:right; margin-left:32px;">
+  <img src="images/logo.jpg" alt="Correction Guy" width="500">
+</p>
 
 A second pair of eyes for your coding agent. Correction Guy watches from the sidelines and steers the work back on track — it never touches the work itself.
 
@@ -47,6 +49,6 @@ Memory belongs with the code it describes. Correction Guy keeps the agent's memo
 
 ## Configuration
 
-Everything is tuned through `CORRECTIONGUY_*` environment variables — model, reasoning effort, review cadence, and a `CORRECTIONGUY_YOLO` switch that drops the read-only sandbox for the reviews. Defaults live in `scripts/codex.ts`.
+Everything is tuned through `CORRECTIONGUY_*` environment variables — model, reasoning effort, review cadence, and a `CORRECTIONGUY_YOLO` switch that drops the read-only sandbox for the reviews. Defaults live in `scripts/codex.ts`. You're going to ask an agent to do it, so I'm not going to write it out here 😏
 
 Licensed under [MIT](LICENSE).
