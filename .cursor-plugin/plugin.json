@@ -1,7 +1,7 @@
 {
   "name": "correctionguy",
   "displayName": "Correction Guy",
-  "version": "3.1.0",
+  "version": "3.2.0",
   "description": "Agents often drift and waste time on the wrong work. Correction Guy watches from the sidelines and steers them back on track.",
   "author": {
     "name": "correctionguy"
