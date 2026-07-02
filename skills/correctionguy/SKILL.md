@@ -13,6 +13,10 @@ Stop before code. Understand ask. Inspect code. Make short plan. Your knowledge 
 
 Multi-step task -> keep todo list, update as you go: grab steps, mark each start when you begin + done the moment you finish, add new as they show. Use whatever task tracker is set up. Keep in sync. Do not let it drift behind real state. User piles on many asks, or keeps adding or repeating requests -> log each as its own todo right away, never just hold them in your head; memory drops asks, a tracked list does not.
 
+## Size workflow models
+
+Author dynamic workflow (Workflow tool `agent()` calls or equivalent) -> judge each stage difficulty, set `model` per stage, never let all inherit one tier (Fable > Opus > Sonnet > Haiku). Explore/scan/grep/enumerate -> sonnet or equivalent. Drafting, root-cause one item, mid-weight synthesis -> opus or equivalent. Careful judgment (adversarial verify, judge panel, final synthesis, subtle correctness) -> fable or equivalent. Intelligence needed -> escalate fast, do not hesitate on fable; just do not use fable for every simple job. Cheap on hard verify/judge stage = worse fail than fable on grep.
+
 ## Remember to memory
 
 Keep memory in project-local `.memory` folder so memories live with repo. Real files belong in `.memory`. Your traditional memory dir = symlink into it. Real files still in traditional spot, or a rename moved them? Move into `.memory`, swap old spot for symlink to it. User corrects you, or you learn non-obvious thing about project -> write to `.memory` now.
