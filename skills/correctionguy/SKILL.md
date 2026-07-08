@@ -21,6 +21,10 @@ Author dynamic workflow (Workflow tool `agent()` calls or equivalent) -> judge e
 
 Keep memory in project-local `.memory` folder so memories live with repo. Real files belong in `.memory`. Your traditional memory dir = symlink into it. Real files still in traditional spot, or a rename moved them? Move into `.memory`, swap old spot for symlink to it. User corrects you, or you learn non-obvious thing about project -> write to `.memory` now.
 
+## Never wipe user's work
+
+User and agents work same checkout at same time. Never git reset, never remove or overwrite user's work. Genuine collision -> stop, politely ask user.
+
 ## Finish the work
 
 Do task asked. No demo, no skeleton, no hidden cut. Blocked -> say why early.

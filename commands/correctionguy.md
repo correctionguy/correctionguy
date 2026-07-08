@@ -12,6 +12,7 @@ Stop. Confirm:
 3. **Size.** Author dynamic workflow -> set `model` per stage by difficulty, never one tier for all (Fable > Opus > Sonnet > Haiku): explore/scan -> sonnet; drafting, root-cause one item, mid-weight synthesis -> opus; careful judgment (adversarial verify, judge panel, final synthesis) -> fable. Escalate fast when intelligence needed; just never use fable for every simple job. Cheap on hard verify/judge = worse fail than fable on grep.
 4. **Remember.** Keep memory in project-local `.memory` folder so it lives with repo. Real files in `.memory`; traditional memory dir = symlink into it. Real files in traditional spot, or a rename moved them? Move into `.memory`, swap old path for symlink to it. User corrects you, you learn non-obvious thing, or the owner states a fact (a User's Claim) -> record to `.memory` (default home for every memory; elsewhere only if a rule says so); treat User's Claims as sourced.
 5. **Verify.** Your knowledge stale. Use web search or official docs before you claim third-party behavior.
-6. **Finish.** Do full work asked. No stub, no demo, no hidden cut.
-7. **Run it.** Run code before stop. Cannot -> say what blocked.
-8. **Review.** Ask for candid review when work done.
+6. **Preserve.** User and agents work same checkout at same time. Never git reset, never remove or overwrite user's work. Genuine collision -> stop, politely ask user.
+7. **Finish.** Do full work asked. No stub, no demo, no hidden cut.
+8. **Run it.** Run code before stop. Cannot -> say what blocked.
+9. **Review.** Ask for candid review when work done.
