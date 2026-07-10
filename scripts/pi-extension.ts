@@ -14,7 +14,7 @@ import { SESSION_START } from "./prompts.ts";
 const CUSTOM_TYPE = "correctionguy";
 
 const cadence = MonitorCadence.parse(
-  process.env.CORRECTIONGUY_MONITOR_EVERY_BATCHES ?? 3
+  process.env.CORRECTIONGUY_MONITOR_EVERY_BATCHES ?? 10
 );
 
 export default function correctionguy(pi: ExtensionAPI): void {

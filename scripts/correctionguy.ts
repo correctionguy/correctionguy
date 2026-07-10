@@ -97,7 +97,7 @@ export interface HookIo {
 export const main = async (io: HookIo): Promise<string | null> => {
   const command = Command.parse(io.argv.at(2));
   const hookInput = HookInput.parse(await io.readStdin());
-  const cadence = MonitorCadence.parse(io.cadenceEnv ?? 3);
+  const cadence = MonitorCadence.parse(io.cadenceEnv ?? 10);
   const output = await runHook(command, hookInput, cadence, {
     readTranscript: async () =>
       parseTranscript(await io.readFile(hookInput.transcript_path)),

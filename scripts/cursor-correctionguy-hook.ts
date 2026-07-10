@@ -16,7 +16,7 @@ try {
     command
   );
   const cadence = MonitorCadence.parse(
-    Bun.env.CORRECTIONGUY_MONITOR_EVERY_BATCHES ?? 3
+    Bun.env.CORRECTIONGUY_MONITOR_EVERY_BATCHES ?? 10
   );
 
   const output = await runHook(command, hookInput, cadence, {

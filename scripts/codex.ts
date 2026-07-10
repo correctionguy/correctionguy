@@ -20,17 +20,17 @@ const yolo = z
 
 const serviceTier = z
   .string()
-  .default("fast")
+  .optional()
   .parse(process.env.CORRECTIONGUY_SERVICE_TIER);
 
 const fastMode = z
   .stringbool()
-  .default(true)
+  .default(false)
   .parse(process.env.CORRECTIONGUY_FAST_MODE);
 
 const reviewModel = z
   .string()
-  .default("gpt-5.5")
+  .default("gpt-5.6-terra")
   .parse(process.env.CORRECTIONGUY_MODEL);
 
 const reviewEffort = z
@@ -58,7 +58,10 @@ const threadOptions = (
 
 const newCodex = () =>
   new Codex({
-    config: { features: { fast_mode: fastMode }, service_tier: serviceTier },
+    config: {
+      features: { fast_mode: fastMode },
+      ...(serviceTier === undefined ? {} : { service_tier: serviceTier }),
+    },
   });
 
 const REVIEW_TIMEOUT_MS = 120_000;
