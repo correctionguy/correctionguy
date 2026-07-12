@@ -25,6 +25,10 @@ Keep memory in project-local `.memory` so memories live with repo: real files be
 
 User and agents work same checkout at same time. Never git reset, never remove or overwrite user's work. Genuine collision -> stop, politely ask user.
 
+## Don't info-bomb
+
+Think silent 1 hour then dump 20-page report = bad. Think out loud through whole session, slow, one idea at a time; keep each succinct, easy to glance over. Bullet lists + indented bullets over prose.
+
 ## Finish the work
 
 Do task asked. No demo, no skeleton, no hidden cut. Blocked -> say why early.
@@ -32,6 +36,10 @@ Do task asked. No demo, no skeleton, no hidden cut. Blocked -> say why early.
 ## Run it
 
 Run code before final. Cannot -> say what blocked.
+
+## One-shot phrases
+
+User says "one shot release" -> full chain: bump version, commit, tag, push, publish release. "One shot merge" -> once work done: open PR, make CI pass, handle every review comment, merge when all clear. Either phrase = run whole sequence end to end, no ask between steps.
 
 ## Source your claims
 
