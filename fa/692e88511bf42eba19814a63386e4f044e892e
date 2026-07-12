@@ -1,0 +1,38 @@
+AGENTS.md
+  s_35283021ef5d77::t_e608fe2b2bbef4 29
+  s_35283021ef5d77::t_d283b45c7710f7 12-18
+.cursor-plugin/plugin.json
+  s_35283021ef5d77::t_dfeb664faad858 4
+commands/correctionguy.md
+  s_35283021ef5d77::t_c253c075c3d085 16-18
+  s_35283021ef5d77::t_6a722aa4fbd422 19-20
+package.json
+  s_35283021ef5d77::t_abd47aaaa1aec9 3
+scripts/prompts.ts
+  s_35283021ef5d77::t_257d6f816d9014 44
+  s_35283021ef5d77::t_1ba56b3022fb5b 2
+  s_35283021ef5d77::t_0dadfe778b7368 14
+  s_35283021ef5d77::t_8164118c15cc73 20
+skills/correctionguy/SKILL.md
+  s_35283021ef5d77::t_bc06424556ed8c 40-43
+  s_35283021ef5d77::t_4bac50c9473bdb 28-29,31
+  s_35283021ef5d77::t_3b377eb638117d 30
+.claude-plugin/plugin.json
+  s_35283021ef5d77::t_a75984614d82d7 3
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.12",
+  "base_commit_sha": "fa692e88511bf42eba19814a63386e4f044e892e",
+  "prompts": {},
+  "sessions": {
+    "s_35283021ef5d77": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "9a086ff1-6652-4853-9817-9102753b807d",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Sunghyun Cho <hey@cho.sh>"
+    }
+  }
+}
