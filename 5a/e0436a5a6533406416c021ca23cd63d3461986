@@ -1,0 +1,22 @@
+AGENTS.md
+  s_39ed49f0e227ee::t_a63239e3f64497 101
+  s_39ed49f0e227ee::t_2432395d795d21 93
+  s_39ed49f0e227ee::t_6a314d4cda5da4 92
+  s_39ed49f0e227ee::t_b4fc1d72e04187 63
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.12",
+  "base_commit_sha": "5ae0436a5a6533406416c021ca23cd63d3461986",
+  "prompts": {},
+  "sessions": {
+    "s_39ed49f0e227ee": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "04666ac9-e1db-46b4-afc5-e985f2b747d8",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Sunghyun Cho <hey@cho.sh>"
+    }
+  }
+}
