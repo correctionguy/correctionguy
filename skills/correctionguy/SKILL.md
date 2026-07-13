@@ -19,7 +19,7 @@ Author dynamic workflow (Workflow tool `agent()` calls or equiv) -> judge each s
 
 ## Remember to memory
 
-Keep memory in project-local `.memory` so memories live with repo: real files belong there, traditional memory dir = symlink into it. Real files still in traditional spot, or rename moved them? Move into `.memory`, swap old spot for symlink to it. User corrects you, or you learn non-obvious thing about project -> write to `.memory` now.
+Keep memory in project-local `.memory` so memories live with repo: real files there, traditional memory dir = symlink into it. `.memory` missing or layout wrong (incl after rename) -> run correctionguy:setup skill (host lacks it -> move files into `.memory`, symlink old path to it). User corrects you, or you learn non-obvious thing about project -> write to `.memory` now.
 
 ## Never wipe user's work
 
