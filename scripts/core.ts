@@ -201,9 +201,10 @@ const currentTodos = (
             : ((part as { text?: string }).text ?? "")
         )
         .join("");
-      const match = /Task #(\d+) created successfully: (.+)/u.exec(text);
-      if (match) {
-        const [, taskId, subject] = match;
+      const match =
+        /Task #(?<taskId>\d+) created successfully: (?<subject>.+)/u.exec(text);
+      if (match?.groups) {
+        const { subject, taskId } = match.groups;
         tasks.set(taskId, { content: subject, status: "pending" });
       }
     }

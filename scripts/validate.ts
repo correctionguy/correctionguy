@@ -8,20 +8,15 @@ const manifests = [
   ".cursor-plugin/marketplace.json",
 ] as const;
 
-let failed = false;
+const procs = manifests.map((manifest) =>
+  Bun.spawn(["claude", "plugin", "validate", manifest, "--strict"], {
+    stderr: "inherit",
+    stdout: "inherit",
+  })
+);
+const codes = await Promise.all(procs.map((proc) => proc.exited));
 
-for (const manifest of manifests) {
-  const proc = Bun.spawn(
-    ["claude", "plugin", "validate", manifest, "--strict"],
-    {
-      stderr: "inherit",
-      stdout: "inherit",
-    }
-  );
-  if ((await proc.exited) !== 0) {
-    failed = true;
-  }
-}
+let failed = codes.some((code) => code !== 0);
 
 const { pi } = z
   .object({ pi: z.object({ extensions: z.array(z.string()) }).optional() })

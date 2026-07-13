@@ -1,3 +1,1 @@
-import core from "ultracite/oxfmt";
-
-export default core;
+export { default } from "ultracite/oxfmt";
