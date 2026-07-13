@@ -1,0 +1,46 @@
+README.md
+  s_997dc5f557c8d2::t_365cf4e1f94e2f 15
+.claude-plugin/plugin.json
+  s_997dc5f557c8d2::t_4ab7025cf6fa64 3
+.cursor-plugin/plugin.json
+  s_997dc5f557c8d2::t_e2b9d4d6521a1c 4
+scripts/prompts.ts
+  s_997dc5f557c8d2::t_d9a9a539694bfc 2
+  s_997dc5f557c8d2::t_2f9c819e7dbaa3 20
+package.json
+  s_997dc5f557c8d2::t_8fb2135696876b 3
+AGENTS.md
+  s_997dc5f557c8d2::t_cccffe93f36f1a 54
+  s_997dc5f557c8d2::t_3cfb19d2bd09da 55
+skills/correctionguy/SKILL.md
+  s_997dc5f557c8d2::t_c924925c39d154 22
+commands/correctionguy.md
+  s_997dc5f557c8d2::t_60e72198a3507e 13
+skills/setup/SKILL.md
+  s_997dc5f557c8d2::t_2a51489b9889b7 74-78
+  s_997dc5f557c8d2::t_629622967dc454 46
+  s_997dc5f557c8d2::t_972200f358af4f 57-58
+  s_997dc5f557c8d2::t_d25c7fc1282344 47-48
+  s_997dc5f557c8d2::t_10cb4cd7f5077a 1-12,14-21,26,28,30,32,34,43,49-54,56,59-73
+  s_997dc5f557c8d2::t_22c671abc9ae81 29,33,35-42,44-45,55
+  s_997dc5f557c8d2::t_b103b04b9c7364 79
+  s_997dc5f557c8d2::t_a46a35afb623a2 13,22-24,27
+  s_997dc5f557c8d2::t_73fb08e16edf08 31
+  s_997dc5f557c8d2::t_e3d9ecc9687868 25
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.12",
+  "base_commit_sha": "9e0420c85cb7417c8109338609c05594abad3469",
+  "prompts": {},
+  "sessions": {
+    "s_997dc5f557c8d2": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "c47d9499-5cb0-4442-afa8-e3398fa0001b",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Sunghyun Cho <hey@cho.sh>"
+    }
+  }
+}
