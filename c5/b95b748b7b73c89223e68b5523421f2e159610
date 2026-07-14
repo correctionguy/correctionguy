@@ -1,0 +1,31 @@
+commands/correctionguy.md
+  s_104d5de34fafaf::t_64a00baccca02b 19
+skills/correctionguy/SKILL.md
+  s_104d5de34fafaf::t_6817e67486f93f 40,42
+.claude-plugin/plugin.json
+  s_104d5de34fafaf::t_c14bf20892f698 3
+AGENTS.md
+  s_104d5de34fafaf::t_789171bbf3e4d9 14,16-18
+.cursor-plugin/plugin.json
+  s_104d5de34fafaf::t_c14bf20892f698 4
+package.json
+  s_104d5de34fafaf::t_c14bf20892f698 3
+scripts/prompts.ts
+  s_104d5de34fafaf::t_d1f35ff7ea077d 2
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.13",
+  "base_commit_sha": "c5b95b748b7b73c89223e68b5523421f2e159610",
+  "prompts": {},
+  "sessions": {
+    "s_104d5de34fafaf": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "3772f982-a115-4849-b8a9-9f3602b7e968",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Sunghyun Cho <hey@cho.sh>"
+    }
+  }
+}
