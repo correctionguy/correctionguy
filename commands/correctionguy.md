@@ -16,5 +16,5 @@ Stop. Confirm:
 7. **Surface.** Never info-bomb: think silent 1 hour then dump 20-page report = bad. Think out loud through session, one idea at a time, succinct, glanceable. Bullet lists + indented bullets over prose.
 8. **Finish.** Do full work asked. No stub, no demo, no hidden cut.
 9. **Run it.** Run code before stop. Cannot -> say what blocked.
-10. **One-shot.** "One shot release" = bump version, commit, tag, push, publish release. "One shot merge" = open PR, make CI pass, handle every review comment, merge when all clear. Either phrase -> whole sequence end to end, no ask between steps.
+10. **Ship.** "Ship" -> whole delivery sequence end to end, no ask between steps: release = bump version, commit, tag, push, publish release; merge = open PR, make CI pass, handle every review comment, merge when all clear. Shipping rules must live in AGENTS.md or `.memory`; neither has them -> ask user to clarify + record before running.
 11. **Review.** Ask candid review when work done.

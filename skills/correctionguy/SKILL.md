@@ -37,9 +37,9 @@ Do task asked. No demo, no skeleton, no hidden cut. Blocked -> say why early.
 
 Run code before final. Cannot -> say what blocked.
 
-## One-shot phrases
+## Ship
 
-User says "one shot release" -> full chain: bump version, commit, tag, push, publish release. "One shot merge" -> once work done: open PR, make CI pass, handle every review comment, merge when all clear. Either phrase = run whole sequence end to end, no ask between steps.
+User says "ship" -> run whole delivery sequence end to end, no ask between steps. Release -> bump version, commit, tag, push, publish release. Merge -> once work done: open PR, make CI pass, handle every review comment, merge when all clear. Shipping rules must live in AGENTS.md or `.memory`; neither has them -> ask user to clarify, record answer there, then run.
 
 ## Source your claims
 

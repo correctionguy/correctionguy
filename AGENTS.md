@@ -11,10 +11,11 @@ Working notes for agents in this repo.
 
 # Vocabulary
 
-Shorthand the repository owner uses to request whole workflows. When the owner says one of these, run the full sequence without asking step by step, reporting each step's outcome briefly as it lands. Both phrases also live on the injected guidance surfaces (SESSION_START, SKILL.md, command) since 3.6.0.
+Shorthand the repository owner uses to request whole workflows. When the owner says one of these, run the full sequence without asking step by step, reporting each step's outcome briefly as it lands. The vocabulary lives on the injected guidance surfaces (SESSION_START, SKILL.md, command) since 3.6.0; "ship" replaced "one shot release"/"one shot merge" in 3.8.0.
 
-- "One shot release": bump the version (all three manifests in lockstep: `package.json`, `.claude-plugin/plugin.json`, `.cursor-plugin/plugin.json`), commit, create the annotated tag, push, and publish the GitHub release. Full steps under Release Process below. (2026-07-12)
-- "One shot merge": once everything is done, open a PR, make CI pass, handle all review comments, and merge when everything is cleared. (2026-07-12)
+- "Ship" a release: bump the version (all three manifests in lockstep: `package.json`, `.claude-plugin/plugin.json`, `.cursor-plugin/plugin.json`), commit, create the annotated tag, push, and publish the GitHub release. Full steps under Release Process below. (2026-07-12, renamed 2026-07-14)
+- "Ship" a merge: once everything is done, open a PR, make CI pass, handle all review comments, and merge when everything is cleared. Context of the ask picks the sense. (2026-07-12, renamed 2026-07-14)
+- Shipping rules must be stored in AGENTS.md or `.memory`. Told to ship where neither records them -> ask the user for clarification and record the answer before running. (2026-07-14)
 
 # User's Claim
 
