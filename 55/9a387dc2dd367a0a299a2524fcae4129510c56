@@ -1,0 +1,33 @@
+scripts/prompts.ts
+  s_959bfff3b0089a::t_e0c4111e7af008 14
+  s_959bfff3b0089a::t_aebb4bc143b8ce 21
+  s_959bfff3b0089a::t_091f5e65187655 29
+  s_959bfff3b0089a::t_b2bfd5955eba61 20
+  s_959bfff3b0089a::t_8b9aa4f8dabc8c 2
+.cursor-plugin/plugin.json
+  s_959bfff3b0089a::t_0ba7f84bad3ccb 4
+skills/correctionguy/SKILL.md
+  s_959bfff3b0089a::t_0a02a82e95f073 28-31
+commands/correctionguy.md
+  s_959bfff3b0089a::t_0b505dec28d2e1 21
+.claude-plugin/plugin.json
+  s_959bfff3b0089a::t_8df7b175d4718c 3
+package.json
+  s_959bfff3b0089a::t_37ba058be4e3b4 3
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.14",
+  "base_commit_sha": "559a387dc2dd367a0a299a2524fcae4129510c56",
+  "prompts": {},
+  "sessions": {
+    "s_959bfff3b0089a": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7cd25fa7-aa72-4a80-a35f-3d6884336394",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Sunghyun Cho <hey@cho.sh>"
+    }
+  }
+}
