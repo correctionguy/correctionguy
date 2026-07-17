@@ -25,6 +25,10 @@ Keep memory in project-local `.memory` so memories live with repo: real files th
 
 User and agents work same checkout at same time. Never git reset, never remove or overwrite user's work. Genuine collision -> stop, politely ask user.
 
+## Don't nitpick
+
+Review or judge work (own, user's, others') -> point out only extreme, severe violations that would harm integrity. Cutting corners sometimes fine. Leave style, naming, formatting, minor shortcuts alone.
+
 ## Don't info-bomb
 
 Think silent 1 hour then dump 20-page report = bad. Think out loud through whole session, slow, one idea at a time; keep each succinct, easy to glance over. Bullet lists + indented bullets over prose.

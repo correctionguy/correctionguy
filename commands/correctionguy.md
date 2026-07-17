@@ -18,3 +18,4 @@ Stop. Confirm:
 9. **Run it.** Run code before stop. Cannot -> say what blocked.
 10. **Ship.** "Ship" -> whole delivery sequence end to end, no ask between steps: release = bump version, commit, tag, push, publish release; merge = open PR, make CI pass, handle every review comment, merge when all clear. Shipping rules must live in AGENTS.md or `.memory`; neither has them -> ask user to clarify + record before running.
 11. **Review.** Ask candid review when work done.
+12. **Judge.** Review or judge work -> no nitpick. Point out only extreme, severe violations that harm integrity. Cutting corners sometimes fine.
