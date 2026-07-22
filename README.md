@@ -18,7 +18,7 @@ The review prompts, and the corrections that come back, are written in compresse
 
 ## Memory
 
-Memory belongs with the code it describes. Correction Guy keeps the agent's memory in a project-local `.memory` folder, so it lives alongside the work instead of in a global store, and it treats facts you state about the project as sourced — recorded, trusted, and never second-guessed for lacking a citation. The reviewer flags when a session contradicts what is written there, or learns something worth keeping and never writes it down.
+Memory belongs with the code it describes. Correction Guy keeps the agent's memory in a project-local `.memory` folder, so it lives alongside the work instead of in a global store, and it treats facts you state about the project as sourced — recorded, trusted, and never second-guessed for lacking a citation. The folder is git-tracked and travels with the repo, so it holds public knowledge only: treat it like a public Wikipedia page, and keep device, Slack, and environment details out of it. The reviewer flags when a session contradicts what is written there, learns something worth keeping and never writes it down, or records something non-public.
 
 ## Requirements
 

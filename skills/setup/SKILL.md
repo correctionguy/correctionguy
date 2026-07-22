@@ -5,14 +5,15 @@ description: "Set up Correction Guy in a repo: lay out .memory, merge the agent'
 
 # Correction Guy setup
 
-Establishes the memory layout Correction Guy expects, then back-fills `.memory` from every past conversation on this project. Run when `.memory` is missing, the traditional memory dir holds real files or points wrong, or the user asks to set up Correction Guy or re-learn the repo. Idempotent: re-running merges, never duplicates.
+Establishes the memory layout Correction Guy expects, then back-fills `.memory` from every past conversation on this project. Run when `.memory` is missing or still gitignored, the traditional memory dir holds real files or points wrong, or the user asks to set up Correction Guy or re-learn the repo. Idempotent: re-running merges, never duplicates.
 
 ## 1. Lay out `.memory`
 
 - Project root = `git rev-parse --show-toplevel`; not a git repo -> cwd.
 - `<root>/.memory` is itself a symlink (the historical inversion) -> materialize before anything else: note the target, remove the symlink, `mkdir .memory`, copy the target's files — including dotfiles — into it. Never proceed with `.memory` as a symlink; step 2's merge branch would otherwise delete the only copy and loop the links.
 - Create `<root>/.memory/` if missing.
-- `.gitignore` must list `.memory`; add the line if absent. Any file under `.memory` already git-tracked -> `git rm --cached` it. `.memory` is never committed.
+- `.memory` is git-tracked and committed with the repo (owner rule, 2026-07-20; supersedes the earlier gitignore-and-never-commit rule); its files commit with normal work. `.gitignore` lists `.memory` -> the folder was private until now: review every existing `.memory` file against the public bar below and scrub non-public details first, then delete the line so the folder tracks.
+- Because `.memory` is public, it holds public knowledge only: treat it like a public Wikipedia page. Never record device info, Slack info (conversation, user, workspace, or channel details), or environment info (`.env` keys, local machine paths or file listings).
 - `<root>/.memory/MEMORY.md` = index only: one line per memory, `- [Title](file.md) — hook`. Create if missing. Memory content never goes in the index.
 
 ## 2. Symlink the traditional dir into it
@@ -22,7 +23,7 @@ Traditional memory dir = `~/.claude/projects/<slug>/memory`, where slug = projec
 - Already a symlink resolving to `<root>/.memory` -> done.
 - Path absent but `~/.claude/projects/<slug>` exists -> `ln -s <root>/.memory ~/.claude/projects/<slug>/memory`.
 - Symlink elsewhere -> repoint with `ln -sfn` (plain `-sf` follows a symlink-to-dir and drops the new link inside the old target).
-- Real directory -> merge every file including dotfiles into `.memory` (same name on both sides: keep the `.memory` file, fold in any fact the other copy has that it lacks). Its `MEMORY.md`: index-shaped lines merge into the index; freeform memory content -> file each fact as its own `.memory/*.md` with its own index line, never drop it. Then remove the emptied dir and `ln -s <root>/.memory ~/.claude/projects/<slug>/memory`.
+- Real directory -> merge every file including dotfiles into `.memory` (same name on both sides: keep the `.memory` file, fold in any fact the other copy has that it lacks). Its `MEMORY.md`: index-shaped lines merge into the index; freeform memory content -> file each fact as its own `.memory/*.md` with its own index line, never drop it. The public bar from step 1 applies to everything merged in: the traditional dir was written under no such rule, so scrub device, Slack, and environment details on the way in (keep the lesson, drop the non-public specifics). Then remove the emptied dir and `ln -s <root>/.memory ~/.claude/projects/<slug>/memory`.
 - `~/.claude/projects/<slug>` itself missing (Claude Code never ran here) -> skip this step and step 3; step 1 still stands.
 - Verify before moving on: `readlink ~/.claude/projects/<slug>/memory` resolves to `<root>/.memory` and the real files sit there. Traditional path still a real dir (leftover files blocked removal, `ln` nested the link inside) -> fix now.
 
@@ -42,7 +43,7 @@ Return the grade plus pointers to the hot spots (topics, rough position in file)
 
 - File is JSONL, one JSON object per line; skip any line that fails parse. Read user turns and assistant `text` blocks under `message.content[]`; skip tool dumps. Huge file -> extract with `jq`/grep slices, never read the whole raw file.
 - Hunt high-entropy learnings only — lessons a fresh agent could NOT re-derive from the codebase, git history, AGENTS.md, or docs: owner corrections, assumptions that turned out wrong (record the wrong assumption AND the correction), stated preferences, owner-stated project facts (User's Claims), external gotchas (API/CLI/platform behavior learned the hard way).
-- Skip task-local detail, anything readable from the repo, and secrets.
+- Skip task-local detail, anything readable from the repo, secrets, and anything non-public (device info, Slack conversation/user/workspace/channel details, environment info): `.memory` is git-tracked, public-Wikipedia bar.
 - Return per learning: the fact, why it matters, how to apply it, type (`user` | `feedback` | `project` | `reference`), and its date — `user`/`assistant` message lines carry a `timestamp` field (other line types may not); report the latest relevant one so the consolidator can break contradictions.
 
 Hundreds of transcripts -> run miners in waves and pass the consolidator only each wave's learnings, never raw transcript text.
