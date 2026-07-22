@@ -1,0 +1,125 @@
+.memory/no-info-bombing.md
+  s_35283021ef5d77::t_06c38732b78ec2 1-12
+.memory/no-nitpick.md
+  s_959bfff3b0089a::t_2fd8ac074885f3 1-12
+.memory/ship-vocabulary.md
+  s_104d5de34fafaf::t_6bb973eda435b9 1-17
+.memory/MEMORY.md
+  s_ec1f76aab6e516::t_0f9966cca13054 10
+  s_c6afc0610d01be::t_4cc179da7869f7 4
+  s_35283021ef5d77::t_c2e2ef4edc6f68 11
+  s_9304a235556a15::t_4017cfbfa047d8 8
+  s_104d5de34fafaf::t_2a331c2f812bc9 12
+  s_7f2da9ec829e73::t_c748a6a9346feb 3
+  s_9304a235556a15::t_c9b5ace0c54005 2
+  s_d4a8552ebbd682::t_004ea3589a2ba6 13
+  s_959bfff3b0089a::t_a86b9314a67c14 15
+  s_7f2da9ec829e73::t_dcd9158da367b0 6
+  s_997dc5f557c8d2::t_66dec492352f43 14
+  s_9304a235556a15::t_31b82a2af4d008 1
+  s_959bfff3b0089a::t_243084c5c31ffe 5,7,9
+.memory/live-monitor-todos-title-sources.md
+  s_c6afc0610d01be::t_8dede01407960d 14-19
+  s_7f2da9ec829e73::t_5bdb13824d18d2 11
+  s_c6afc0610d01be::t_addf38d508a5f9 3,8,10,12
+  s_c6afc0610d01be::t_d61d35e4fb17ca 1-2,4-7,9
+  s_7f2da9ec829e73::t_8ae0828fd09ecf 13
+.memory/codex-sdk-version-gates-new-models.md
+  s_d4a8552ebbd682::t_0bf292fcc687d7 1-15
+  s_d4a8552ebbd682::t_daf3cc34dd4927 16
+.memory/memories-default-to-dot-memory.md
+  s_c6afc0610d01be::t_60b88ce4fd3573 1-12
+.memory/session-rename-not-programmatic.md
+  s_7f2da9ec829e73::t_aa092701eff0c7 1-15,17-18
+  s_7f2da9ec829e73::t_3bfe55a9a23f13 16
+.memory/memory-files-live-in-repo-dot-memory.md
+  s_9304a235556a15::t_b8ea66066f7933 13-14
+  s_c6afc0610d01be::t_0d97081c131986 1-12
+.memory/user-agents-work-simultaneously.md
+  s_ec1f76aab6e516::t_74f29bc9c49d52 1-12
+.memory/high-entropy-memory-mining.md
+  s_997dc5f557c8d2::t_32bdd6e152b63f 1-12
+.memory/release-process.md
+  s_9304a235556a15::t_f5b6f47b3c17a0 18
+  s_9304a235556a15::t_e2ff05a227d132 1-17,19-21
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.15",
+  "base_commit_sha": "6682422f0f1d00946f96373379376b2cd8b84be7",
+  "prompts": {},
+  "sessions": {
+    "s_104d5de34fafaf": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "3772f982-a115-4849-b8a9-9f3602b7e968",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Sunghyun Cho <hey@cho.sh>"
+    },
+    "s_35283021ef5d77": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "9a086ff1-6652-4853-9817-9102753b807d",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Sunghyun Cho <hey@cho.sh>"
+    },
+    "s_7f2da9ec829e73": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "9702eef8-0c56-43d1-9679-8a48648b43af",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Sunghyun Cho <hey@cho.sh>"
+    },
+    "s_9304a235556a15": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "d5f7027b-34ab-48b3-a36d-29efd9f52086",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Sunghyun Cho <hey@cho.sh>"
+    },
+    "s_959bfff3b0089a": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7cd25fa7-aa72-4a80-a35f-3d6884336394",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Sunghyun Cho <hey@cho.sh>"
+    },
+    "s_997dc5f557c8d2": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "c47d9499-5cb0-4442-afa8-e3398fa0001b",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Sunghyun Cho <hey@cho.sh>"
+    },
+    "s_c6afc0610d01be": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7d794e3e-047e-4797-acba-d66bff7e5e28",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Sunghyun Cho <hey@cho.sh>"
+    },
+    "s_d4a8552ebbd682": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "29cc629c-8290-41ae-b298-9d2e6f4cda18",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Sunghyun Cho <hey@cho.sh>"
+    },
+    "s_ec1f76aab6e516": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "91f0e9a1-c971-4bba-b22a-66472c07b769",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Sunghyun Cho <hey@cho.sh>"
+    }
+  }
+}
