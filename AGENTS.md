@@ -8,6 +8,28 @@ Working notes for agents in this repo.
 - When you add or change a `package.json` script, run it once before committing. A script that has never been executed is unverified.
 - When answering questions about a named CLI command or feature, check the feature-specific documentation before concluding from a broader reference page; `/goal` exists in Claude Code even though it was missed by only reading the slash-command listing. (2026-05-22)
 - Preserve the user's exact question shape when correcting an answer; "does `/goal` exist?" is different from "can Claude set its own active `/goal`?" (2026-05-22)
+- NO HACKS. Hit a wall: stop, fix the underlying flaw robustly, or say honestly that the task can't be done without hacks. "Couldn't complete because the repo lacked X" (with X then fixed properly) is a welcome answer; a workaround that breaks later is not.
+- Do exactly what's asked: no unsolicited code, refactors, or extras. Note follow-up implications in the reply, but implement them only when asked. When the owner proposes an approach but invites improvement, improve it rather than implementing the naive version literally.
+- When the planned approach hits a blocker, a policy issue, or a significant design fork, surface the options and let the owner pick; never unilaterally substitute a different approach.
+- All source edits go through the editor tool (Edit / apply_patch), never scripted Bash edits (`python3`/`sed` loops); mechanical multi-file changes are N individual edits. Revert your own work via the editor, never git.
+- Respect a rejection the first time; never re-run a command or test the user has declined.
+- Never infer API or hook payload shapes from examples: run the real call or a live session, inspect the actual payload, then type from that. When live behavior contradicts published docs, live behavior is authoritative.
+- The dated facts in this file and `.memory` (CLI, SDK, hook internals) go stale monthly; re-verify time-sensitive ones before relying on them. When a live observation contradicts a recorded verification, re-verify against current reality instead of explaining the observation away; the user's observation usually wins.
+- Treat absence of a signal (missing logs, empty output, a hook that silently does nothing) as a strong hint, not proof; pair it with an active behavior test before concluding. When behavior diverges across hosts or machines, check version skew first.
+- No speculative path guessing: locate the real path, dependency, or credential on the machine and use that single location (plus one documented env-var override), never a candidate list of guessed fallbacks.
+- Two or more corrections in one thread -> stop and consolidate the lessons before continuing. When a hook or the user flags a violation, concede plainly and adjust; never argue it was harmless.
+- After every change, report honestly on anything fragile or hacky; raise concerns when something feels wrong.
+- Never use em-dashes or interpuncts: prose, code, prompt strings, release notes, chat replies. Use commas, colons, parentheses, or hyphens; plain natural language with no AI tells. The strings in `scripts/prompts.ts` are model-facing and must not contain em-dashes themselves, and any prompt that generates copy must state the ban. Sole local exception: the `MEMORY.md` index line separator defined in the setup skill.
+- Lead a yes/no question with a direct yes or no; if unsure, say so rather than presenting a guess as fact. Deliver answers directly with no permission-seeking follow-ups; ask clarifying questions as plain prose with a recommended default plus reasoning.
+- Treat subagent reports as leads, not facts; confirm against primary sources before acting on them. Be the orchestrator, not the worker: frame the problem rather than prescribing the solution.
+- Aim optimization passes at architectural decisions and bold re-engineering, not micro-optimizations; judge the codebase as it currently is, without mining git logs for justification.
+- Local dev runs on Bun only (`bun install`, `bun add`, `bun run`, `bun scripts/x.ts`); never npm, npx, or pnpm. Shipped code must still run under Node for Pi, so bun-only APIs (`Bun.env`, `Bun.file`) stay out of `scripts/` (see Hosts and the Pi Extension).
+- Add or upgrade dependencies with `bun add` / `bun update` so versions are current; don't hand-edit `package.json` to add deps. Exception: `@earendil-works/pi-coding-agent` is managed by hand (peerDependency `"*"` plus a devDependencies copy; see Hosts and the Pi Extension).
+- For fast-moving deps (`@openai/codex-sdk`, `@earendil-works/pi-coding-agent`), read the installed version's types and docs in `node_modules` before writing code against them; don't code from memory of an old API, and heed deprecation notices.
+- Verification commands must surface real exit codes: never pipe through `| tail` or append `; true`. Run steps expected to take 10+ minutes in the background from the start with a hard time bound in the command itself (`gtimeout N ...`); keep quick probes in the foreground.
+- Shell commands: atomic, small, readable; no long chained one-liners. On zsh, quote args, avoid readonly variable names (UID/EUID), and use `command <tool>` when an interactive alias could interfere.
+- Drive interactive CLIs from non-TTY shells inside tmux (capture-pane / send-keys), not by piping newlines.
+- Research order: configured MCPs first, context7 for framework and library docs, then web search (Exa/Parallel.ai); treat their quotas as infinite. Request OAuth directly when needed.
 
 # Vocabulary
 
@@ -102,3 +124,50 @@ Live tests that session: appending `{"type":"custom-title","customTitle":...,"se
 Consequence for this repo: the prompts carry NO title/`session_title`/`/rename` mention. Never instruct the model to rename and never flag it for not renaming (it has no mechanism). The `session_title` plumbing was removed 2026-06-26 from `scripts/core.ts`, `correctionguy.ts`, `cursor-adapter.ts`, both hook entry points, and `pi-extension.ts`; the monitor no longer computes or sees any session title. For live per-tab visibility the only lever is an OSC terminal-title hook (sets the tab title, not the `/resume` name).
 
 Sources: open feature requests https://github.com/anthropics/claude-code/issues/25045 , /29355 , /33165 ; https://github.com/jkgeekJack/cc-session-title ; https://github.com/dxrayhq/claude-session-labels ; CC 2.1.193 behavior, verified against the binary and live tests (the `CLAUDE_CODE_DISABLE_TERMINAL_TITLE` env var).
+
+# Safeguards
+
+- No `rm -rf`, no `git clean -fdx`, no forced deletes; use `trash` (reversible). Avoid deleting files at all; when a deletion is genuinely unavoidable, ask the user to remove it. The one exception: temporary artifacts this session created may be trashed. "The contents were reconstructible" is not a defense.
+- Stop processes by PID, never `pkill -f` a pattern that could match your own shell. Never kill a running Claude Code, Cursor, or Pi process to free a port or resource; hook logic is validated in the owner's live sessions and killing one destroys their state. Never disturb the user's running sessions or reset live state without asking.
+- Never read, edit, or print `.env` files or credential stores (`~/.codex/auth.json` and friends). Check presence with `Boolean(process.env.X)` only; never print values and never fill in dummy values. To set a secret, pipe it straight to the provider and report key names plus status only.
+- Never dump full JSON responses that may contain secrets; allowlist the fields you need. Hook code logs caught Codex errors to stderr, so scrub outbound request headers from provider HTTP errors before they reach logs, and treat any key visible in an error payload as exposed.
+- A feature request is not permission to spend: ask before any run that meters quota or sends real API requests; free read-only probes are fine. Sanctioned exception: `bun run test` round-trips a real Codex review and runs on every pre-commit by design; that spend is pre-approved.
+- Guard self-referential file operations (copying onto a symlink target you are reading from, like the `.memory` link or the plugin cache); make destructive or state-mutating commands idempotent.
+
+# Code Style
+
+- Fail fast and visibly inside script logic: invalid input throws, no `??` fallbacks masking bad data, no double validation (trust the library), no defensive layers. The hook entry points are the one sanctioned catch boundary: they log to stderr and exit 0 so a plugin failure never breaks the host session.
+- Degrade legibly, never falsely: a source a host does not expose degrades to empty or unknown, never to a fabricated value, and a failed check must never read as a pass.
+- Code is a liability; every line is maintenance. Delete and simplify first, and build the simplest version that works; for each addition ask whether it is needed now, deletable, and solving a real problem.
+- Write modern, canonical-library-first code on the first pass: before coding in a domain new to the repo, enumerate the current canonical libraries and build on them. Hand-rolled tree-walkers, text-extractors, and finders are automatic rewrite triggers.
+- Write lint-clean modern TS from the start: `for...of` / `.entries()`, destructuring, lookup tables over nested ternaries, async/await only (no `.then` chains, no `forEach`). Run `bun run check` on each new file as it lands, not in one sweep at the end; code that needs a big fix sweep afterward is itself the smell.
+- No new regex. Validate strings structurally: `startsWith`/`endsWith`, split on delimiters, zod format validators, or a real parser. Pre-existing regexes stay (don't churn them); a regex mirroring an external contract exactly is the one exception.
+- Name function inputs with an object, not positional params; keep lists explicit; no terse throwaway destructuring or magic string slicing.
+- When renaming a feature or a vocabulary term, rename the full surface (prompts, SKILL.md, command, docs, release notes, this file), not just one occurrence; the 3.8.0 "ship" rename is the template.
+- Hooks fire on every batch and setup re-runs: design periodic or repeatable operations to be greedy, idempotent, and convergent.
+- Don't mutate code shape just to appease the formatter or a lint rule; if an opaque `ultracite`/`oxfmt` diff persists, surface it to the owner.
+
+# TypeScript
+
+- Never use `typeof` or `as` for runtime narrowing; every runtime narrow (hook payloads, transcript records, unknown errors, env) goes through `z.object(...).safeParse(x)`. Type-position `typeof` (`ReturnType<typeof f>`) is a different feature and stays; convert `typeof` narrows to zod when touching that code.
+- No `as` casts (only `import * as` and `as const`); never cast to `any` to silence a type error; fix the type at the source.
+- Model data as a zod schema and derive the type with `z.infer` instead of standalone `interface`/`type` declarations; prefer types exported by the Codex SDK and Pi over redefined interfaces.
+- Keep type-only imports `import type` (erased at runtime, no runtime dependency); that discipline is what keeps `@earendil-works/pi-coding-agent` out of the runtime deps.
+- A missing field maps to null or undefined, never `''`/`0`/`false`; never hardcode values in transforms. Prefer zod-parsed access over long optional chains.
+- Read env through one zod-validated module over `process.env` (never `Bun.env`; Pi loads under Node). Every `CORRECTIONGUY_*` var is optional: it parses to undefined and its feature degrades at the use site. The plugin must never crash at load over env, and never assign `process.env.FOO = ...` to paper over a missing var.
+
+# Git
+
+- Commit only your own hunks: extract your part of a co-edited file with `git apply --cached`, never stage the whole file (whole-file add is fine only for files this session created). Inspect `git status` and `git diff --cached` untruncated immediately before committing; never trust a minutes-old diff.
+- Never force-push, never amend a pushed commit. On any concurrent-commit signal (rejected push, unexpected remote sha, staged hunks you don't recognize), stop and ask; `--force-with-lease` after a fetch provides no protection.
+- Never route around the lefthook pre-commit gate (`--no-verify`, `LEFTHOOK=0`) on your own; with no CI, it is the only enforcement, and the smoke test in it is the sole guard against silent Codex SDK breakage. If the gate fails unattended, preserve the work reset-proof (`git stash create` plus a wip ref), record the intended message, and report the blocker.
+- Commit often: small commits for small changes, conventional-commits style with a detailed body and no Co-Authored-By trailer on every commit, not just release commits (Release Process step 3). Commit and push after each verified milestone; don't sit on a finished diff.
+- Never commit temporary artifacts (screenshots, transcript dumps, scratch files); write them to the session scratchpad with absolute paths, and `trash` any that land in the worktree.
+- When a change alters operational semantics (hook behavior, release mechanics, guidance surfaces, the pre-commit gate), update this file or the relevant `.memory` note in the same commit.
+- When work goes through a PR and the owner has not said "ship", open the PR and stop; the owner merges.
+
+# Reviews
+
+- Adversarial reviews run on an unhinted, free-roaming external reviewer: pass only the target scope, never hypotheses, suspected bugs, checklists, exclusions, or concern cues; steering reintroduces the author's blind spots. One fresh reviewer per round; continued context biases it. Known-issue context belongs in the PR description for the owner, never in the reviewer prompt.
+- Never put a score target in a review prompt; specify rubric mechanics only and let the number come from the reviewer. Require cited per-dimension justification and discard uncited reviews. Phrase audit subjects as open questions, not asserted conclusions.
+- When a review was user-initiated, present the findings first and ask before applying fixes; an autonomous goal loop may proceed on its own mandate.
