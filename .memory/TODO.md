@@ -10,4 +10,4 @@ Live task list for sessions where the host exposes no native todo tracker. Keep 
 - [x] AGENTS.md: record as User's Claim + update Live Monitor Data Sources
 - [x] .memory: new memory file + MEMORY.md index line + cross-ref in live-monitor-todos-title-sources
 - [x] Verify: bun run check, typecheck, validate + fresh reviewer on the diff (reviewer caught "both reviewer prompts read on empty todos" misclaim, fixed: stop check has no todos input)
-- [ ] Ship release v3.11.0: bump 3 manifests, commit, push, tag, GitHub release
+- [x] Ship release v3.11.0: bump 3 manifests, commit, push, tag, GitHub release
