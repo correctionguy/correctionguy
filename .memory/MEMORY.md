@@ -1,5 +1,5 @@
 - [Codex read-only sandbox reads whole FS](codex-read-only-sandbox-reads-whole-fs.md) — read-only blocks writes/network, not reads; lets the stop check read the transcript file
-- [Memory files live in repo .memory](memory-files-live-in-repo-dot-memory.md) — real files in repo's .memory; ~/.claude memory dir is a symlink into it, not the reverse; .memory (incl MEMORY.md) must NOT be git-tracked (gitignored)
+- [Memory files live in repo .memory](memory-files-live-in-repo-dot-memory.md) — real files in repo's .memory; ~/.claude memory dir is a symlink into it, not the reverse; .memory (incl MEMORY.md) IS git-tracked since 2026-07-20, public knowledge only
 - [Live monitor todos/title sources](live-monitor-todos-title-sources.md) — todos ARE a hook API (tool_input/tool_response); plugin title handling removed 2026-06-26 (CC title not programmatically settable, see session-rename-not-programmatic); Cursor exposes neither todos nor title
 - [Memories default to .memory](memories-default-to-dot-memory.md) — all memories incl. User's Claims default to .memory (elsewhere only if a rule says so); recorded claims are sourced
 - [Pi extension integration](pi-extension-integration.md) — third host is Pi; codex.ts must use process.env (not Bun.env) since Pi runs under Node/jiti; pi-coding-agent in peerDeps "*"
@@ -13,3 +13,4 @@
 - [Codex SDK version gates new models](codex-sdk-version-gates-new-models.md) — API 400-rejects models newer than the SDK's vendored CLI, silently, and only on realistic payloads (trivial calls pass); smoke test + lefthook guard it; plugin cache needs its own SDK update
 - [High-entropy memory mining](high-entropy-memory-mining.md) — mined memories = corrections, wrong assumptions, non-obvious discoveries only; triage first, sonnet default, escalate fast on high signal; drop repo-derivable facts
 - [No nitpicking](no-nitpick.md) — flag only extreme, severe, integrity-harming violations; cutting corners sometimes fine; on all guidance surfaces since 3.9.0
+- [TODO list fallback to .memory/TODO.md](todo-list-fallback-dot-memory.md) — no native todo tracker in host -> TODO list lives in .memory/TODO.md, same discipline; live monitor reads it when todos empty, stop check when transcript shows no tracker; on all guidance surfaces since 3.11.0

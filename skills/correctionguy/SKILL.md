@@ -11,7 +11,7 @@ Stop before code. Understand ask, inspect code, make short plan. Knowledge stale
 
 ## Track your work
 
-Multi-step task -> keep todo list in the task tracker already set up, updating as you go: grab steps, mark each started when you begin + done the moment you finish, add new as they show. Keep in sync, never drift behind real state. User piles on many asks, or keeps adding/repeating requests -> log each as own todo right away, never just hold in head; memory drops asks, tracked list doesn't.
+Multi-step task -> keep todo list in the task tracker already set up, updating as you go: grab steps, mark each started when you begin + done the moment you finish, add new as they show. Keep in sync, never drift behind real state. Host gives no native tracker -> TODO list lives in `.memory/TODO.md`, same discipline there. User piles on many asks, or keeps adding/repeating requests -> log each as own todo right away, never just hold in head; memory drops asks, tracked list doesn't.
 
 ## Size workflow models
 
