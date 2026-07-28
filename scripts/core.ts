@@ -85,7 +85,7 @@ export const HookInput = z.object({
   session_id: z.string().optional(),
   stop_hook_active: z.boolean().optional(),
   tool_calls: z.array(PostToolBatchToolCall).optional(),
-  transcript_path: z.string(),
+  transcript_path: z.string().optional(),
 });
 export type HookInput = z.output<typeof HookInput>;
 

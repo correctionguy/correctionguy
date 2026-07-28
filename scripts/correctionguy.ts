@@ -99,8 +99,13 @@ export const main = async (io: HookIo): Promise<string | null> => {
   const hookInput = HookInput.parse(await io.readStdin());
   const cadence = MonitorCadence.parse(io.cadenceEnv ?? 10);
   const output = await runHook(command, hookInput, cadence, {
-    readTranscript: async () =>
-      parseTranscript(await io.readFile(hookInput.transcript_path)),
+    readTranscript: async () => {
+      const path = hookInput.transcript_path;
+      if (!path) {
+        throw new Error("transcript_path missing from hook input");
+      }
+      return parseTranscript(await io.readFile(path));
+    },
     review: io.review,
     stopReview: io.stopReview,
   });

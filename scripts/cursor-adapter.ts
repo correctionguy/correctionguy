@@ -1,5 +1,7 @@
-import { HookInput, correctionguyMessage } from "./core.ts";
-import type { Command, HookOutput, PostToolBatchToolCall } from "./core.ts";
+import { z } from "zod/v4";
+
+import { correctionguyMessage, jsonString } from "./core.ts";
+import type { Command, HookInput, HookOutput } from "./core.ts";
 
 const CURSOR_EVENTS = {
   postToolUse: "PostToolBatch",
@@ -19,31 +21,31 @@ export const parseCursorEvent = (value: string): CursorHookEvent => {
 export const toCommand = (event: CursorHookEvent): Command =>
   CURSOR_EVENTS[event];
 
-interface CursorHookPayload {
-  conversation_id?: string;
-  hook_event_name?: string;
-  last_assistant_message?: string;
-  loop_count?: number;
-  session_id?: string;
-  tool_input?: unknown;
-  tool_name?: string;
-  tool_output?: string;
-  tool_use_id?: string;
-  transcript_path?: string | null;
-}
+export const CursorHookPayload = z.looseObject({
+  conversation_id: z.string().optional(),
+  hook_event_name: z.string().optional(),
+  last_assistant_message: z.string().optional(),
+  loop_count: z.number().optional(),
+  session_id: z.string().optional(),
+  tool_input: z.json().optional(),
+  tool_name: z.string().optional(),
+  tool_output: z.string().optional(),
+  tool_use_id: z.string().optional(),
+  transcript_path: z.string().nullish(),
+});
+export type CursorHookPayload = z.output<typeof CursorHookPayload>;
 
 export const mapCursorInput = (
   payload: CursorHookPayload,
   command: Command
 ): HookInput => {
   const transcript_path =
-    payload.transcript_path ?? process.env.CURSOR_TRANSCRIPT_PATH ?? null;
+    payload.transcript_path ?? process.env.CURSOR_TRANSCRIPT_PATH;
 
-  if (!transcript_path) {
-    throw new Error("transcript_path missing from hook input and environment");
+  const hookInput: HookInput = {};
+  if (transcript_path) {
+    hookInput.transcript_path = transcript_path;
   }
-
-  const hookInput: HookInput = { transcript_path };
 
   const sessionId = payload.session_id ?? payload.conversation_id;
   if (sessionId) {
@@ -56,29 +58,22 @@ export const mapCursorInput = (
   }
 
   if (command === "PostToolBatch") {
+    hookInput.tool_calls = [];
     if (payload.tool_name) {
-      let toolResponse: unknown;
-      if (payload.tool_output !== undefined) {
-        try {
-          toolResponse = JSON.parse(payload.tool_output) as unknown;
-        } catch {
-          toolResponse = payload.tool_output;
-        }
-      }
-      hookInput.tool_calls = [
-        {
-          tool_input: payload.tool_input,
-          tool_name: payload.tool_name,
-          tool_response: toolResponse,
-          tool_use_id: payload.tool_use_id,
-        } as PostToolBatchToolCall,
-      ];
-    } else {
-      hookInput.tool_calls = [];
+      const output =
+        payload.tool_output === undefined
+          ? undefined
+          : jsonString(z.json()).safeParse(payload.tool_output);
+      hookInput.tool_calls.push({
+        tool_input: payload.tool_input,
+        tool_name: payload.tool_name,
+        tool_response: output?.success ? output.data : payload.tool_output,
+        tool_use_id: payload.tool_use_id,
+      });
     }
   }
 
-  return HookInput.parse(hookInput);
+  return hookInput;
 };
 
 export const mapCursorOutput = (

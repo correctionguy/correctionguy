@@ -38,7 +38,17 @@ Memory belongs with the code it describes. Correction Guy keeps the agent's memo
 /plugin install correctionguy@correctionguy
 ```
 
-**Cursor** — install from the [Cursor Marketplace](https://cursor.com/marketplace), or [test locally](https://cursor.com/docs/plugins#test-plugins-locally) from a checkout.
+**Cursor**
+
+Cursor never executes plugin-shipped hooks (they appear under Settings but do not run), so install the hooks directly:
+
+```sh
+git clone https://github.com/correctionguy/correctionguy ~/.cursor/correctionguy
+cd ~/.cursor/correctionguy && bun install
+bun scripts/cursor-install.ts
+```
+
+The installer merges Correction Guy's `sessionStart`, `postToolUse`, and `stop` entries into `~/.cursor/hooks.json` with absolute paths and preserves everything else in that file; re-running it always converges. Update later with `git pull` in the same folder. The [Cursor Marketplace](https://cursor.com/marketplace) plugin still provides the commands, and `/cursor-setup` walks the agent through these exact steps.
 
 **Pi**
 

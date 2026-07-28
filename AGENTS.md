@@ -2,7 +2,7 @@
 
 Repo-specific notes only. General working discipline is not repeated here. Background facts live in `.memory/`, indexed by `.memory/MEMORY.md`; load one when its topic comes up.
 
-correctionguy ships one plugin for three hosts: Claude Code, Cursor, and Pi (pi.dev). The Claude and Cursor hooks run as subprocesses; the Pi extension runs in-process. Cursor exposes neither todos nor chat title to hooks, so both degrade to empty.
+correctionguy ships one plugin for three hosts: Claude Code, Cursor, and Pi (pi.dev). The Claude and Cursor hooks run as subprocesses; the Pi extension runs in-process. Cursor exposes neither todos nor chat title to hooks, so both degrade to empty. Cursor never executes plugin-shipped hooks: delivery there is `scripts/cursor-install.ts`, which merges `hooks/cursor-hooks.json` (with `${CURSOR_PLUGIN_ROOT}` replaced by the checkout path) into `~/.cursor/hooks.json`. See `.memory/cursor-plugin-hooks-never-execute.md`.
 
 # Traps
 
@@ -11,6 +11,7 @@ correctionguy ships one plugin for three hosts: Claude Code, Cursor, and Pi (pi.
 - Hook entry points are the one sanctioned catch boundary: they log to stderr and exit 0 so a plugin failure never breaks the host session. Everywhere else, fail fast and visibly.
 - Every `CORRECTIONGUY_*` env var is optional. The plugin must never crash at load over env; a missing var degrades its own feature at the use site.
 - A repo fix does not reach Claude Code users until a release plus a plugin update: the plugin cache (`~/.claude/plugins/cache/correctionguy/correctionguy/<ver>/`) carries its own `node_modules`.
+- Cursor's `sessionStart` payload arrives with `transcript_path: null`, and `stop` never fires in headless `agent -p` runs. The Cursor entry point must keep working without a transcript: the preamble needs none, and the reviews skip quietly when it is absent.
 - Never smoke-test Codex with a trivial call. Trivial calls pass on an SDK whose vendored CLI is too old for the requested model; only realistic-size payloads surface the 400, and hooks swallow the error and exit 0, so breakage looks like the plugin doing nothing. See `.memory/codex-sdk-version-gates-new-models.md`.
 
 # Local rules that override the global ones
