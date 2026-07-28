@@ -13,6 +13,7 @@ Cutting a release for correctionguy (e.g. minor bump 3.0.0 -> 3.1.0):
 4. `git push origin main`.
 5. **Annotated** tag: `git tag -a vX.Y.Z -m "vX.Y.Z — <summary>"`, then `git push origin vX.Y.Z`. Recent tags (v2.3.0, v3.0.0) are annotated; v2.2.0 was lightweight.
 6. GitHub release: `gh release create vX.Y.Z --title "vX.Y.Z" --notes "..."`.
+7. If the release changed user-facing copy, keywords, or Cursor components (hooks/skills/commands): the Cursor surfaces do NOT pick this up on their own. Hand-edit the cursor.directory listing at `cursor.directory/plugins/correctionguy/edit` (owner sign-in; re-scan temporarily delists) and notify Cursor for the official marketplace re-review. See [[cursor-directory-never-resyncs]] and [[cursor-marketplace-manual-review]].
 
 No npm publish — releases are GitHub-only (no `publish`/`prepublish` script, package not marked private). `git push` over HTTPS uses git's smart transfer protocol (https://git-scm.com/docs/http-protocol), a separate transport from the REST API, so GitHub's REST rate limit (5,000 req/hr for authenticated users — https://docs.github.com/en/rest/using-the-rest-api/rate-limits-for-the-rest-api) only gates `gh release`/`gh api`, not `git push`. In this harness that REST budget is shared across all session tools/agents (per a harness system-reminder).
 
