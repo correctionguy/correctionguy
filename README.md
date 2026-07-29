@@ -48,7 +48,9 @@ cd ~/.cursor/correctionguy && bun install
 bun scripts/cursor-install.ts
 ```
 
-The installer merges Correction Guy's `sessionStart`, `postToolUse`, and `stop` entries into `~/.cursor/hooks.json` with absolute paths and preserves everything else in that file; re-running it always converges. Update later with `git pull` in the same folder. The [Cursor Marketplace](https://cursor.com/marketplace) plugin still provides the commands, and `/cursor-setup` walks the agent through these exact steps.
+The installer merges Correction Guy's `sessionStart`, `preToolUse`, `postToolUse`, and `stop` entries into `~/.cursor/hooks.json` with absolute paths and preserves everything else in that file; re-running it always converges. Update later with `git pull` in the same folder, then re-run the installer so new hook entries land. The [Cursor Marketplace](https://cursor.com/marketplace) plugin still provides the commands, and `/cursor-setup` walks the agent through these exact steps.
+
+Cursor injects hook context where the running generation never reads it, so live-monitor corrections would otherwise sit unread until the next turn. The `preToolUse` hook fixes that: when a review flags the session, Correction Guy holds the very next tool call and delivers the correction through the denial message, which the agent reads immediately. The correction still lands in conversation context as well, so installs that have not re-run the installer keep the older next-turn delivery instead of losing corrections. Note that Cursor launches hooks with a constructed environment, not your shell's, so `CORRECTIONGUY_*` variables exported in your shell do not reach the reviews there; defaults apply.
 
 **Pi**
 

@@ -1,3 +1,6 @@
+import { tmpdir } from "node:os";
+import path from "node:path";
+
 import { z } from "zod/v4";
 
 import { correctionguyMessage, jsonString } from "./core.ts";
@@ -9,20 +12,22 @@ const CURSOR_EVENTS = {
   stop: "Stop",
 } as const satisfies Record<string, Command>;
 
-export type CursorHookEvent = keyof typeof CURSOR_EVENTS;
+export type CursorReviewEvent = keyof typeof CURSOR_EVENTS;
+export type CursorHookEvent = CursorReviewEvent | "preToolUse";
 
 export const parseCursorEvent = (value: string): CursorHookEvent => {
-  if (value in CURSOR_EVENTS) {
+  if (value === "preToolUse" || value in CURSOR_EVENTS) {
     return value as CursorHookEvent;
   }
   throw new Error(`unsupported Cursor hook event: ${value}`);
 };
 
-export const toCommand = (event: CursorHookEvent): Command =>
+export const toCommand = (event: CursorReviewEvent): Command =>
   CURSOR_EVENTS[event];
 
 export const CursorHookPayload = z.looseObject({
   conversation_id: z.string().optional(),
+  generation_id: z.string().optional(),
   hook_event_name: z.string().optional(),
   last_assistant_message: z.string().optional(),
   loop_count: z.number().optional(),
@@ -75,6 +80,26 @@ export const mapCursorInput = (
 
   return hookInput;
 };
+
+export const PendingCorrection = z.object({
+  generation_id: z.string(),
+  message: z.string(),
+});
+export type PendingCorrection = z.output<typeof PendingCorrection>;
+
+export const parsePendingCorrection = jsonString(PendingCorrection);
+
+export const pendingCorrectionPath = (conversationId: string) =>
+  path.join(
+    tmpdir(),
+    `correctionguy-pending-${z.uuid().parse(conversationId)}.json`
+  );
+
+export const steerDenyOutput = (message: string): object => ({
+  agent_message: `${correctionguyMessage(message)}\n\nHeld this tool call only to deliver correction above. Correction wins over held call: correction says stop, ask user, or change course -> do that, drop the call. Held call still right under correction -> re-run it and continue.`,
+  permission: "deny",
+  user_message: correctionguyMessage(message),
+});
 
 export const mapCursorOutput = (
   output: HookOutput | null,

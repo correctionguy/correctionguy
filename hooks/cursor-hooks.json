@@ -6,6 +6,12 @@
         "command": "bun \"${CURSOR_PLUGIN_ROOT}/scripts/cursor-correctionguy-hook.ts\" sessionStart"
       }
     ],
+    "preToolUse": [
+      {
+        "command": "bun \"${CURSOR_PLUGIN_ROOT}/scripts/cursor-correctionguy-hook.ts\" preToolUse",
+        "timeout": 30
+      }
+    ],
     "postToolUse": [
       {
         "command": "bun \"${CURSOR_PLUGIN_ROOT}/scripts/cursor-correctionguy-hook.ts\" postToolUse",

@@ -10,9 +10,11 @@ import {
   stopReviewContext,
 } from "./core.ts";
 import type { HookOutput, Review, StopReview, Transcript } from "./core.ts";
-import { LIVE_MONITOR_PROMPT, SESSION_START, STOP_PROMPT } from "./prompts.ts";
+import { CLAUDE_PROMPTS, SESSION_START } from "./prompts.ts";
+import type { HostPrompts } from "./prompts.ts";
 
 interface HookDeps {
+  prompts: HostPrompts;
   readTranscript: () => Promise<Transcript>;
   review: (prompt: string, context: string) => Promise<Review>;
   stopReview: (prompt: string, context: string) => Promise<StopReview>;
@@ -40,7 +42,9 @@ const handlers: Record<
       return null;
     }
     try {
-      return liveMonitorOutput(await deps.review(LIVE_MONITOR_PROMPT, context));
+      return liveMonitorOutput(
+        await deps.review(deps.prompts.liveMonitor, context)
+      );
     } catch (error) {
       console.error(
         `correctionguy live-monitor review failed: ${error instanceof Error ? error.message : String(error)}`
@@ -65,7 +69,7 @@ const handlers: Record<
     }
     try {
       return stopOutput(
-        await deps.stopReview(STOP_PROMPT, context),
+        await deps.stopReview(deps.prompts.stop, context),
         hookInput.stop_hook_active ?? false
       );
     } catch (error) {
@@ -99,6 +103,7 @@ export const main = async (io: HookIo): Promise<string | null> => {
   const hookInput = HookInput.parse(await io.readStdin());
   const cadence = MonitorCadence.parse(io.cadenceEnv ?? 10);
   const output = await runHook(command, hookInput, cadence, {
+    prompts: CLAUDE_PROMPTS,
     readTranscript: async () => {
       const path = hookInput.transcript_path;
       if (!path) {

@@ -2,7 +2,7 @@ import { expect, test } from "bun:test";
 
 import { runStopReview } from "./codex.ts";
 import { StopReview, stopReviewContext, parseTranscript } from "./core.ts";
-import { STOP_PROMPT } from "./prompts.ts";
+import { CLAUDE_PROMPTS } from "./prompts.ts";
 
 const filler =
   "the agent read the file, ran the checks, and reported results ".repeat(13);
@@ -31,6 +31,6 @@ test("stop review round-trips a realistic payload against the configured codex m
   const context = stopReviewContext({ lines, records });
   expect(context).not.toBeNull();
   expect(context?.length).toBeGreaterThan(50_000);
-  const review = await runStopReview(STOP_PROMPT, context ?? "");
+  const review = await runStopReview(CLAUDE_PROMPTS.stop, context ?? "");
   expect(StopReview.parse(review)).toEqual(review);
 }, 150_000);

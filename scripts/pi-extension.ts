@@ -9,7 +9,7 @@ import {
   piBranchToTranscript,
   turnToolCalls,
 } from "./pi-adapter.ts";
-import { SESSION_START } from "./prompts.ts";
+import { PI_PROMPTS, SESSION_START } from "./prompts.ts";
 
 const CUSTOM_TYPE = "correctionguy";
 
@@ -56,6 +56,7 @@ export default function correctionguy(pi: ExtensionAPI): void {
       transcript_path: ctx.sessionManager.getSessionFile() ?? "",
     };
     const output = await runHook("PostToolBatch", hookInput, cadence, {
+      prompts: PI_PROMPTS,
       readTranscript: () =>
         Promise.resolve(piBranchToTranscript(ctx.sessionManager.getBranch())),
       review: runReview,
@@ -76,6 +77,7 @@ export default function correctionguy(pi: ExtensionAPI): void {
       transcript_path: ctx.sessionManager.getSessionFile() ?? "",
     };
     const output = await runHook("Stop", hookInput, cadence, {
+      prompts: PI_PROMPTS,
       readTranscript: () =>
         Promise.resolve(piBranchToTranscript(ctx.sessionManager.getBranch())),
       review: runReview,
