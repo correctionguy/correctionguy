@@ -34,3 +34,13 @@ Keep in sync: the prompt content in `scripts/prompts.ts` (SESSION_START plus the
 # Releasing
 
 Bump the version in all three manifests in lockstep (`package.json`, `.claude-plugin/plugin.json`, `.cursor-plugin/plugin.json`); it is easy to miss two. Releases are GitHub-only, with no npm publish. Full steps in `.memory/release-process.md`.
+
+## Cursor Cloud specific instructions
+
+This is a plugin, not a service: there is nothing to serve. The "app" is the hook entry points that run under a host. To exercise them without a host, pipe a JSON payload on stdin, e.g. `echo '{"conversation_id":"11111111-1111-1111-1111-111111111111"}' | bun scripts/cursor-correctionguy-hook.ts sessionStart` prints the session preamble. The Claude entry point is `bun scripts/correctionguy-hook.ts SessionStart` (its `HookInput` rejects `transcript_path: null`; omit the key instead of passing null). Verification commands live in `package.json`/`lefthook.yml`.
+
+- Install with `bun install --ignore-scripts` (the update script does this). A plain `bun install` fails: the `prepare` step runs `lefthook install`, which errors because Cursor pins `core.hooksPath` to its own agent-hooks dir. The lefthook pre-commit gate therefore never fires here, so run `bun run check`, `bun run typecheck`, `bun run validate`, and `bun run test` by hand before committing.
+- `bun run check` (oxlint/ultracite) needs Node `>=22.18.0` to load the `.ts` config files. The nvm default (`v22.22.2`) satisfies this in a login shell, but `/exec-daemon/node` (`v22.14.0`) can shadow it; if the check errors on the config extension, you are on the old Node.
+- `bun run validate` shells out to the `claude` CLI to validate the plugin manifests (no auth needed). It is not a bun dependency; install once with `npm i -g @anthropic-ai/claude-code` if missing.
+- `bun run test` (the codex smoke test) makes a real, metered Codex API call and needs Codex auth. `scripts/codex.ts` builds `new Codex()` with no `apiKey`, so the SDK reads `~/.codex/auth.json`, not the `OPENAI_API_KEY` env var. Even when the `OPENAI_API_KEY` secret is present, authenticate once per VM with `printenv OPENAI_API_KEY | node_modules/@openai/codex-linux-x64/vendor/x86_64-unknown-linux-musl/bin/codex login --with-api-key` (writes `~/.codex/auth.json`). Without it the call 401s "Missing bearer" while the other four `scripts/*.test.ts` cases still pass; those four cover the Cursor steering logic and need no network.
+- The lefthook pre-commit gate runs all four commands including the metered `bun run test`, so **every** `git commit` (even docs-only) fails until Codex is authenticated as above. Do not bypass the gate.
