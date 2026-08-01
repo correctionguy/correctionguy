@@ -5,7 +5,8 @@
 - [Pi extension integration](pi-extension-integration.md) — third host is Pi; codex.ts must use process.env (not Bun.env) since Pi runs under Node/jiti; pi-coding-agent in peerDeps "*"
 - [Session rename not programmatic](session-rename-not-programmatic.md) — CC session NAME unsettable by hook/tool/file (in-memory; /rename or internal ai-title only); a hook CAN set the terminal TAB title via OSC; prompts now carry no title mention
 - [Codex standard tier is absent key](codex-standard-tier-is-absent-key.md) — service_tier has no "standard" value; omit the key for standard tier (correctionguy does since v3.5.0)
-- [Release process](release-process.md) — bump version in 3 manifests in lockstep (package.json + both plugin.json), annotated tag, GitHub-only release (no npm); injected guidance also lives in SKILL.md + command, not just prompts.ts
+- [Release process](release-process.md) — bump version in 3 manifests in lockstep (package.json + both plugin.json), annotated tag, GitHub-only release (no npm); injected guidance also lives in SKILL.md, not just prompts.ts
+- [One on-demand surface is the skill](one-ondemand-surface-skill-not-command.md) — drop `commands/correctionguy.md`; `/correctionguy` is `skills/correctionguy/SKILL.md` only (same-named command+skill collide)
 - [Workflow model sizing per stage](workflow-model-sizing-per-stage.md) — sonnet scans, opus mid-weight, fable judgment/verify; escalate fast, cheap on hard verify = worse failure
 - [User and agents work simultaneously](user-agents-work-simultaneously.md) — never git reset/remove user's work; genuine collision -> stop, politely ask; rule lives on all guidance surfaces
 - [No info-bombing](no-info-bombing.md) — never silent grind then giant dump; think out loud incrementally, succinct glanceable bullets over prose; on all guidance surfaces since 3.6.0, applies to my own replies too

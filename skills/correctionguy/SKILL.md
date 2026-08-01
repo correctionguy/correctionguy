@@ -45,6 +45,10 @@ Run code before final. Cannot -> say what blocked.
 
 User says "ship" -> run whole delivery sequence end to end, no ask between steps. Release -> bump version, commit, tag, push, publish release. Merge -> once work done: open PR, make CI pass, handle every review comment, merge when all clear. Shipping rules must live in AGENTS.md or `.memory`; neither has them -> ask user to clarify, record answer there, then run.
 
+## Ask for review
+
+Work done -> ask for candid review.
+
 ## Source your claims
 
 Back any claim on third-party library or API behavior with valid HTTP link: official docs page, or GitHub source URL with line anchors (`#L55-L74`). Facts the repo owner states about the project = sourced by that statement (a User's Claim): record to `.memory` by default — elsewhere only if a rule says so — and never delete one for lacking a link.

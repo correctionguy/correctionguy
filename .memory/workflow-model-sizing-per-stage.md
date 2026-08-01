@@ -7,7 +7,7 @@ metadata:
   originSessionId: 3f619d58-0ad0-41dd-b30d-cebabd1f8687
 ---
 
-User's Claim (2026-07-02): when authoring dynamic workflows (Workflow tool `agent()` calls), assess each stage's difficulty and set `model` per stage instead of letting everything inherit one tier. Ladder: Fable > Opus > Sonnet > Haiku. This guidance is embedded in the injected preamble (SESSION_START in `scripts/prompts.ts`) and mirrored in SKILL.md + command per [[release-process]].
+User's Claim (2026-07-02): when authoring dynamic workflows (Workflow tool `agent()` calls), assess each stage's difficulty and set `model` per stage instead of letting everything inherit one tier. Ladder: Fable > Opus > Sonnet > Haiku. This guidance is embedded in the injected preamble (SESSION_START in `scripts/prompts.ts`) and mirrored in SKILL.md per [[release-process]].
 
 **Why:** One-size-fits-all wastes either money (fable on greps) or quality (sonnet on judgment calls). The user explicitly wants rapid escalation when intelligence matters — being cheap on a hard verify/judge stage is the worse failure mode.
 
