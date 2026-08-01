@@ -5,7 +5,7 @@ metadata:
   type: feedback
 ---
 
-User-defined shorthand (2026-07-12 as "one shot release"/"one shot merge", renamed to "ship" 2026-07-14), recorded in AGENTS.md Vocabulary and on the injected guidance surfaces (SESSION_START, SKILL.md, command):
+User-defined shorthand (2026-07-12 as "one shot release"/"one shot merge", renamed to "ship" 2026-07-14), recorded in AGENTS.md Vocabulary and on the injected guidance surfaces (SESSION_START, SKILL.md):
 
 - "Ship" a release = bump version, commit, tag, push, release — the full [[release-process]] (3 manifests in lockstep, annotated tag, GitHub-only release).
 - "Ship" a merge = once everything is done: open PR, make CI pass, handle all review comments, merge when everything is cleared.

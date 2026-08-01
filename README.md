@@ -11,7 +11,7 @@ So Correction Guy hands the review to someone else. A different model (Codex, th
 - **Session prelude** — sets expectations up front: restate the task, check memory, keep the to-do list and session title honest, verify third-party behavior, finish the work, run the code.
 - **Live monitor** — every few tool batches, an outside pass catches drift, bad assumptions, stale to-dos, and contradicted memory before they compound.
 - **Stop check** — when the agent tries to stop, the reviewer can block a premature "done" — a stub, abandoned work, ignored feedback, an unrun build — and feed the correction back.
-- **On-demand** — `/correctionguy` restates the discipline whenever you want it.
+- **On-demand** — the `correctionguy` skill (`/correctionguy`) restates the discipline whenever you want it.
 - **Setup** — the `correctionguy:setup` skill lays out `.memory`, folds the agent's native memory in behind a symlink, and fans out subagents across every past session on the repo to mine durable learnings into memory.
 
 The review prompts, and the corrections that come back, are written in compressed "caveman" style to save tokens.
@@ -48,7 +48,7 @@ cd ~/.cursor/correctionguy && bun install
 bun scripts/cursor-install.ts
 ```
 
-The installer merges Correction Guy's `sessionStart`, `preToolUse`, `postToolUse`, and `stop` entries into `~/.cursor/hooks.json` with absolute paths and preserves everything else in that file; re-running it always converges. Update later with `git pull` in the same folder, then re-run the installer so new hook entries land. The [Cursor Marketplace](https://cursor.com/marketplace) plugin still provides the commands, and `/cursor-setup` walks the agent through these exact steps.
+The installer merges Correction Guy's `sessionStart`, `preToolUse`, `postToolUse`, and `stop` entries into `~/.cursor/hooks.json` with absolute paths and preserves everything else in that file; re-running it always converges. Update later with `git pull` in the same folder, then re-run the installer so new hook entries land. The [Cursor Marketplace](https://cursor.com/marketplace) plugin still provides the skills and `/cursor-setup`, which walks the agent through these exact steps.
 
 Cursor injects hook context where the running generation never reads it, so live-monitor corrections would otherwise sit unread until the next turn. The `preToolUse` hook fixes that: when a review flags the session, Correction Guy holds the very next tool call and delivers the correction through the denial message, which the agent reads immediately. The correction still lands in conversation context as well, so installs that have not re-run the installer keep the older next-turn delivery instead of losing corrections. Note that Cursor launches hooks with a constructed environment, not your shell's, so `CORRECTIONGUY_*` variables exported in your shell do not reach the reviews there; defaults apply.
 

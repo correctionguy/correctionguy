@@ -9,4 +9,4 @@ User rule (2026-07-12): do not info-bomb. Thinking for an hour and then dumping 
 
 **Why:** A giant wall after long silence is unreadable and hides the load-bearing points; incremental narration lets the user follow and steer.
 
-**How to apply:** Applies to my own replies in every session with this user, and as of v3.6.0 it is injected guidance on all correctionguy surfaces (SESSION_START, stop check nudge, live monitor flag 11, SKILL.md, command, AGENTS.md) — same rollout pattern as [[user-agents-work-simultaneously]] and [[release-process]].
+**How to apply:** Applies to my own replies in every session with this user, and as of v3.6.0 it is injected guidance on all correctionguy surfaces (SESSION_START, stop check nudge, live monitor flag 11, SKILL.md, AGENTS.md) — same rollout pattern as [[user-agents-work-simultaneously]] and [[release-process]].
