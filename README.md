@@ -12,6 +12,7 @@ So Correction Guy hands the review to someone else. A different model (Codex, th
 - **Live monitor** — every few tool batches, an outside pass catches drift, bad assumptions, stale to-dos, and contradicted memory before they compound.
 - **Stop check** — when the agent tries to stop, the reviewer can block a premature "done" — a stub, abandoned work, ignored feedback, an unrun build — and feed the correction back.
 - **On-demand** — the `correctionguy` skill (`/correctionguy`) restates the discipline whenever you want it.
+- **Actually** — `/correctionguy:actually` is user-triggered when Correction Guy rooted on an old, outdated, or wrong convention: the agent records the override in `.memory` and applies it from then on.
 - **Setup** — the `correctionguy:setup` skill lays out `.memory`, folds the agent's native memory in behind a symlink, and fans out subagents across every past session on the repo to mine durable learnings into memory.
 
 The review prompts, and the corrections that come back, are written in compressed "caveman" style to save tokens.
