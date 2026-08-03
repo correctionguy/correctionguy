@@ -10,6 +10,7 @@
 - [Workflow model sizing per stage](workflow-model-sizing-per-stage.md) — sonnet scans, opus mid-weight, fable judgment/verify; escalate fast, cheap on hard verify = worse failure
 - [User and agents work simultaneously](user-agents-work-simultaneously.md) — never git reset/remove user's work; genuine collision -> stop, politely ask; rule lives on all guidance surfaces
 - [No info-bombing](no-info-bombing.md) — never silent grind then giant dump; think out loud incrementally, succinct glanceable bullets over prose; on all guidance surfaces since 3.6.0, applies to my own replies too
+- [No BS talk](no-bs-talk.md) — flag opaque jargon mush / fake-progress theater; status and answers short, blunt, plain; live monitor flag 12; on all guidance surfaces, applies to my own replies too
 - [Ship vocabulary](ship-vocabulary.md) — "ship" (replaced one-shot release/merge 2026-07-14) = full release (bump+commit+tag+push+release) or merge (PR, CI, comments, merge) sequence, no ask between steps; shipping rules must be in AGENTS.md or .memory, else ask user + record first
 - [Codex SDK version gates new models](codex-sdk-version-gates-new-models.md) — API 400-rejects models newer than the SDK's vendored CLI, silently, and only on realistic payloads (trivial calls pass); smoke test + lefthook guard it; plugin cache needs its own SDK update
 - [High-entropy memory mining](high-entropy-memory-mining.md) — mined memories = corrections, wrong assumptions, non-obvious discoveries only; triage first, sonnet default, escalate fast on high signal; drop repo-derivable facts
