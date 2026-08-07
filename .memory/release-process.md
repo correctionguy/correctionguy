@@ -7,8 +7,8 @@ metadata:
 
 Cutting a release for correctionguy (e.g. minor bump 3.0.0 -> 3.1.0):
 
-1. Bump the version in **all three** manifests in lockstep — easy to miss two of them: `package.json`, `.claude-plugin/plugin.json`, `.cursor-plugin/plugin.json`.
-2. Verify with `bun run check`, `bun run typecheck`, `bun run validate` (validate parses the manifests).
+1. Bump the version in **all four** manifests in lockstep — easy to miss some: root `plugin.json` (Agent Plugins 1.0.0), `package.json`, `.claude-plugin/plugin.json`, `.cursor-plugin/plugin.json`.
+2. Verify with `bun run check`, `bun run typecheck`, `bun run validate` (validate checks the Agent Plugins manifest, skill names, Claude/Cursor marketplace manifests, and version lockstep).
 3. Commit (conventional-commits style, detailed body, **no** Co-Authored-By trailer — repo history has none).
 4. `git push origin main`.
 5. **Annotated** tag: `git tag -a vX.Y.Z -m "vX.Y.Z — <summary>"`, then `git push origin vX.Y.Z`. Recent tags (v2.3.0, v3.0.0) are annotated; v2.2.0 was lightweight.
