@@ -2,7 +2,7 @@
 
 Repo-specific notes only. General working discipline is not repeated here. Background facts live in `.memory/`, indexed by `.memory/MEMORY.md`; load one when its topic comes up.
 
-correctionguy ships one plugin for three hosts: Claude Code, Cursor, and Pi (pi.dev). The Claude and Cursor hooks run as subprocesses; the Pi extension runs in-process. Cursor exposes neither todos nor chat title to hooks, so both degrade to empty. Cursor never executes plugin-shipped hooks: delivery there is `scripts/cursor-install.ts`, which merges `hooks/cursor-hooks.json` (with `${CURSOR_PLUGIN_ROOT}` replaced by the checkout path) into `~/.cursor/hooks.json`. See `.memory/cursor-plugin-hooks-never-execute.md`.
+correctionguy ships one plugin for three hosts: Claude Code, Cursor, and Pi (pi.dev), plus an [Agent Plugins](https://agent-plugins.org/) 1.0.0 portable core (root `plugin.json` + `skills/`) for other compatible clients. The Claude and Cursor hooks run as subprocesses; the Pi extension runs in-process. Cursor exposes neither todos nor chat title to hooks, so both degrade to empty. Cursor never executes plugin-shipped hooks: delivery there is `scripts/cursor-install.ts`, which merges `hooks/cursor-hooks.json` (with `${CURSOR_PLUGIN_ROOT}` replaced by the checkout path) into `~/.cursor/hooks.json`. See `.memory/cursor-plugin-hooks-never-execute.md` and `.memory/agent-plugins-portable-core.md`.
 
 # Traps
 
@@ -33,7 +33,7 @@ Keep in sync: the prompt content in `scripts/prompts.ts` (SESSION_START plus the
 
 # Releasing
 
-Bump the version in all three manifests in lockstep (`package.json`, `.claude-plugin/plugin.json`, `.cursor-plugin/plugin.json`); it is easy to miss two. Releases are GitHub-only, with no npm publish. Full steps in `.memory/release-process.md`.
+Bump the version in all four manifests in lockstep (`plugin.json`, `package.json`, `.claude-plugin/plugin.json`, `.cursor-plugin/plugin.json`); it is easy to miss some. Root `plugin.json` is the Agent Plugins 1.0.0 portable manifest (skills under `skills/`); `.claude-plugin/` and `.cursor-plugin/` stay as host compatibility layers for Claude Code hooks/marketplace and Cursor commands. Releases are GitHub-only, with no npm publish. Full steps in `.memory/release-process.md`.
 
 ## Cursor Cloud specific instructions
 
@@ -41,6 +41,6 @@ This is a plugin, not a service: there is nothing to serve. The "app" is the hoo
 
 - Install with `bun install --ignore-scripts` (the update script does this). A plain `bun install` fails: the `prepare` step runs `lefthook install`, which errors because Cursor pins `core.hooksPath` to its own agent-hooks dir. The lefthook pre-commit gate therefore never fires here, so run `bun run check`, `bun run typecheck`, `bun run validate`, and `bun run test` by hand before committing.
 - `bun run check` (oxlint/ultracite) needs Node `>=22.18.0` to load the `.ts` config files. The nvm default (`v22.22.2`) satisfies this in a login shell, but `/exec-daemon/node` (`v22.14.0`) can shadow it; if the check errors on the config extension, you are on the old Node.
-- `bun run validate` shells out to the `claude` CLI to validate the plugin manifests (no auth needed). It is not a bun dependency; install once with `npm i -g @anthropic-ai/claude-code` if missing.
+- `bun run validate` checks the root Agent Plugins `plugin.json` and skill name lockstep in-process, shells out to the `claude` CLI for the Claude/Cursor marketplace manifests (no auth needed), and asserts all four version fields match. The `claude` CLI is not a bun dependency; install once with `npm i -g @anthropic-ai/claude-code` if missing.
 - `bun run test` (the codex smoke test) makes a real, metered Codex API call and needs Codex auth. `scripts/codex.ts` builds `new Codex()` with no `apiKey`, so the SDK reads `~/.codex/auth.json`, not the `OPENAI_API_KEY` env var. Even when the `OPENAI_API_KEY` secret is present, authenticate once per VM with `printenv OPENAI_API_KEY | node_modules/@openai/codex-linux-x64/vendor/x86_64-unknown-linux-musl/bin/codex login --with-api-key` (writes `~/.codex/auth.json`). Without it the call 401s "Missing bearer" while the other four `scripts/*.test.ts` cases still pass; those four cover the Cursor steering logic and need no network.
 - The lefthook pre-commit gate runs all four commands including the metered `bun run test`, so **every** `git commit` (even docs-only) fails until Codex is authenticated as above. Do not bypass the gate.

@@ -1,6 +1,6 @@
 <img src="images/logo.jpg" alt="Correction Guy" width="200" align="right">
 
-A second pair of eyes for your coding agent. Correction Guy watches from the sidelines and steers the work back on track — it never touches the work itself. Works in **Claude Code**, **Cursor**, and **Pi**.
+A second pair of eyes for your coding agent. Correction Guy watches from the sidelines and steers the work back on track — it never touches the work itself. Packaged as an [Agent Plugins](https://agent-plugins.org/) 1.0.0 plugin (portable skills in `skills/` behind root `plugin.json`) with host adapters for **Claude Code**, **Cursor**, and **Pi**.
 
 An agent grading its own work is the weakest check there is. It is biased toward declaring victory: it papers over stubs, asserts things it never verified, asks permission instead of delivering, and forgets what it just learned. A sharper self-prompt doesn't fix this — the agent is still inside its own story.
 
@@ -28,6 +28,10 @@ Memory belongs with the code it describes. Correction Guy keeps the agent's memo
 - **Claude Code**, **Cursor**, or **Pi**
 
 ## Install
+
+**Agent Plugins clients** (Cursor, ChatGPT/Codex, GitHub Copilot, VS Code, Kiro, and others that load the open format)
+
+Install or clone this repository as a plugin. Compatible clients discover root `plugin.json` and the skills under `skills/`. Host-specific hooks and the Cursor `/cursor-setup` command stay in the Claude/Cursor compatibility layers and are ignored by clients that only load the portable core.
 
 **Claude Code**
 
