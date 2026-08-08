@@ -23,15 +23,34 @@ Memory belongs with the code it describes. Correction Guy keeps the agent's memo
 
 ## Requirements
 
-- [Bun](https://bun.sh) — for the Claude Code and Cursor hooks
-- Codex authenticated — run `codex login` once, or set an API key.
-- **Claude Code**, **Cursor**, or **Pi**
+- An [Agent Plugins](https://agent-plugins.org/) client for the portable skills path (Cursor, ChatGPT/Codex, GitHub Copilot, VS Code, Kiro, and others that load the open format) — or **Claude Code** / **Cursor** / **Pi** for the host adapters below
+- Codex authenticated — run `codex login` once, or set an API key (needed for the live/stop reviewer hooks on Claude Code, Cursor, and Pi)
+- [Bun](https://bun.sh) — only when installing the Claude Code or Cursor hooks
 
 ## Install
 
-**Agent Plugins clients** (Cursor, ChatGPT/Codex, GitHub Copilot, VS Code, Kiro, and others that load the open format)
+### Agent Plugins (recommended)
 
-Install or clone this repository as a plugin. Compatible clients discover root `plugin.json` and the skills under `skills/`. Host-specific hooks and the Cursor `/cursor-setup` command stay in the Claude/Cursor compatibility layers and are ignored by clients that only load the portable core.
+Correction Guy ships as an [Agent Plugins](https://agent-plugins.org/) 1.0.0 package: root `plugin.json` plus portable skills under `skills/`. Any compatible client can load that core the same way.
+
+1. Install or clone this repository as a plugin in your client (marketplace, git URL, or local path — use whatever that client documents).
+2. Confirm the client discovers root `plugin.json` and the skills under `skills/` (`correctionguy`, `setup`, `actually`).
+3. In a project, run the `setup` skill (`/correctionguy:setup` or your client's equivalent) to lay out `.memory`.
+4. Use `/correctionguy` on demand whenever you want the discipline restated; use `/correctionguy:actually` when Correction Guy rooted on a wrong convention.
+
+What you get from the portable core: the on-demand discipline skills and memory setup. Session prelude, live monitor, and stop check are host adapters (below) — clients that only load Agent Plugins ignore those layers.
+
+**Cursor (Agent Plugins path):** clone or symlink into the local plugins directory, then reload:
+
+```sh
+git clone https://github.com/correctionguy/correctionguy ~/.cursor/plugins/local/correctionguy
+```
+
+Or, from a checkout you already have: `ln -s /path/to/correctionguy ~/.cursor/plugins/local/correctionguy`. Restart Cursor or run **Developer: Reload Window**, then open **Customize** and confirm the skills loaded. For marketplace installs, use **Customize → Install** the same way as any other plugin.
+
+### Host adapters (hooks)
+
+Use these when you want the sidecar reviews (session prelude, live monitor, stop check), not only the portable skills.
 
 **Claude Code**
 
@@ -45,7 +64,7 @@ Install or clone this repository as a plugin. Compatible clients discover root `
 
 **Cursor**
 
-Cursor never executes plugin-shipped hooks (they appear under Settings but do not run), so install the hooks directly:
+Cursor never executes plugin-shipped hooks (they appear under Settings but do not run), so install the hooks directly after the Agent Plugins skills are in place (or instead, if you only want the hook path):
 
 ```sh
 git clone https://github.com/correctionguy/correctionguy ~/.cursor/correctionguy
