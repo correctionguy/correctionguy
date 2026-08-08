@@ -31,22 +31,19 @@ Memory belongs with the code it describes. Correction Guy keeps the agent's memo
 
 ### Agent Plugins (recommended)
 
-Correction Guy ships as an [Agent Plugins](https://agent-plugins.org/) 1.0.0 package: root `plugin.json` plus portable skills under `skills/`. Any compatible client can load that core the same way.
-
-1. Install or clone this repository as a plugin in your client (marketplace, git URL, or local path — use whatever that client documents).
-2. Confirm the client discovers root `plugin.json` and the skills under `skills/` (`correctionguy`, `setup`, `actually`).
-3. In a project, run the `setup` skill (`/correctionguy:setup` or your client's equivalent) to lay out `.memory`.
-4. Use `/correctionguy` on demand whenever you want the discipline restated; use `/correctionguy:actually` when Correction Guy rooted on a wrong convention.
-
-What you get from the portable core: the on-demand discipline skills and memory setup. Session prelude, live monitor, and stop check are host adapters (below) — clients that only load Agent Plugins ignore those layers.
-
-**Cursor (Agent Plugins path):** clone or symlink into the local plugins directory, then reload:
+Correction Guy ships as an [Agent Plugins](https://agent-plugins.org/) 1.0.0 package: root `plugin.json` plus portable skills under `skills/`. Install into your agent tools with either:
 
 ```sh
-git clone https://github.com/correctionguy/correctionguy ~/.cursor/plugins/local/correctionguy
+npx plugins add correctionguy/correctionguy
 ```
 
-Or, from a checkout you already have: `ln -s /path/to/correctionguy ~/.cursor/plugins/local/correctionguy`. Restart Cursor or run **Developer: Reload Window**, then open **Customize** and confirm the skills loaded. For marketplace installs, use **Customize → Install** the same way as any other plugin.
+```sh
+bunx plugins add correctionguy/correctionguy
+```
+
+Then in a project, run the `setup` skill (`/correctionguy:setup` or your client's equivalent) to lay out `.memory`. Use `/correctionguy` on demand whenever you want the discipline restated; use `/correctionguy:actually` when Correction Guy rooted on a wrong convention.
+
+What you get from the portable core: the on-demand discipline skills and memory setup. Session prelude, live monitor, and stop check are host adapters (below) — clients that only load Agent Plugins ignore those layers.
 
 ### Host adapters (hooks)
 
