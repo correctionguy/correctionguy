@@ -9,7 +9,7 @@
 - [Agent Plugins portable core](agent-plugins-portable-core.md) — root plugin.json is Agent Plugins 1.0.0; skills/ is portable; .claude-plugin and .cursor-plugin stay as host compatibility layers
 - [One on-demand surface is the skill](one-ondemand-surface-skill-not-command.md) — drop `commands/correctionguy.md`; `/correctionguy` is `skills/correctionguy/SKILL.md` only (same-named command+skill collide)
 - [Actually overrides rooted conventions](correctionguy-actually-overrides-rooted-conventions.md) — `/correctionguy:actually` records that Correction Guy rooted on a wrong convention; feedback memory + apply hereafter
-- [Workflow model sizing per stage](workflow-model-sizing-per-stage.md) — sonnet scans, opus mid-weight, fable judgment/verify; escalate fast, cheap on hard verify = worse failure
+- [Workflow model sizing per stage](workflow-model-sizing-per-stage.md) — fill model on every spawn, never inherit; mix ~16 fast : 4 balance : 1 smart; cheap on hard verify = worse failure
 - [User and agents work simultaneously](user-agents-work-simultaneously.md) — never git reset/remove user's work; genuine collision -> stop, politely ask; rule lives on all guidance surfaces
 - [No info-bombing](no-info-bombing.md) — never silent grind then giant dump; think out loud incrementally, succinct glanceable bullets over prose; on all guidance surfaces since 3.6.0, applies to my own replies too
 - [No BS talk](no-bs-talk.md) — flag opaque jargon mush / fake-progress theater; status and answers short, blunt, plain; live monitor flag 12; on all guidance surfaces since 3.15.0, applies to my own replies too

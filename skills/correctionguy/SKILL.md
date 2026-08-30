@@ -15,7 +15,7 @@ Multi-step task -> keep todo list in the task tracker already set up, updating a
 
 ## Size workflow models
 
-Author dynamic workflow (Workflow tool `agent()` calls or equiv) -> judge each stage's difficulty, set `model` per stage, never let all inherit one tier (Fable > Opus > Sonnet > Haiku). Explore/scan/grep/enumerate -> sonnet or equiv. Drafting, root-cause one item, mid-weight synthesis -> opus or equiv. Careful judgment (adversarial verify, judge panel, final synthesis, subtle correctness) -> fable or equiv. Intelligence needed -> escalate fast, don't hesitate on fable; just don't use it for every simple job. Cheap on hard verify/judge = worse fail than fable on grep.
+Spawn any subagent or workflow (Task, Workflow tool `agent()` calls or equiv) -> fill `model` on every spawn, never omit it, never inherit the parent session default. Judge each spawn's difficulty (fast / balance / smart). Typical mix about 16 fast : 4 balance : 1 smart, not a hard quota: many cheap scouts, fewer mid-weight, rare smart. Claude Code example: 16 sonnet, 4 opus, 1 fable. Explore/scan/grep/enumerate -> fast (sonnet or equiv). Drafting, root-cause one item, mid-weight synthesis -> balance (opus or equiv). Careful judgment (adversarial verify, judge panel, final synthesis, subtle correctness) -> smart (fable or equiv). Intelligence needed -> escalate fast, don't hesitate on smart; just don't use it for every simple job. Cheap on hard verify/judge = worse fail than smart on grep.
 
 ## Remember to memory
 
