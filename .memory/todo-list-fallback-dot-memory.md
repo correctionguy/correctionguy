@@ -1,12 +1,12 @@
 ---
 name: todo-list-fallback-dot-memory
-description: Host has no native todo tracker -> the TODO list lives in .memory/TODO.md, kept current with the same discipline
+description: Host has no native todo tracker -> track the way the repo convention or instructions say; no dedicated TODO.md file
 metadata:
   type: feedback
 ---
 
-Owner rule (2026-07-23): when the host session provides no native todo tracker (no TodoWrite/Task tools exposed, e.g. Cursor hooks), the TODO list lives in `.memory/TODO.md`.
+Owner rule (2026-09-05, replacing the 2026-07-23 rule): when the host session provides no native todo tracker (no TodoWrite/Task tools exposed, e.g. Cursor hooks), the agent tracks work the way the repo convention or instructions (AGENTS.md, `.memory`) say. The plugin no longer mandates a `.memory/TODO.md` file, and the reviewer prompts no longer read one.
 
-**Why:** The tracked-list discipline must survive hosts that expose no todos channel. A file in the repo's `.memory` folder works on every host, and the reviewer prompts can read it to judge drift instead of skipping the check when `todos` comes in empty. See [[memory-files-live-in-repo-dot-memory]].
+**Why:** A plugin-imposed TODO file competed with whatever tracker the repo already uses (issue tracker, task list, instructions). The repo owns its tracking convention; the plugin only asks the agent to follow it. See [[memory-files-live-in-repo-dot-memory]].
 
-**How to apply:** Keep `.memory/TODO.md` current exactly like a native tracker: capture steps up front, mark starts and dones as they happen, add new asks as they arrive. The rule sits on every guidance surface (SESSION_START, STOP_PROMPT nudge, LIVE_MONITOR_PROMPT context note + flag #7, SKILL.md Track section, AGENTS.md); the live monitor reads the file when `todos` is empty, and the stop check (no `todos` input) reads it when the transcript shows no native tracker in use. `.memory` is git-tracked, so the file holds public-safe content only. See [[live-monitor-todos-title-sources]].
+**How to apply:** On every guidance surface (SESSION_START, STOP_PROMPT nudge, LIVE_MONITOR_PROMPT context note + flag #8, SKILL.md Track section): host gives no native tracker -> follow the repo tracking convention with the same discipline. Reviewer side: `todos` empty -> judge only by the tracking convention the repo instructions define; none defined -> skip the todo check. See [[live-monitor-todos-title-sources]] and [[reviewer-focus-assume-verify-drift]].

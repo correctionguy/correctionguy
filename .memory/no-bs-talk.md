@@ -11,4 +11,4 @@ Bad example the owner called out: user asks what's taking so long; agent answers
 
 **Why:** That talk wastes the user's time and pretends progress. A real status names the step or blocker in words a human can parse.
 
-**How to apply:** On all guidance surfaces since v3.15.0 (same rollout as [[no-info-bombing]]): SESSION_START, stop-check nudge, live-monitor flag 12 in `scripts/prompts.ts`, plus `skills/correctionguy/SKILL.md`. Delivery failure, not a style nitpick; no-nitpick bar still applies (clear BS only).
+**How to apply:** On all guidance surfaces since v3.15.0 (same rollout as [[no-info-bombing]]): SESSION_START, stop-check nudge, live-monitor flag 11 in `scripts/prompts.ts`, plus `skills/correctionguy/SKILL.md`. Delivery failure, not a style nitpick; no-nitpick bar still applies (clear BS only).

@@ -7,11 +7,11 @@ description: "Work careful: understand, source claims, run it, ask candid review
 
 ## Understand first
 
-Stop before code. Understand ask, inspect code, make short plan. Knowledge stale -> don't trust memory for APIs, tooling, platform behavior; check third-party via web search or official docs before edit.
+Stop before code. Understand ask, inspect code, make short plan. Never assume: unsure about API, tool, package, or platform behavior -> web search, official docs, or read the installed package files (node_modules source, types, lockfile) before edit; don't trust memory.
 
 ## Track your work
 
-Multi-step task -> keep todo list in the task tracker already set up, updating as you go: grab steps, mark each started when you begin + done the moment you finish, add new as they show. Keep in sync, never drift behind real state. Host gives no native tracker -> TODO list lives in `.memory/TODO.md`, same discipline there. User piles on many asks, or keeps adding/repeating requests -> log each as own todo right away, never just hold in head; memory drops asks, tracked list doesn't.
+Multi-step task -> keep todo list in the task tracker already set up, updating as you go: grab steps, mark each started when you begin + done the moment you finish, add new as they show. Keep in sync, never drift behind real state. Host gives no native tracker -> track the way repo convention or instructions (AGENTS.md, `.memory`) say, same discipline. User piles on many asks, or keeps adding/repeating requests -> log each as own todo right away, never just hold in head; memory drops asks, tracked list doesn't.
 
 ## Size workflow models
 
@@ -23,7 +23,7 @@ Keep memory in project-local `.memory` so memories live with repo: real files th
 
 ## Never wipe user's work
 
-User and agents work same checkout at same time. Never git reset, never remove or overwrite user's work. Genuine collision -> stop, politely ask user.
+User and agents work same checkout at same time. Never git reset, never remove or overwrite user's work. Genuine collision -> stop, politely ask user. Own temp artifacts, scratch, or intermediary files you made -> delete freely, no ask.
 
 ## Don't nitpick
 
@@ -43,7 +43,7 @@ Do task asked. No demo, no skeleton, no hidden cut. Blocked -> say why early.
 
 ## Run it
 
-Run code before final. Cannot -> say what blocked.
+Run code before final. Never say done, fixed, or working on assumption: run it, check output, show proof before claim. Cannot -> say what blocked.
 
 ## Ship
 
