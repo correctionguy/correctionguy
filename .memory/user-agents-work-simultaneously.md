@@ -9,4 +9,4 @@ The user and agents work on the same checkout simultaneously (owner's statement,
 
 **Why:** Parallel edits from the user can appear in the working tree at any moment; destructive git operations silently destroy them.
 
-**How to apply:** Baked into every guidance surface on 2026-07-08: `scripts/prompts.ts` (SESSION_START preamble, STOP_PROMPT block list, LIVE_MONITOR_PROMPT flag #7), `skills/correctionguy/SKILL.md` ("Never wipe user's work"), and AGENTS.md User's Claim. Keep these in lockstep when editing, per [[release-process]]. Recorded as a User's Claim per [[memories-default-to-dot-memory]].
+**How to apply:** Binding on my own conduct in this checkout. It was baked into every plugin surface on 2026-07-08 and retired from all of them on 2026-09-14: the owner's global safeguards own it, and the reviewer flags it only as a missed requirement when an instruction file states it ([[reviewer-six-failures]]). Recorded as a User's Claim per [[memories-default-to-dot-memory]].

@@ -15,3 +15,5 @@ User-defined shorthand (2026-07-12 as "one shot release"/"one shot merge", renam
 **Why:** The user wants one word to trigger the whole delivery workflow, and wants the procedure itself durably recorded rather than improvised per session.
 
 **How to apply:** On "ship", execute the full sequence end to end without pausing to ask between steps; report each step's outcome briefly as it lands (see [[no-info-bombing]]). No recorded shipping rules -> stop, ask, record, then run.
+
+Owner direction (2026-09-14): the ship definition is a repo rule (or the owner's global `/ship` skill), not a Correction Guy definition. It left the plugin surfaces (SESSION_START, SKILL.md) that day; the generic form that stayed is the end-gate clause of the missed-requirement flag (asked release -> released, asked merge -> merged). See [[correctionguy-scope-generic-integrity-only]] and [[reviewer-six-failures]].

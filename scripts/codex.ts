@@ -34,7 +34,16 @@ const reviewModel = z
   .parse(process.env.CORRECTIONGUY_MODEL);
 
 const reviewEffort = z
-  .enum(["minimal", "low", "medium", "high", "xhigh"])
+  .enum([
+    "minimal",
+    "low",
+    "medium",
+    "high",
+    "xhigh",
+    "max",
+    "ultra",
+    "persistent",
+  ])
   .default("xhigh")
   .parse(process.env.CORRECTIONGUY_MODEL_REASONING_EFFORT);
 
