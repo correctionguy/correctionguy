@@ -11,4 +11,4 @@ Bad example the owner called out: user asks what's taking so long; agent answers
 
 **Why:** That talk wastes the user's time and pretends progress. A real status names the step or blocker in words a human can parse.
 
-**How to apply:** On all guidance surfaces since v3.15.0 (same rollout as [[no-info-bombing]]): SESSION_START, stop-check nudge, live-monitor flag 11 in `scripts/prompts.ts`, plus `skills/correctionguy/SKILL.md`. Delivery failure, not a style nitpick; no-nitpick bar still applies (clear BS only).
+**How to apply:** Applies to my own replies; the owner's global instructions hold the rule. It was on all plugin surfaces from v3.15.0 and left them on 2026-09-14 (same as [[no-info-bombing]]): fake progress with nothing behind it is now the no-reviews flag, and the style half is a missed requirement only when an instruction file defines it ([[reviewer-six-failures]]).

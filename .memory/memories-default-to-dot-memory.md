@@ -9,4 +9,4 @@ By default, every memory — including a User's Claim (a fact the owner/user sta
 
 **Why:** The user set `.memory` as the default home for all memories and wants User's Claims treated as sourced.
 
-**How to apply:** This is now an official rule in the plugin prompts (SESSION_START, STOP_PROMPT, LIVE_MONITOR_PROMPT in `scripts/prompts.ts`, plus the skill). Default new memories/claims to `.memory`; honor any specific rule that sends a particular fact elsewhere. See [[memory-files-live-in-repo-dot-memory]].
+**How to apply:** In the plugin prompts, a recorded User's Claim counts as checked under the unverified-assumption flag (SESSION_START, stop check, live monitor, and the skill). The default-to-`.memory` placement and the duty to record are the setup and actually skills' procedure and this repo's convention; since 2026-09-14 the reviewer no longer nudges about unrecorded learnings ([[reviewer-six-failures]]). See [[memory-files-live-in-repo-dot-memory]].
