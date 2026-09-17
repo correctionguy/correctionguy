@@ -1,8 +1,18 @@
+import { createHash } from "node:crypto";
+import { readFile, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import path from "node:path";
+
+import { z } from "zod/v4";
+
 import {
   Command,
   HookInput,
   MonitorCadence,
+  NUDGE_COOLDOWN_MS,
+  NudgeState,
   hookContextOutput,
+  jsonString,
   liveMonitorContext,
   liveMonitorOutput,
   parseTranscript,
@@ -12,6 +22,12 @@ import {
 import type { HookOutput, Review, StopReview, Transcript } from "./core.ts";
 import { CLAUDE_PROMPTS, SESSION_START } from "./prompts.ts";
 import type { HostPrompts } from "./prompts.ts";
+
+export const nudgeStatePath = (sessionId: string) =>
+  path.join(
+    tmpdir(),
+    `correctionguy-nudges-${createHash("sha256").update(sessionId).digest("hex")}.json`
+  );
 
 interface HookDeps {
   prompts: HostPrompts;
@@ -68,10 +84,38 @@ const handlers: Record<
       return null;
     }
     try {
-      return stopOutput(
-        await deps.stopReview(deps.prompts.stop, context),
-        hookInput.stop_hook_active ?? false
+      const review = await deps.stopReview(deps.prompts.stop, context);
+      const output = stopOutput(review, hookInput.stop_hook_active ?? false);
+      if (
+        output === null ||
+        "decision" in output ||
+        review.failure === null ||
+        !hookInput.session_id
+      ) {
+        return output;
+      }
+      const target = nudgeStatePath(hookInput.session_id);
+      let raw = "{}";
+      try {
+        raw = await readFile(target, "utf-8");
+      } catch (error) {
+        if (!z.object({ code: z.literal("ENOENT") }).safeParse(error).success) {
+          throw error;
+        }
+      }
+      const stored = jsonString(NudgeState).safeParse(raw);
+      const state = stored.success ? stored.data : {};
+      const last = state[review.failure];
+      const now = Date.now();
+      if (last !== undefined && now - last < NUDGE_COOLDOWN_MS) {
+        return null;
+      }
+      await writeFile(
+        target,
+        JSON.stringify({ ...state, [review.failure]: now }),
+        { mode: 0o600 }
       );
+      return output;
     } catch (error) {
       console.error(
         `correctionguy stop review failed: ${error instanceof Error ? error.message : String(error)}`
@@ -105,11 +149,11 @@ export const main = async (io: HookIo): Promise<string | null> => {
   const output = await runHook(command, hookInput, cadence, {
     prompts: CLAUDE_PROMPTS,
     readTranscript: async () => {
-      const path = hookInput.transcript_path;
-      if (!path) {
+      const transcriptPath = hookInput.transcript_path;
+      if (!transcriptPath) {
         throw new Error("transcript_path missing from hook input");
       }
-      return parseTranscript(await io.readFile(path));
+      return parseTranscript(await io.readFile(transcriptPath));
     },
     review: io.review,
     stopReview: io.stopReview,

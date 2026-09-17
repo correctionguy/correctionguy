@@ -97,11 +97,24 @@ export const Review = z.object({
 });
 export type Review = z.output<typeof Review>;
 
+export const StopFailure = z.enum([
+  "unverified assumption",
+  "missed requirement",
+  "integration error",
+  "regression",
+  "wrong file",
+  "no reviews",
+]);
+
 export const StopReview = z.object({
   additionalContext: z.string(),
+  failure: StopFailure.nullable(),
   verdict: z.enum(["ok", "nudge", "block"]),
 });
 export type StopReview = z.output<typeof StopReview>;
+
+export const NUDGE_COOLDOWN_MS = 1_800_000;
+export const NudgeState = z.partialRecord(StopFailure, z.number());
 
 const TodoItem = z.object({ content: z.string(), status: z.string() });
 const LiveMonitorContext = z.object({
