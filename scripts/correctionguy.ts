@@ -1,3 +1,6 @@
+import { readdir } from "node:fs/promises";
+import path from "node:path";
+
 import {
   Command,
   HookInput,
@@ -24,13 +27,14 @@ interface HookContext {
   cadence: number;
   deps: HookDeps;
   hookInput: HookInput;
+  origin: string;
 }
 
 const handlers: Record<
   Command,
   (ctx: HookContext) => Promise<HookOutput | null>
 > = {
-  PostToolBatch: async ({ cadence, deps, hookInput }) => {
+  PostToolBatch: async ({ cadence, deps, hookInput, origin }) => {
     const { lines, records } = await deps.readTranscript();
     const context = liveMonitorContext({
       cadence,
@@ -42,9 +46,11 @@ const handlers: Record<
       return null;
     }
     try {
-      return liveMonitorOutput(
-        await deps.review(deps.prompts.liveMonitor, context)
-      );
+      const review = await deps.review(deps.prompts.liveMonitor, context);
+      return liveMonitorOutput({
+        ...review,
+        additionalContext: `${origin}${review.additionalContext}`,
+      });
     } catch (error) {
       console.error(
         `correctionguy live-monitor review failed: ${error instanceof Error ? error.message : String(error)}`
@@ -56,7 +62,7 @@ const handlers: Record<
   SessionStart: () =>
     Promise.resolve(hookContextOutput("SessionStart", SESSION_START)),
 
-  Stop: async ({ deps, hookInput }) => {
+  Stop: async ({ deps, hookInput, origin }) => {
     const { lines, records } = await deps.readTranscript();
     const context = stopReviewContext({
       lastAssistantMessage: hookInput.last_assistant_message,
@@ -68,8 +74,12 @@ const handlers: Record<
       return null;
     }
     try {
+      const review = await deps.stopReview(deps.prompts.stop, context);
       return stopOutput(
-        await deps.stopReview(deps.prompts.stop, context),
+        {
+          ...review,
+          additionalContext: `${origin}${review.additionalContext}`,
+        },
         hookInput.stop_hook_active ?? false
       );
     } catch (error) {
@@ -86,8 +96,15 @@ export const runHook = (
   hookInput: HookInput,
   cadence: number,
   deps: HookDeps
-): Promise<HookOutput | null> =>
-  handlers[command]({ cadence, deps, hookInput });
+): Promise<HookOutput | null> => {
+  const originId = hookInput.agent_id ?? hookInput.session_id;
+  return handlers[command]({
+    cadence,
+    deps,
+    hookInput,
+    origin: originId ? `[for ${originId}] ` : "",
+  });
+};
 
 export interface HookIo {
   argv: readonly string[];
@@ -105,11 +122,28 @@ export const main = async (io: HookIo): Promise<string | null> => {
   const output = await runHook(command, hookInput, cadence, {
     prompts: CLAUDE_PROMPTS,
     readTranscript: async () => {
-      const path = hookInput.transcript_path;
-      if (!path) {
+      const { agent_id, transcript_path } = hookInput;
+      if (!transcript_path) {
         throw new Error("transcript_path missing from hook input");
       }
-      return parseTranscript(await io.readFile(path));
+      if (!agent_id) {
+        return parseTranscript(await io.readFile(transcript_path));
+      }
+      const root = path.join(
+        path.dirname(transcript_path),
+        path.basename(transcript_path, ".jsonl"),
+        "subagents"
+      );
+      const entries = await readdir(root, { recursive: true });
+      const entry = entries.find(
+        (candidate) => path.basename(candidate) === `agent-${agent_id}.jsonl`
+      );
+      if (!entry) {
+        throw new Error(
+          `subagent transcript agent-${agent_id}.jsonl missing under ${root}`
+        );
+      }
+      return parseTranscript(await io.readFile(path.join(root, entry)));
     },
     review: io.review,
     stopReview: io.stopReview,
