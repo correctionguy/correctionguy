@@ -2,14 +2,20 @@ import {
   Command,
   HookInput,
   MonitorCadence,
-  hookContextOutput,
+  correctionguyMessage,
   liveMonitorContext,
   liveMonitorOutput,
   parseTranscript,
   stopOutput,
   stopReviewContext,
 } from "./core.ts";
-import type { HookOutput, Review, StopReview, Transcript } from "./core.ts";
+import type {
+  ContextOutput,
+  HookOutput,
+  Review,
+  StopReview,
+  Transcript,
+} from "./core.ts";
 import { CLAUDE_PROMPTS, SESSION_START } from "./prompts.ts";
 import type { HostPrompts } from "./prompts.ts";
 
@@ -25,6 +31,16 @@ interface HookContext {
   deps: HookDeps;
   hookInput: HookInput;
 }
+
+const SESSION_START_OUTPUT: ContextOutput = {
+  hookSpecificOutput: {
+    additionalContext: SESSION_START,
+    hookEventName: "SessionStart",
+  },
+  systemMessage: correctionguyMessage(
+    "Preamble loaded into context. Six failures hunted: unverified assumption, missed requirement, integration error, regression, wrong file, no reviews. Full rules: correctionguy skill."
+  ),
+};
 
 const handlers: Record<
   Command,
@@ -53,8 +69,7 @@ const handlers: Record<
     }
   },
 
-  SessionStart: () =>
-    Promise.resolve(hookContextOutput("SessionStart", SESSION_START)),
+  SessionStart: () => Promise.resolve(SESSION_START_OUTPUT),
 
   Stop: async ({ deps, hookInput }) => {
     const { lines, records } = await deps.readTranscript();

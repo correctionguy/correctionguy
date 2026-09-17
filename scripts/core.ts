@@ -144,14 +144,6 @@ export interface ContinueOutput {
 }
 export type HookOutput = ContextOutput | StopBlockOutput | ContinueOutput;
 
-export const hookContextOutput = (
-  hookEventName: ContextHookEvent,
-  additionalContext: string
-): ContextOutput => ({
-  hookSpecificOutput: { additionalContext, hookEventName },
-  systemMessage: correctionguyMessage(additionalContext),
-});
-
 const TRUNCATED_PREFIX = "[earlier review context truncated to fit the model]";
 
 const currentTodos = (
@@ -284,7 +276,13 @@ export const liveMonitorContext = (input: {
 export const liveMonitorOutput = (review: Review): ContextOutput | null =>
   review.lgtm
     ? null
-    : hookContextOutput("PostToolBatch", review.additionalContext);
+    : {
+        hookSpecificOutput: {
+          additionalContext: review.additionalContext,
+          hookEventName: "PostToolBatch",
+        },
+        systemMessage: correctionguyMessage(review.additionalContext),
+      };
 
 export const stopReviewContext = (input: {
   lastAssistantMessage?: string;
