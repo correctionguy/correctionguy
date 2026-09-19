@@ -88,6 +88,8 @@ pi install git:github.com/correctionguy/correctionguy
 
 Or try it for a single run with `pi -e git:github.com/correctionguy/correctionguy`.
 
+Pi loads the skills from the package manifest and exposes them as `/skill:correctionguy`, `/skill:actually`, and `/skill:setup`.
+
 ## Configuration
 
 Everything is tuned through `CORRECTIONGUY_*` environment variables — model, reasoning effort, review cadence, and a `CORRECTIONGUY_YOLO` switch that drops the read-only sandbox for the reviews. Defaults live in `scripts/codex.ts`. You're going to ask an agent to do it, so I'm not going to write it out here 😏

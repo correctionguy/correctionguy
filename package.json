@@ -1,6 +1,6 @@
 {
   "name": "correctionguy",
-  "version": "3.20.0",
+  "version": "3.21.0",
   "description": "Agents often drift and waste time on the wrong work. Correction Guy watches from the sidelines and steers them back on track.",
   "keywords": [
     "codex",
@@ -39,6 +39,9 @@
   "pi": {
     "extensions": [
       "./scripts/pi-extension.ts"
+    ],
+    "skills": [
+      "./skills"
     ]
   }
 }

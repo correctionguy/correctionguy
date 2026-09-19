@@ -1,16 +1,12 @@
-import { readFile, rename, unlink, writeFile } from "node:fs/promises";
-import { text } from "node:stream/consumers";
+import { rename, rm, writeFile } from "node:fs/promises";
 
-import { z } from "zod/v4";
-
-import { runReview, runStopReview } from "./codex.ts";
 import { MonitorCadence, parseTranscript } from "./core.ts";
 import { runHook } from "./correctionguy.ts";
 import {
+  CursorHookEvent,
   CursorHookPayload,
   mapCursorInput,
   mapCursorOutput,
-  parseCursorEvent,
   parsePendingCorrection,
   pendingCorrectionPath,
   steerDenyOutput,
@@ -19,32 +15,16 @@ import {
 import { CURSOR_PROMPTS } from "./prompts.ts";
 
 try {
-  const event = parseCursorEvent(process.argv.at(2) ?? "");
-  const payload = CursorHookPayload.parse(
-    JSON.parse(await text(process.stdin))
-  );
+  const event = CursorHookEvent.parse(Bun.argv.at(2));
+  const payload = CursorHookPayload.parse(await Bun.stdin.json());
 
   if (event === "preToolUse") {
     if (payload.conversation_id && payload.generation_id) {
       const target = pendingCorrectionPath(payload.conversation_id);
-      let raw: string | null = null;
-      try {
-        raw = await readFile(target, "utf-8");
-      } catch (error) {
-        if (!z.object({ code: z.literal("ENOENT") }).safeParse(error).success) {
-          throw error;
-        }
-      }
-      if (raw !== null) {
-        try {
-          await unlink(target);
-        } catch (error) {
-          if (
-            !z.object({ code: z.literal("ENOENT") }).safeParse(error).success
-          ) {
-            throw error;
-          }
-        }
+      const file = Bun.file(target);
+      if (await file.exists()) {
+        const raw = await file.text();
+        await rm(target, { force: true });
         const pending = parsePendingCorrection.safeParse(raw);
         if (
           pending.success &&
@@ -67,7 +47,7 @@ try {
     process.exit(0);
   }
   const cadence = MonitorCadence.parse(
-    process.env.CORRECTIONGUY_MONITOR_EVERY_BATCHES ?? 10
+    Bun.env.CORRECTIONGUY_MONITOR_EVERY_BATCHES ?? 10
   );
 
   const output = await runHook(command, hookInput, cadence, {
@@ -76,10 +56,8 @@ try {
       if (!transcriptPath) {
         throw new Error("transcript_path missing from hook input");
       }
-      return parseTranscript(await readFile(transcriptPath, "utf-8"));
+      return parseTranscript(await Bun.file(transcriptPath).text());
     },
-    review: runReview,
-    stopReview: runStopReview,
   });
 
   const cursorOutput = mapCursorOutput(output, command);
@@ -113,12 +91,6 @@ try {
     }
   }
 } catch (error) {
-  if (
-    error instanceof Error &&
-    (error.name === "AbortError" || error.name === "TimeoutError")
-  ) {
-    process.exit(0);
-  }
   console.error(
     `correctionguy hook error: ${error instanceof Error ? error.message : String(error)}`
   );
