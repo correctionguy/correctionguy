@@ -1,9 +1,5 @@
-import { readFileSync } from "node:fs";
-import { fileURLToPath } from "node:url";
-
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 
-import { runReview, runStopReview } from "./codex.ts";
 import { MonitorCadence } from "./core.ts";
 import type { HookInput } from "./core.ts";
 import { runHook } from "./correctionguy.ts";
@@ -13,10 +9,6 @@ import {
   turnToolCalls,
 } from "./pi-adapter.ts";
 import { PI_PROMPTS, SESSION_START } from "./prompts.ts";
-
-const ACTUALLY_SKILL_PATH = fileURLToPath(
-  new URL("../skills/actually/SKILL.md", import.meta.url)
-);
 
 const CUSTOM_TYPE = "correctionguy";
 
@@ -66,8 +58,6 @@ export default function correctionguy(pi: ExtensionAPI): void {
       prompts: PI_PROMPTS,
       readTranscript: () =>
         Promise.resolve(piBranchToTranscript(ctx.sessionManager.getBranch())),
-      review: runReview,
-      stopReview: runStopReview,
     });
     const action = mapPiOutput(output, "PostToolBatch");
     if (action) {
@@ -88,8 +78,6 @@ export default function correctionguy(pi: ExtensionAPI): void {
       prompts: PI_PROMPTS,
       readTranscript: () =>
         Promise.resolve(piBranchToTranscript(ctx.sessionManager.getBranch())),
-      review: runReview,
-      stopReview: runStopReview,
     });
     const action = mapPiOutput(output, "Stop");
     if (!action) {
@@ -112,35 +100,5 @@ export default function correctionguy(pi: ExtensionAPI): void {
     if (ctx.hasUI) {
       ctx.ui.notify(action.text, "warning");
     }
-  });
-
-  pi.registerCommand(CUSTOM_TYPE, {
-    description: "Restate the Correction Guy discipline.",
-    handler: () => {
-      pi.sendMessage(
-        { content: SESSION_START, customType: CUSTOM_TYPE, display: true },
-        { deliverAs: "followUp", triggerTurn: true }
-      );
-      return Promise.resolve();
-    },
-  });
-
-  pi.registerCommand("correctionguy:actually", {
-    description:
-      "Record that Correction Guy rooted on a wrong convention; remember and apply the override.",
-    handler: (args) => {
-      const raw = readFileSync(ACTUALLY_SKILL_PATH, "utf-8");
-      const body = raw.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n*/u, "");
-      const correction = args.trim();
-      const content = body.replaceAll(
-        "$ARGUMENTS",
-        correction || "(none; ask user once if transcript lacks the correction)"
-      );
-      pi.sendMessage(
-        { content, customType: CUSTOM_TYPE, display: true },
-        { deliverAs: "followUp", triggerTurn: true }
-      );
-      return Promise.resolve();
-    },
   });
 }

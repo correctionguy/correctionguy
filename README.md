@@ -17,7 +17,7 @@ So Correction Guy hands the review to someone else. A different model (Codex, th
 
 - **Session prelude**: sets expectations up front: recall memory, restate the task, then the six failures to avoid.
 - **Live monitor**: every few tool batches, an outside pass catches the six failures before they compound.
-- **Stop check**: when the agent tries to stop, the reviewer can block a premature "done" (a missed requirement, a stub, an unrun test, a fix that is still a proposal) and feed the correction back. A non-blocking nudge for the same failure fires once per 30 minutes per session; a block is never held back.
+- **Stop check**: when the agent tries to stop, the reviewer can block a premature "done" (a missed requirement, a stub, an unrun test, a fix that is still a proposal) and feed the correction back. A non-blocking nudge repeats at most once per 30 minutes per session; a block is never held back.
 - **On-demand**: the `correctionguy` skill (`/correctionguy`) restates the discipline whenever you want it.
 - **Actually**: `/correctionguy:actually` is user-triggered when Correction Guy rooted on an old, outdated, or wrong convention: the agent records the override in `.memory` and applies it from then on.
 - **Setup**: the `correctionguy:setup` skill lays out `.memory`, folds the agent's native memory in behind a symlink, and fans out subagents across every past session on the repo to mine durable learnings into memory.
@@ -89,6 +89,8 @@ pi install git:github.com/correctionguy/correctionguy
 ```
 
 Or try it for a single run with `pi -e git:github.com/correctionguy/correctionguy`.
+
+Pi loads the skills from the package manifest and exposes them as `/skill:correctionguy`, `/skill:actually`, and `/skill:setup`.
 
 ## Configuration
 

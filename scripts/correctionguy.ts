@@ -5,22 +5,25 @@ import path from "node:path";
 
 import { z } from "zod/v4";
 
+import { runReview, runStopReview } from "./codex.ts";
 import {
-  Command,
-  HookInput,
-  MonitorCadence,
   NUDGE_COOLDOWN_MS,
   NudgeState,
-  hookContextOutput,
+  correctionguyMessage,
   jsonString,
   liveMonitorContext,
   liveMonitorOutput,
-  parseTranscript,
   stopOutput,
   stopReviewContext,
 } from "./core.ts";
-import type { HookOutput, Review, StopReview, Transcript } from "./core.ts";
-import { CLAUDE_PROMPTS, SESSION_START } from "./prompts.ts";
+import type {
+  Command,
+  ContextOutput,
+  HookInput,
+  HookOutput,
+  Transcript,
+} from "./core.ts";
+import { SESSION_START } from "./prompts.ts";
 import type { HostPrompts } from "./prompts.ts";
 
 export const nudgeStatePath = (sessionId: string) =>
@@ -32,8 +35,6 @@ export const nudgeStatePath = (sessionId: string) =>
 interface HookDeps {
   prompts: HostPrompts;
   readTranscript: () => Promise<Transcript>;
-  review: (prompt: string, context: string) => Promise<Review>;
-  stopReview: (prompt: string, context: string) => Promise<StopReview>;
 }
 
 interface HookContext {
@@ -41,6 +42,16 @@ interface HookContext {
   deps: HookDeps;
   hookInput: HookInput;
 }
+
+const SESSION_START_OUTPUT: ContextOutput = {
+  hookSpecificOutput: {
+    additionalContext: SESSION_START,
+    hookEventName: "SessionStart",
+  },
+  systemMessage: correctionguyMessage(
+    "Preamble loaded into context. Six failures hunted: unverified assumption, missed requirement, integration error, regression, wrong file, no reviews. Full rules: correctionguy skill."
+  ),
+};
 
 const handlers: Record<
   Command,
@@ -59,7 +70,7 @@ const handlers: Record<
     }
     try {
       return liveMonitorOutput(
-        await deps.review(deps.prompts.liveMonitor, context)
+        await runReview(deps.prompts.liveMonitor, context)
       );
     } catch (error) {
       console.error(
@@ -69,8 +80,7 @@ const handlers: Record<
     }
   },
 
-  SessionStart: () =>
-    Promise.resolve(hookContextOutput("SessionStart", SESSION_START)),
+  SessionStart: () => Promise.resolve(SESSION_START_OUTPUT),
 
   Stop: async ({ deps, hookInput }) => {
     const { lines, records } = await deps.readTranscript();
@@ -84,12 +94,13 @@ const handlers: Record<
       return null;
     }
     try {
-      const review = await deps.stopReview(deps.prompts.stop, context);
+      const review = await runStopReview(deps.prompts.stop, context);
       const output = stopOutput(review, hookInput.stop_hook_active ?? false);
       if (
         output === null ||
         "decision" in output ||
-        review.failure === null ||
+        review.verdict !== "nudge" ||
+        review.additionalContext === "" ||
         !hookInput.session_id
       ) {
         return output;
@@ -105,16 +116,15 @@ const handlers: Record<
       }
       const stored = jsonString(NudgeState).safeParse(raw);
       const state = stored.success ? stored.data : {};
-      const last = state[review.failure];
+      const key = review.additionalContext;
+      const last = state[key];
       const now = Date.now();
       if (last !== undefined && now - last < NUDGE_COOLDOWN_MS) {
         return null;
       }
-      await writeFile(
-        target,
-        JSON.stringify({ ...state, [review.failure]: now }),
-        { mode: 0o600 }
-      );
+      await writeFile(target, JSON.stringify({ ...state, [key]: now }), {
+        mode: 0o600,
+      });
       return output;
     } catch (error) {
       console.error(
@@ -132,31 +142,3 @@ export const runHook = (
   deps: HookDeps
 ): Promise<HookOutput | null> =>
   handlers[command]({ cadence, deps, hookInput });
-
-export interface HookIo {
-  argv: readonly string[];
-  cadenceEnv: string | undefined;
-  readFile: (path: string) => Promise<string>;
-  readStdin: () => Promise<unknown>;
-  review: (prompt: string, context: string) => Promise<Review>;
-  stopReview: (prompt: string, context: string) => Promise<StopReview>;
-}
-
-export const main = async (io: HookIo): Promise<string | null> => {
-  const command = Command.parse(io.argv.at(2));
-  const hookInput = HookInput.parse(await io.readStdin());
-  const cadence = MonitorCadence.parse(io.cadenceEnv ?? 10);
-  const output = await runHook(command, hookInput, cadence, {
-    prompts: CLAUDE_PROMPTS,
-    readTranscript: async () => {
-      const transcriptPath = hookInput.transcript_path;
-      if (!transcriptPath) {
-        throw new Error("transcript_path missing from hook input");
-      }
-      return parseTranscript(await io.readFile(transcriptPath));
-    },
-    review: io.review,
-    stopReview: io.stopReview,
-  });
-  return output ? JSON.stringify(output) : null;
-};

@@ -50,7 +50,14 @@ const ToolUseBlock = z.looseObject({
   type: z.literal("tool_use"),
 });
 const ToolResultBlock = z.looseObject({
-  content: z.unknown(),
+  content: z
+    .union([
+      z.string(),
+      z
+        .array(z.looseObject({ text: z.string().optional() }))
+        .transform((parts) => parts.map((part) => part.text ?? "").join("")),
+    ])
+    .optional(),
   tool_use_id: z.string().optional(),
   type: z.literal("tool_result"),
 });
@@ -89,7 +96,7 @@ export const HookInput = z.object({
 });
 export type HookInput = z.output<typeof HookInput>;
 
-export const MonitorCadence = z.coerce.number().pipe(z.int().min(0));
+export const MonitorCadence = z.coerce.number().int().min(0);
 
 export const Review = z.object({
   additionalContext: z.string(),
@@ -97,24 +104,14 @@ export const Review = z.object({
 });
 export type Review = z.output<typeof Review>;
 
-export const StopFailure = z.enum([
-  "unverified assumption",
-  "missed requirement",
-  "integration error",
-  "regression",
-  "wrong file",
-  "no reviews",
-]);
-
 export const StopReview = z.object({
   additionalContext: z.string(),
-  failure: StopFailure.nullable(),
   verdict: z.enum(["ok", "nudge", "block"]),
 });
 export type StopReview = z.output<typeof StopReview>;
 
 export const NUDGE_COOLDOWN_MS = 1_800_000;
-export const NudgeState = z.partialRecord(StopFailure, z.number());
+export const NudgeState = z.record(z.string(), z.number());
 
 const TodoItem = z.object({ content: z.string(), status: z.string() });
 const LiveMonitorContext = z.object({
@@ -157,14 +154,6 @@ export interface ContinueOutput {
 }
 export type HookOutput = ContextOutput | StopBlockOutput | ContinueOutput;
 
-export const hookContextOutput = (
-  hookEventName: ContextHookEvent,
-  additionalContext: string
-): ContextOutput => ({
-  hookSpecificOutput: { additionalContext, hookEventName },
-  systemMessage: correctionguyMessage(additionalContext),
-});
-
 const TRUNCATED_PREFIX = "[earlier review context truncated to fit the model]";
 
 const currentTodos = (
@@ -206,16 +195,10 @@ const currentTodos = (
       if (!result.success) {
         continue;
       }
-      const text = [result.data.content]
-        .flat()
-        .map((part) =>
-          typeof part === "string"
-            ? part
-            : ((part as { text?: string }).text ?? "")
-        )
-        .join("");
       const match =
-        /Task #(?<taskId>\d+) created successfully: (?<subject>.+)/u.exec(text);
+        /Task #(?<taskId>\d+) created successfully: (?<subject>.+)/u.exec(
+          result.data.content ?? ""
+        );
       if (match?.groups) {
         const { subject, taskId } = match.groups;
         tasks.set(taskId, { content: subject, status: "pending" });
@@ -297,7 +280,13 @@ export const liveMonitorContext = (input: {
 export const liveMonitorOutput = (review: Review): ContextOutput | null =>
   review.lgtm
     ? null
-    : hookContextOutput("PostToolBatch", review.additionalContext);
+    : {
+        hookSpecificOutput: {
+          additionalContext: review.additionalContext,
+          hookEventName: "PostToolBatch",
+        },
+        systemMessage: correctionguyMessage(review.additionalContext),
+      };
 
 export const stopReviewContext = (input: {
   lastAssistantMessage?: string;

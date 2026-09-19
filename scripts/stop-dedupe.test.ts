@@ -1,10 +1,19 @@
-import { expect, test } from "bun:test";
+import { expect, mock, test } from "bun:test";
 import { unlink, writeFile } from "node:fs/promises";
 
 import { NUDGE_COOLDOWN_MS, parseTranscript } from "./core.ts";
 import type { StopReview } from "./core.ts";
-import { nudgeStatePath, runHook } from "./correctionguy.ts";
 import { CLAUDE_PROMPTS } from "./prompts.ts";
+
+let stopReview: () => Promise<StopReview> = () =>
+  Promise.resolve({ additionalContext: "", verdict: "ok" });
+
+mock.module("./codex.ts", () => ({
+  runReview: () => Promise.resolve({ additionalContext: "", lgtm: true }),
+  runStopReview: () => stopReview(),
+}));
+
+const { nudgeStatePath, runHook } = await import("./correctionguy.ts");
 
 const transcript = parseTranscript(
   [
@@ -19,54 +28,44 @@ const transcript = parseTranscript(
   ].join("\n")
 );
 
+const deps = {
+  prompts: CLAUDE_PROMPTS,
+  readTranscript: () => Promise.resolve(transcript),
+};
+
 const noReviews: StopReview = {
-  additionalContext: "no reviews: claimed fixed, ran nothing",
-  failure: "no reviews",
+  additionalContext: "Run tests before claiming fixed",
   verdict: "nudge",
 };
 
-test("a repeated nudge for the same failure fires once inside the cooldown", async () => {
+test("a repeated nudge for the same correction fires once inside the cooldown", async () => {
   const sessionId = crypto.randomUUID();
-  const deps = {
-    prompts: CLAUDE_PROMPTS,
-    readTranscript: () => Promise.resolve(transcript),
-    review: () => Promise.resolve({ additionalContext: "", lgtm: true }),
-    stopReview: () => Promise.resolve(noReviews),
-  };
+  stopReview = () => Promise.resolve(noReviews);
   const first = await runHook("Stop", { session_id: sessionId }, 10, deps);
   const second = await runHook("Stop", { session_id: sessionId }, 10, deps);
   await unlink(nudgeStatePath(sessionId));
   expect(first).toEqual({
     continue: true,
-    systemMessage: "(Correction Guy) no reviews: claimed fixed, ran nothing",
+    systemMessage: "(Correction Guy) Run tests before claiming fixed",
   });
   expect(second).toBeNull();
 });
 
-test("a nudge for a different failure still fires inside the cooldown", async () => {
+test("a nudge with different correction text still fires inside the cooldown", async () => {
   const sessionId = crypto.randomUUID();
   const regression: StopReview = {
-    additionalContext: "regression: typecheck left red",
-    failure: "regression",
+    additionalContext: "Fix the red typecheck before stopping",
     verdict: "nudge",
   };
-  const first = await runHook("Stop", { session_id: sessionId }, 10, {
-    prompts: CLAUDE_PROMPTS,
-    readTranscript: () => Promise.resolve(transcript),
-    review: () => Promise.resolve({ additionalContext: "", lgtm: true }),
-    stopReview: () => Promise.resolve(noReviews),
-  });
-  const second = await runHook("Stop", { session_id: sessionId }, 10, {
-    prompts: CLAUDE_PROMPTS,
-    readTranscript: () => Promise.resolve(transcript),
-    review: () => Promise.resolve({ additionalContext: "", lgtm: true }),
-    stopReview: () => Promise.resolve(regression),
-  });
+  stopReview = () => Promise.resolve(noReviews);
+  const first = await runHook("Stop", { session_id: sessionId }, 10, deps);
+  stopReview = () => Promise.resolve(regression);
+  const second = await runHook("Stop", { session_id: sessionId }, 10, deps);
   await unlink(nudgeStatePath(sessionId));
   expect(first).not.toBeNull();
   expect(second).toEqual({
     continue: true,
-    systemMessage: "(Correction Guy) regression: typecheck left red",
+    systemMessage: "(Correction Guy) Fix the red typecheck before stopping",
   });
 });
 
@@ -74,34 +73,26 @@ test("a nudge fires again once the cooldown has passed", async () => {
   const sessionId = crypto.randomUUID();
   await writeFile(
     nudgeStatePath(sessionId),
-    JSON.stringify({ "no reviews": Date.now() - NUDGE_COOLDOWN_MS - 1 })
+    JSON.stringify({
+      "Run tests before claiming fixed": Date.now() - NUDGE_COOLDOWN_MS - 1,
+    })
   );
-  const output = await runHook("Stop", { session_id: sessionId }, 10, {
-    prompts: CLAUDE_PROMPTS,
-    readTranscript: () => Promise.resolve(transcript),
-    review: () => Promise.resolve({ additionalContext: "", lgtm: true }),
-    stopReview: () => Promise.resolve(noReviews),
-  });
+  stopReview = () => Promise.resolve(noReviews);
+  const output = await runHook("Stop", { session_id: sessionId }, 10, deps);
   await unlink(nudgeStatePath(sessionId));
   expect(output).toEqual({
     continue: true,
-    systemMessage: "(Correction Guy) no reviews: claimed fixed, ran nothing",
+    systemMessage: "(Correction Guy) Run tests before claiming fixed",
   });
 });
 
-test("a block is never held back by an earlier notice for the same failure", async () => {
+test("a block is never held back by an earlier notice for the same text", async () => {
   const sessionId = crypto.randomUUID();
   await writeFile(
     nudgeStatePath(sessionId),
-    JSON.stringify({ "no reviews": Date.now() })
+    JSON.stringify({ "Run tests before claiming fixed": Date.now() })
   );
-  const deps = {
-    prompts: CLAUDE_PROMPTS,
-    readTranscript: () => Promise.resolve(transcript),
-    review: () => Promise.resolve({ additionalContext: "", lgtm: true }),
-    stopReview: () =>
-      Promise.resolve({ ...noReviews, verdict: "block" as const }),
-  };
+  stopReview = () => Promise.resolve({ ...noReviews, verdict: "block" });
   const first = await runHook("Stop", { session_id: sessionId }, 10, deps);
   const second = await runHook("Stop", { session_id: sessionId }, 10, deps);
   await unlink(nudgeStatePath(sessionId));
