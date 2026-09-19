@@ -50,7 +50,14 @@ const ToolUseBlock = z.looseObject({
   type: z.literal("tool_use"),
 });
 const ToolResultBlock = z.looseObject({
-  content: z.unknown(),
+  content: z
+    .union([
+      z.string(),
+      z
+        .array(z.looseObject({ text: z.string().optional() }))
+        .transform((parts) => parts.map((part) => part.text ?? "").join("")),
+    ])
+    .optional(),
   tool_use_id: z.string().optional(),
   type: z.literal("tool_result"),
 });
@@ -89,7 +96,7 @@ export const HookInput = z.object({
 });
 export type HookInput = z.output<typeof HookInput>;
 
-export const MonitorCadence = z.coerce.number().pipe(z.int().min(0));
+export const MonitorCadence = z.coerce.number().int().min(0);
 
 export const Review = z.object({
   additionalContext: z.string(),
@@ -193,16 +200,10 @@ const currentTodos = (
       if (!result.success) {
         continue;
       }
-      const text = [result.data.content]
-        .flat()
-        .map((part) =>
-          typeof part === "string"
-            ? part
-            : ((part as { text?: string }).text ?? "")
-        )
-        .join("");
       const match =
-        /Task #(?<taskId>\d+) created successfully: (?<subject>.+)/u.exec(text);
+        /Task #(?<taskId>\d+) created successfully: (?<subject>.+)/u.exec(
+          result.data.content ?? ""
+        );
       if (match?.groups) {
         const { subject, taskId } = match.groups;
         tasks.set(taskId, { content: subject, status: "pending" });

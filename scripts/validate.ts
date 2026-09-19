@@ -1,43 +1,15 @@
-import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 
+import {
+  loadSkillsFromDir,
+  parseFrontmatter,
+} from "@earendil-works/pi-coding-agent";
+import type { SkillFrontmatter } from "@earendil-works/pi-coding-agent";
 import { z } from "zod/v4";
 
-const agentPluginsManifestSchema = z
-  .object({
-    $schema: z.literal(
-      "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json"
-    ),
-    author: z
-      .object({
-        email: z.string().optional(),
-        name: z.string().optional(),
-        url: z.string().optional(),
-      })
-      .strict()
-      .optional(),
-    description: z.string().optional(),
-    extensions: z
-      .record(z.string(), z.record(z.string(), z.unknown()))
-      .optional(),
-    homepage: z.string().optional(),
-    keywords: z.array(z.string()).optional(),
-    license: z.string().optional(),
-    name: z
-      .string()
-      .min(1)
-      .max(64)
-      .regex(/^(?!.*(?:--|\.\.))[a-z0-9](?:[a-z0-9.-]*[a-z0-9])?$/u),
-    repository: z.string().optional(),
-    version: z.string().optional(),
-  })
-  .strict();
-
-const skillNameSchema = z
-  .string()
-  .min(1)
-  .max(64)
-  .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/u);
+const AGENT_PLUGINS_SCHEMA_URL =
+  "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json";
 
 const legacyManifests = [
   ".claude-plugin/plugin.json",
@@ -55,8 +27,14 @@ const codes = await Promise.all(procs.map((proc) => proc.exited));
 
 let failed = codes.some((code) => code !== 0);
 
+const schemaResponse = await fetch(AGENT_PLUGINS_SCHEMA_URL);
+const agentPluginsManifestSchema = z.fromJSONSchema(
+  z
+    .looseObject({ $id: z.literal(AGENT_PLUGINS_SCHEMA_URL) })
+    .parse(await schemaResponse.json())
+);
 const agentPluginsParsed = agentPluginsManifestSchema.safeParse(
-  JSON.parse(readFileSync("plugin.json", "utf-8"))
+  await Bun.file("plugin.json").json()
 );
 if (agentPluginsParsed.success) {
   console.log("plugin.json: Agent Plugins 1.0.0 manifest ok");
@@ -66,47 +44,43 @@ if (agentPluginsParsed.success) {
   failed = true;
 }
 
-const skillsRoot = "skills";
-if (existsSync(skillsRoot)) {
-  for (const entry of readdirSync(skillsRoot, { withFileTypes: true })) {
-    if (!entry.isDirectory()) {
-      continue;
-    }
-    const skillMd = path.join(skillsRoot, entry.name, "SKILL.md");
-    if (!existsSync(skillMd)) {
-      continue;
-    }
-    const frontmatter = /^---\n(?<body>[\s\S]*?)\n---/u.exec(
-      readFileSync(skillMd, "utf-8")
-    )?.groups?.body;
-    const nameLine = frontmatter
-      ?.split("\n")
-      .find((line) => line.startsWith("name:"));
-    const skillName = nameLine
-      ?.slice("name:".length)
-      .trim()
-      .replaceAll('"', "");
-    const nameOk = skillNameSchema.safeParse(skillName);
-    if (nameOk.success && skillName === entry.name) {
-      console.log(`skills/${entry.name}: ok`);
-      continue;
-    }
-    console.error(
-      `skills/${entry.name}: SKILL.md name must match directory (${skillName ?? "missing"})`
-    );
-    failed = true;
+const { diagnostics, skills } = loadSkillsFromDir({
+  dir: "skills",
+  source: "repo",
+});
+for (const diagnostic of diagnostics) {
+  console.error(`${diagnostic.path}: ${diagnostic.message}`);
+  failed = true;
+}
+for (const skill of skills) {
+  const dirName = path.basename(skill.baseDir);
+  const { frontmatter } = parseFrontmatter<SkillFrontmatter>(
+    readFileSync(skill.filePath, "utf-8")
+  );
+  if (frontmatter.name === dirName) {
+    console.log(`skills/${dirName}: ok`);
+    continue;
   }
+  console.error(
+    `skills/${dirName}: SKILL.md name must match directory (${frontmatter.name})`
+  );
+  failed = true;
 }
 
 const { pi } = z
-  .object({ pi: z.object({ extensions: z.array(z.string()) }).optional() })
+  .object({
+    pi: z.object({
+      extensions: z.array(z.string()),
+      skills: z.array(z.string()),
+    }),
+  })
   .parse(await Bun.file("package.json").json());
 
-for (const extension of pi?.extensions ?? []) {
-  if (existsSync(extension)) {
+for (const entry of [...pi.extensions, ...pi.skills]) {
+  if (existsSync(entry)) {
     continue;
   }
-  console.error(`pi extension entry missing: ${extension}`);
+  console.error(`pi manifest entry missing: ${entry}`);
   failed = true;
 }
 

@@ -1,114 +1,69 @@
 import { Codex } from "@openai/codex-sdk";
-import type {
-  ModelReasoningEffort,
-  SandboxMode,
-  ThreadOptions,
-} from "@openai/codex-sdk";
+import type { CodexOptions, ThreadOptions } from "@openai/codex-sdk";
 import { z } from "zod/v4";
 
 import { Review, StopReview, jsonString } from "./core.ts";
 
-export const cwd =
-  process.env.CLAUDE_PROJECT_DIR ??
-  process.env.CURSOR_PROJECT_DIR ??
-  process.cwd();
+const env = z
+  .object({
+    CORRECTIONGUY_FAST_MODE: z.stringbool().default(false),
+    CORRECTIONGUY_MODEL: z.string().default("gpt-5.6-terra"),
+    CORRECTIONGUY_MODEL_REASONING_EFFORT: z
+      .enum([
+        "minimal",
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max",
+        "ultra",
+        "persistent",
+      ])
+      .default("xhigh"),
+    CORRECTIONGUY_SERVICE_TIER: z.string().optional(),
+    CORRECTIONGUY_YOLO: z.stringbool().default(false),
+  })
+  .parse(process.env);
 
-const yolo = z
-  .stringbool()
-  .default(false)
-  .parse(process.env.CORRECTIONGUY_YOLO);
-
-const serviceTier = z
-  .string()
-  .optional()
-  .parse(process.env.CORRECTIONGUY_SERVICE_TIER);
-
-const fastMode = z
-  .stringbool()
-  .default(false)
-  .parse(process.env.CORRECTIONGUY_FAST_MODE);
-
-const reviewModel = z
-  .string()
-  .default("gpt-5.6-terra")
-  .parse(process.env.CORRECTIONGUY_MODEL);
-
-const reviewEffort = z
-  .enum([
-    "minimal",
-    "low",
-    "medium",
-    "high",
-    "xhigh",
-    "max",
-    "ultra",
-    "persistent",
-  ])
-  .default("xhigh")
-  .parse(process.env.CORRECTIONGUY_MODEL_REASONING_EFFORT);
-
-const threadOptions = (
-  model: string,
-  effort: ModelReasoningEffort
-): ThreadOptions => {
-  const sandboxMode: SandboxMode = yolo ? "danger-full-access" : "read-only";
-  return {
-    approvalPolicy: "never",
-    model,
-    modelReasoningEffort: effort,
-    networkAccessEnabled: sandboxMode === "danger-full-access",
-    sandboxMode,
-    skipGitRepoCheck: true,
-    webSearchEnabled: true,
-    webSearchMode: "live",
-    workingDirectory: cwd,
-  };
+const threadOptions: ThreadOptions = {
+  approvalPolicy: "never",
+  model: env.CORRECTIONGUY_MODEL,
+  modelReasoningEffort: env.CORRECTIONGUY_MODEL_REASONING_EFFORT,
+  networkAccessEnabled: env.CORRECTIONGUY_YOLO,
+  sandboxMode: env.CORRECTIONGUY_YOLO ? "danger-full-access" : "read-only",
+  skipGitRepoCheck: true,
+  webSearchEnabled: true,
+  webSearchMode: "live",
+  workingDirectory:
+    process.env.CLAUDE_PROJECT_DIR ??
+    process.env.CURSOR_PROJECT_DIR ??
+    process.cwd(),
 };
 
-const newCodex = () =>
-  new Codex({
-    config: {
-      features: { fast_mode: fastMode },
-      ...(serviceTier === undefined ? {} : { service_tier: serviceTier }),
-    },
-  });
+const codexOptions: CodexOptions = {
+  config: {
+    features: { fast_mode: env.CORRECTIONGUY_FAST_MODE },
+    ...(env.CORRECTIONGUY_SERVICE_TIER === undefined
+      ? {}
+      : { service_tier: env.CORRECTIONGUY_SERVICE_TIER }),
+  },
+};
 
 const REVIEW_TIMEOUT_MS = 120_000;
 
-export const withTimeout = async <T>(
-  ms: number,
-  fn: (signal: AbortSignal) => Promise<T>
-): Promise<T> => {
-  const abort = new AbortController();
-  const timer = setTimeout(() => abort.abort(), ms);
-  try {
-    return await fn(abort.signal);
-  } catch (error) {
-    if (abort.signal.aborted) {
-      const timeoutError = new Error("Codex call timed out", { cause: error });
-      timeoutError.name = "TimeoutError";
-      throw timeoutError;
-    }
-    throw error;
-  } finally {
-    clearTimeout(timer);
-  }
-};
-
-const runJsonReview = <T>(
+const runJsonReview = async <T>(
   prompt: string,
   context: string,
   schema: z.ZodType<T>
-): Promise<T> =>
-  withTimeout(REVIEW_TIMEOUT_MS, async (signal) => {
-    const { finalResponse } = await newCodex()
-      .startThread(threadOptions(reviewModel, reviewEffort))
-      .run(`${prompt}\n\n\`\`\`json\n${context}\n\`\`\``, {
-        outputSchema: z.toJSONSchema(schema),
-        signal,
-      });
-    return jsonString(schema).parse(finalResponse);
-  });
+): Promise<T> => {
+  const { finalResponse } = await new Codex(codexOptions)
+    .startThread(threadOptions)
+    .run(`${prompt}\n\n\`\`\`json\n${context}\n\`\`\``, {
+      outputSchema: z.toJSONSchema(schema),
+      signal: AbortSignal.timeout(REVIEW_TIMEOUT_MS),
+    });
+  return jsonString(schema).parse(finalResponse);
+};
 
 export const runReview = (prompt: string, context: string): Promise<Review> =>
   runJsonReview(prompt, context, Review);
