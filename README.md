@@ -17,7 +17,7 @@ So Correction Guy hands the review to someone else. A different model (Codex, th
 
 - **Session prelude**: sets expectations up front: recall memory, restate the task, then the six failures to avoid.
 - **Live monitor**: every few tool batches, an outside pass catches the six failures before they compound.
-- **Stop check**: when the agent tries to stop, the reviewer can block a premature "done" (a missed requirement, a stub, an unrun test, a fix that is still a proposal) and feed the correction back.
+- **Stop check**: when the agent tries to stop, the reviewer can block a premature "done" (a missed requirement, a stub, an unrun test, a fix that is still a proposal) and feed the correction back. A non-blocking nudge repeats at most once per 30 minutes per session; a block is never held back.
 - **On-demand**: the `correctionguy` skill (`/correctionguy`) restates the discipline whenever you want it.
 - **Actually**: `/correctionguy:actually` is user-triggered when Correction Guy rooted on an old, outdated, or wrong convention: the agent records the override in `.memory` and applies it from then on.
 - **Setup**: the `correctionguy:setup` skill lays out `.memory`, folds the agent's native memory in behind a symlink, and fans out subagents across every past session on the repo to mine durable learnings into memory.
@@ -27,6 +27,8 @@ The review prompts, and the corrections that come back, are written in compresse
 ## Memory
 
 Memory belongs with the code it describes. Correction Guy keeps the agent's memory in a project-local `.memory` folder, so it lives alongside the work instead of in a global store, and it treats facts you state about the project as sourced — recorded, trusted, and never second-guessed for lacking a citation. The folder is git-tracked and travels with the repo, so it holds public knowledge only: treat it like a public Wikipedia page, and keep device, Slack, and environment details out of it. The reviewer reads it as workspace truth: a session that contradicts what is written there is an unverified assumption, and a recorded claim is never flagged as unsourced. Rules about what to record there belong in your project's instruction files, where a missed one is a missed requirement.
+
+To opt a repo out, say so in an instruction file the host loads (for example, "`.memory` is retired" or "memory lives in `docs/notes`"). The session prelude and the `/correctionguy` skill yield to that rule, and the reviewer already judges memory by what the instruction files define. A line in a user-level instruction file opts out every repo for that user.
 
 ## Requirements
 
@@ -87,6 +89,8 @@ pi install git:github.com/correctionguy/correctionguy
 ```
 
 Or try it for a single run with `pi -e git:github.com/correctionguy/correctionguy`.
+
+Pi loads the skills from the package manifest and exposes them as `/skill:correctionguy`, `/skill:actually`, and `/skill:setup`.
 
 ## Configuration
 

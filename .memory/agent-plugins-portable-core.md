@@ -11,8 +11,8 @@ As of v3.17.0, the repo is an [Agent Plugins](https://agent-plugins.org/) 1.0.0 
 - Portable components: Agent Skills under immediate children of `skills/` (already the layout). No MCP servers, so no root `mcp.json`.
 - Hooks, Cursor `/cursor-setup`, Claude marketplace, and Pi `package.json#pi.extensions` are **not** portable v1 components. Keep them as host compatibility:
   - Claude Code: `.claude-plugin/plugin.json` + `hooks/hooks.json`
-  - Cursor: `.cursor-plugin/plugin.json` + `commands/` + `scripts/cursor-install.ts` (plugin hooks still do not execute; see [[cursor-plugin-hooks-never-execute]])
-  - Pi: `package.json` `pi.extensions` -> `scripts/pi-extension.ts`
+  - Cursor: `.cursor-plugin/plugin.json` + `commands/` + `scripts/cursor-install.ts` (Cursor executes plugin command hooks since its 2026-08-11 CLI release; retiring the installer is issue #19; see [[cursor-plugin-hooks-never-execute]])
+  - Pi: `package.json` `pi.extensions` -> `scripts/pi-extension.ts`, and `pi.skills` -> `skills/` (exposed as `/skill:<name>`)
 - Do not invent a reverse-domain extension namespace (`com.*`) unless that client documents one. Cursor still uses `.cursor-plugin/`; Claude still uses `.claude-plugin/`.
 - Version bumps must include root `plugin.json` with the other three manifests. `bun run validate` checks Agent Plugins shape, skill directory/name match, legacy Claude/Cursor marketplace manifests, and version lockstep. See [[release-process]].
 

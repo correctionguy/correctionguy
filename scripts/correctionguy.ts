@@ -1,26 +1,40 @@
-import { readdir } from "node:fs/promises";
+import { createHash } from "node:crypto";
+import { readFile, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
 import path from "node:path";
 
+import { z } from "zod/v4";
+
+import { runReview, runStopReview } from "./codex.ts";
 import {
-  Command,
-  HookInput,
-  MonitorCadence,
-  hookContextOutput,
+  NUDGE_COOLDOWN_MS,
+  NudgeState,
+  correctionguyMessage,
+  jsonString,
   liveMonitorContext,
   liveMonitorOutput,
-  parseTranscript,
   stopOutput,
   stopReviewContext,
 } from "./core.ts";
-import type { HookOutput, Review, StopReview, Transcript } from "./core.ts";
-import { CLAUDE_PROMPTS, SESSION_START } from "./prompts.ts";
+import type {
+  Command,
+  ContextOutput,
+  HookInput,
+  HookOutput,
+  Transcript,
+} from "./core.ts";
+import { SESSION_START } from "./prompts.ts";
 import type { HostPrompts } from "./prompts.ts";
+
+export const nudgeStatePath = (sessionId: string) =>
+  path.join(
+    tmpdir(),
+    `correctionguy-nudges-${createHash("sha256").update(sessionId).digest("hex")}.json`
+  );
 
 interface HookDeps {
   prompts: HostPrompts;
   readTranscript: () => Promise<Transcript>;
-  review: (prompt: string, context: string) => Promise<Review>;
-  stopReview: (prompt: string, context: string) => Promise<StopReview>;
 }
 
 interface HookContext {
@@ -29,6 +43,16 @@ interface HookContext {
   hookInput: HookInput;
   origin: string;
 }
+
+const SESSION_START_OUTPUT: ContextOutput = {
+  hookSpecificOutput: {
+    additionalContext: SESSION_START,
+    hookEventName: "SessionStart",
+  },
+  systemMessage: correctionguyMessage(
+    "Preamble loaded into context. Six failures hunted: unverified assumption, missed requirement, integration error, regression, wrong file, no reviews. Full rules: correctionguy skill."
+  ),
+};
 
 const handlers: Record<
   Command,
@@ -46,7 +70,7 @@ const handlers: Record<
       return null;
     }
     try {
-      const review = await deps.review(deps.prompts.liveMonitor, context);
+      const review = await runReview(deps.prompts.liveMonitor, context);
       return liveMonitorOutput({
         ...review,
         additionalContext: `${origin}${review.additionalContext}`,
@@ -59,8 +83,7 @@ const handlers: Record<
     }
   },
 
-  SessionStart: () =>
-    Promise.resolve(hookContextOutput("SessionStart", SESSION_START)),
+  SessionStart: () => Promise.resolve(SESSION_START_OUTPUT),
 
   Stop: async ({ deps, hookInput, origin }) => {
     const { lines, records } = await deps.readTranscript();
@@ -74,14 +97,42 @@ const handlers: Record<
       return null;
     }
     try {
-      const review = await deps.stopReview(deps.prompts.stop, context);
-      return stopOutput(
-        {
-          ...review,
-          additionalContext: `${origin}${review.additionalContext}`,
-        },
-        hookInput.stop_hook_active ?? false
-      );
+      const review = await runStopReview(deps.prompts.stop, context);
+      const prefixed = {
+        ...review,
+        additionalContext: `${origin}${review.additionalContext}`,
+      };
+      const output = stopOutput(prefixed, hookInput.stop_hook_active ?? false);
+      if (
+        output === null ||
+        "decision" in output ||
+        prefixed.verdict !== "nudge" ||
+        prefixed.additionalContext === "" ||
+        !hookInput.session_id
+      ) {
+        return output;
+      }
+      const target = nudgeStatePath(hookInput.session_id);
+      let raw = "{}";
+      try {
+        raw = await readFile(target, "utf-8");
+      } catch (error) {
+        if (!z.object({ code: z.literal("ENOENT") }).safeParse(error).success) {
+          throw error;
+        }
+      }
+      const stored = jsonString(NudgeState).safeParse(raw);
+      const state = stored.success ? stored.data : {};
+      const key = prefixed.additionalContext;
+      const last = state[key];
+      const now = Date.now();
+      if (last !== undefined && now - last < NUDGE_COOLDOWN_MS) {
+        return null;
+      }
+      await writeFile(target, JSON.stringify({ ...state, [key]: now }), {
+        mode: 0o600,
+      });
+      return output;
     } catch (error) {
       console.error(
         `correctionguy stop review failed: ${error instanceof Error ? error.message : String(error)}`
@@ -104,49 +155,4 @@ export const runHook = (
     hookInput,
     origin: originId ? `[for ${originId}] ` : "",
   });
-};
-
-export interface HookIo {
-  argv: readonly string[];
-  cadenceEnv: string | undefined;
-  readFile: (path: string) => Promise<string>;
-  readStdin: () => Promise<unknown>;
-  review: (prompt: string, context: string) => Promise<Review>;
-  stopReview: (prompt: string, context: string) => Promise<StopReview>;
-}
-
-export const main = async (io: HookIo): Promise<string | null> => {
-  const command = Command.parse(io.argv.at(2));
-  const hookInput = HookInput.parse(await io.readStdin());
-  const cadence = MonitorCadence.parse(io.cadenceEnv ?? 10);
-  const output = await runHook(command, hookInput, cadence, {
-    prompts: CLAUDE_PROMPTS,
-    readTranscript: async () => {
-      const { agent_id, transcript_path } = hookInput;
-      if (!transcript_path) {
-        throw new Error("transcript_path missing from hook input");
-      }
-      if (!agent_id) {
-        return parseTranscript(await io.readFile(transcript_path));
-      }
-      const root = path.join(
-        path.dirname(transcript_path),
-        path.basename(transcript_path, ".jsonl"),
-        "subagents"
-      );
-      const entries = await readdir(root, { recursive: true });
-      const entry = entries.find(
-        (candidate) => path.basename(candidate) === `agent-${agent_id}.jsonl`
-      );
-      if (!entry) {
-        throw new Error(
-          `subagent transcript agent-${agent_id}.jsonl missing under ${root}`
-        );
-      }
-      return parseTranscript(await io.readFile(path.join(root, entry)));
-    },
-    review: io.review,
-    stopReview: io.stopReview,
-  });
-  return output ? JSON.stringify(output) : null;
 };
