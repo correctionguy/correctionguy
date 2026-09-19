@@ -5,7 +5,7 @@ metadata:
   type: feedback
 ---
 
-User-triggered surface (2026-08-03): `/correctionguy:actually` (skill at `skills/actually/SKILL.md`; Pi via `registerCommand("correctionguy:actually")`). Use when Correction Guy rooted on an old, outdated, or wrong convention. The agent must record the override in `.memory` as `type: feedback` (wrong assumption + correction; update conflicting memory in place), then apply it for the rest of the session and later ones. `disable-model-invocation: true` so only the user fires it.
+User-triggered surface (2026-08-03): `/correctionguy:actually` (skill at `skills/actually/SKILL.md`; on Pi it is `/skill:actually`, loaded natively through `package.json` `pi.skills` since 2026-09-19). Use when Correction Guy rooted on an old, outdated, or wrong convention. The agent must record the override in `.memory` as `type: feedback` (wrong assumption + correction; update conflicting memory in place), then apply it for the rest of the session and later ones. `disable-model-invocation: true` so only the user fires it.
 
 **Why:** Informal "you're wrong" already belonged in `.memory`, but rooted conventions from past memories or guidance need a dedicated override path the user controls, so the reviewer stops enforcing the stale rule.
 

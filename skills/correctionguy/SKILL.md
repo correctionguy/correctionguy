@@ -9,7 +9,7 @@ Six failures Correction Guy hunts. Avoid each.
 
 ## Start
 
-Recall memory, restate task, explore project. Memory = `<project>/.memory`; absent -> run correctionguy:setup (host lacks it -> create `.memory/` with a `MEMORY.md` index by hand). User says Correction Guy rooted on a wrong convention -> user runs correctionguy:actually; without it, record the override in `.memory` as feedback yourself (wrong assumption + correction, update the conflicting memory in place) and apply it from now on.
+Recall memory, restate task, explore project. Memory = `<project>/.memory`; absent -> run the plugin's setup skill (host lacks it -> create `.memory/` with a `MEMORY.md` index by hand). User says Correction Guy rooted on a wrong convention -> user runs the plugin's actually skill; without it, record the override in `.memory` as feedback yourself (wrong assumption + correction, update the conflicting memory in place) and apply it from now on.
 
 ## Unverified assumption
 

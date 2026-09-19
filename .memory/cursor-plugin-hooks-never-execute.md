@@ -1,9 +1,11 @@
 ---
 name: cursor-plugin-hooks-never-execute
-description: Cursor's agent runtime discovers and validates plugin-shipped hooks but has no code path that executes them; only 7 non-plugin hook sources run
+description: Cursor executes plugin-shipped command hooks since its 2026-08-11 CLI release (source-traced on build 2026.09.15); the July 2026 finding below that only 7 non-plugin sources run is superseded
 metadata:
   type: reference
 ---
+
+Correction, 2026-09-19 (later correction wins): Cursor's CLI changelog for 2026-08-11 states "Plugin hooks run from installed plugins. Hooks defined by installed plugins, including those loaded with `--plugin-dir`, now execute and refresh when plugins reload." A source trace of build 2026.09.15-d2fe57e (`190.index.js`, hooks executor) confirms it: after the eight non-plugin sources, `executeHookForStep` appends every `config.pluginHooks` entry with `source: "claude-plugin"`, `cwd` = plugin install path (workspace path for `stop`), env `CURSOR_PLUGIN_ROOT` and `CLAUDE_PLUGIN_ROOT` = install path, and the entries reach the same shell executor. `pluginHooks` is populated at startup from `getPluginHooks()` over all enabled plugins (manifest `hooks` path or default `hooks/hooks.json`) and refreshed on plugin reload; no feature gate. Only command hooks are appended; plugin prompt hooks are dropped. Not yet live-probed (no installed plugin on the gate machine ships hooks); the probe and the migration off `scripts/cursor-install.ts` are issue #19. Everything below describes build 2026.07.23 and stays as history of why the installer exists.
 
 Read from the shipped Cursor agent CLI source (build 2026.07.23-e383d2b, bundles `index.js` + `3143.index.js`), 2026-07-28:
 
@@ -24,4 +26,4 @@ Live probe, agent CLI 2026-07-28 (all of the above confirmed against a real sess
 
 **Why:** Correction Guy shipped its Cursor hooks via `.cursor-plugin/plugin.json` `hooks` -> `hooks/cursor-hooks.json`, assuming plugin hooks execute. Users reported no hook ever fired; source reading found the executor gap and the live probe confirmed it.
 
-**How to apply:** Deliver Cursor hooks through a source the executor actually runs, meaning project `.cursor/hooks.json` or user `~/.cursor/hooks.json` with absolute paths, not through the plugin manifest. Since v3.12.0 that is `scripts/cursor-install.ts` (idempotent merge into `~/.cursor/hooks.json`, plugin manifest no longer declares hooks, `/cursor-setup` command walks users through it). See [[live-monitor-todos-title-sources]] and [[cursor-marketplace-manual-review]].
+**How to apply:** Until issue #19 lands, delivery stays `scripts/cursor-install.ts` (idempotent merge into `~/.cursor/hooks.json`, plugin manifest declares no hooks, `/cursor-setup` command walks users through it). Once the live probe confirms plugin hooks fire on a current build, point `.cursor-plugin/plugin.json` `hooks` at `hooks/cursor-hooks.json` (both hosts default to `hooks/hooks.json`, which is the Claude format) and retire the installer, the command, and the README clone steps. See [[live-monitor-todos-title-sources]] and [[cursor-marketplace-manual-review]].
