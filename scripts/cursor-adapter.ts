@@ -6,20 +6,19 @@ import { z } from "zod/v4";
 import { correctionguyMessage, jsonString } from "./core.ts";
 import type { Command, HookInput, HookOutput } from "./core.ts";
 
-const CURSOR_EVENTS = {
+export const CursorHookEvent = z.enum([
+  "postToolUse",
+  "preToolUse",
+  "sessionStart",
+  "stop",
+]);
+export type CursorHookEvent = z.output<typeof CursorHookEvent>;
+export type CursorReviewEvent = Exclude<CursorHookEvent, "preToolUse">;
+
+const CURSOR_EVENTS: Record<CursorReviewEvent, Command> = {
   postToolUse: "PostToolBatch",
   sessionStart: "SessionStart",
   stop: "Stop",
-} as const satisfies Record<string, Command>;
-
-export type CursorReviewEvent = keyof typeof CURSOR_EVENTS;
-export type CursorHookEvent = CursorReviewEvent | "preToolUse";
-
-export const parseCursorEvent = (value: string): CursorHookEvent => {
-  if (value === "preToolUse" || value in CURSOR_EVENTS) {
-    return value as CursorHookEvent;
-  }
-  throw new Error(`unsupported Cursor hook event: ${value}`);
 };
 
 export const toCommand = (event: CursorReviewEvent): Command =>

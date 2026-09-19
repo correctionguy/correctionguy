@@ -13,7 +13,7 @@ Establishes the memory layout Correction Guy expects, then back-fills `.memory` 
 - `<root>/.memory` is itself a symlink (the historical inversion) -> materialize before anything else: note the target, remove the symlink, `mkdir .memory`, copy the target's files — including dotfiles — into it. Never proceed with `.memory` as a symlink; step 2's merge branch would otherwise delete the only copy and loop the links.
 - Create `<root>/.memory/` if missing.
 - `.memory` is git-tracked and committed with the repo (owner rule, 2026-07-20; supersedes the earlier gitignore-and-never-commit rule); its files commit with normal work. `.gitignore` lists `.memory` -> the folder was private until now: review every existing `.memory` file against the public bar below and scrub non-public details first, then delete the line so the folder tracks.
-- Because `.memory` is public, it holds public knowledge only: treat it like a public Wikipedia page. Never record device info, Slack info (conversation, user, workspace, or channel details), or environment info (`.env` keys, local machine paths or file listings).
+- Because `.memory` is public, it holds public knowledge only: treat it like a public Wikipedia page. Never record device info, Slack info (conversation, user, workspace, or channel details), or environment info (secret values, local machine paths or file listings). A secret is a value with a token shape (an API key, token, password, or private key string), whatever variable holds it; a variable name alone, such as `CORRECTIONGUY_*`, is public.
 - `<root>/.memory/MEMORY.md` = index only: one line per memory, `- [Title](file.md) — hook`. Create if missing. Memory content never goes in the index.
 
 ## 2. Symlink the traditional dir into it
@@ -43,7 +43,7 @@ Return the grade plus pointers to the hot spots (topics, rough position in file)
 
 - File is JSONL, one JSON object per line; skip any line that fails parse. Read user turns and assistant `text` blocks under `message.content[]`; skip tool dumps. Huge file -> extract with `jq`/grep slices, never read the whole raw file.
 - Hunt high-entropy learnings only — lessons a fresh agent could NOT re-derive from the codebase, git history, AGENTS.md, or docs: owner corrections, assumptions that turned out wrong (record the wrong assumption AND the correction), stated preferences, owner-stated project facts (User's Claims), external gotchas (API/CLI/platform behavior learned the hard way).
-- Skip task-local detail, anything readable from the repo, secrets, and anything non-public (device info, Slack conversation/user/workspace/channel details, environment info): `.memory` is git-tracked, public-Wikipedia bar.
+- Skip task-local detail, anything readable from the repo, secret values (token-shaped strings; a variable name alone is public), and anything non-public (device info, Slack conversation/user/workspace/channel details, environment info): `.memory` is git-tracked, public-Wikipedia bar.
 - Return per learning: the fact, why it matters, how to apply it, type (`user` | `feedback` | `project` | `reference`), and its date — `user`/`assistant` message lines carry a `timestamp` field (other line types may not); report the latest relevant one so the consolidator can break contradictions.
 
 Hundreds of transcripts -> run miners in waves and pass the consolidator only each wave's learnings, never raw transcript text.

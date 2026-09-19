@@ -1,28 +1,27 @@
-import { runReview, runStopReview } from "./codex.ts";
-import { main } from "./correctionguy.ts";
-import type { HookIo } from "./correctionguy.ts";
-
-const io: HookIo = {
-  argv: Bun.argv,
-  cadenceEnv: Bun.env.CORRECTIONGUY_MONITOR_EVERY_BATCHES,
-  readFile: (path) => Bun.file(path).text(),
-  readStdin: () => Bun.stdin.json(),
-  review: runReview,
-  stopReview: runStopReview,
-};
+import { Command, HookInput, MonitorCadence, parseTranscript } from "./core.ts";
+import { runHook } from "./correctionguy.ts";
+import { CLAUDE_PROMPTS } from "./prompts.ts";
 
 try {
-  const line = await main(io);
-  if (line !== null) {
-    console.log(line);
+  const command = Command.parse(Bun.argv.at(2));
+  const hookInput = HookInput.parse(await Bun.stdin.json());
+  const cadence = MonitorCadence.parse(
+    Bun.env.CORRECTIONGUY_MONITOR_EVERY_BATCHES ?? 10
+  );
+  const output = await runHook(command, hookInput, cadence, {
+    prompts: CLAUDE_PROMPTS,
+    readTranscript: async () => {
+      const path = hookInput.transcript_path;
+      if (!path) {
+        throw new Error("transcript_path missing from hook input");
+      }
+      return parseTranscript(await Bun.file(path).text());
+    },
+  });
+  if (output !== null) {
+    console.log(JSON.stringify(output));
   }
 } catch (error) {
-  if (
-    error instanceof Error &&
-    (error.name === "AbortError" || error.name === "TimeoutError")
-  ) {
-    process.exit(0);
-  }
   console.error(
     `correctionguy hook error: ${error instanceof Error ? error.message : String(error)}`
   );

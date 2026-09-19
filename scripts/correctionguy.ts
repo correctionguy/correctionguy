@@ -1,29 +1,24 @@
+import { runReview, runStopReview } from "./codex.ts";
 import {
-  Command,
-  HookInput,
-  MonitorCadence,
   correctionguyMessage,
   liveMonitorContext,
   liveMonitorOutput,
-  parseTranscript,
   stopOutput,
   stopReviewContext,
 } from "./core.ts";
 import type {
+  Command,
   ContextOutput,
+  HookInput,
   HookOutput,
-  Review,
-  StopReview,
   Transcript,
 } from "./core.ts";
-import { CLAUDE_PROMPTS, SESSION_START } from "./prompts.ts";
+import { SESSION_START } from "./prompts.ts";
 import type { HostPrompts } from "./prompts.ts";
 
 interface HookDeps {
   prompts: HostPrompts;
   readTranscript: () => Promise<Transcript>;
-  review: (prompt: string, context: string) => Promise<Review>;
-  stopReview: (prompt: string, context: string) => Promise<StopReview>;
 }
 
 interface HookContext {
@@ -59,7 +54,7 @@ const handlers: Record<
     }
     try {
       return liveMonitorOutput(
-        await deps.review(deps.prompts.liveMonitor, context)
+        await runReview(deps.prompts.liveMonitor, context)
       );
     } catch (error) {
       console.error(
@@ -84,7 +79,7 @@ const handlers: Record<
     }
     try {
       return stopOutput(
-        await deps.stopReview(deps.prompts.stop, context),
+        await runStopReview(deps.prompts.stop, context),
         hookInput.stop_hook_active ?? false
       );
     } catch (error) {
@@ -103,31 +98,3 @@ export const runHook = (
   deps: HookDeps
 ): Promise<HookOutput | null> =>
   handlers[command]({ cadence, deps, hookInput });
-
-export interface HookIo {
-  argv: readonly string[];
-  cadenceEnv: string | undefined;
-  readFile: (path: string) => Promise<string>;
-  readStdin: () => Promise<unknown>;
-  review: (prompt: string, context: string) => Promise<Review>;
-  stopReview: (prompt: string, context: string) => Promise<StopReview>;
-}
-
-export const main = async (io: HookIo): Promise<string | null> => {
-  const command = Command.parse(io.argv.at(2));
-  const hookInput = HookInput.parse(await io.readStdin());
-  const cadence = MonitorCadence.parse(io.cadenceEnv ?? 10);
-  const output = await runHook(command, hookInput, cadence, {
-    prompts: CLAUDE_PROMPTS,
-    readTranscript: async () => {
-      const path = hookInput.transcript_path;
-      if (!path) {
-        throw new Error("transcript_path missing from hook input");
-      }
-      return parseTranscript(await io.readFile(path));
-    },
-    review: io.review,
-    stopReview: io.stopReview,
-  });
-  return output ? JSON.stringify(output) : null;
-};
