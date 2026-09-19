@@ -1,6 +1,16 @@
+import { createHash } from "node:crypto";
+import { readFile, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import path from "node:path";
+
+import { z } from "zod/v4";
+
 import { runReview, runStopReview } from "./codex.ts";
 import {
+  NUDGE_COOLDOWN_MS,
+  NudgeState,
   correctionguyMessage,
+  jsonString,
   liveMonitorContext,
   liveMonitorOutput,
   stopOutput,
@@ -15,6 +25,12 @@ import type {
 } from "./core.ts";
 import { SESSION_START } from "./prompts.ts";
 import type { HostPrompts } from "./prompts.ts";
+
+export const nudgeStatePath = (sessionId: string) =>
+  path.join(
+    tmpdir(),
+    `correctionguy-nudges-${createHash("sha256").update(sessionId).digest("hex")}.json`
+  );
 
 interface HookDeps {
   prompts: HostPrompts;
@@ -78,10 +94,38 @@ const handlers: Record<
       return null;
     }
     try {
-      return stopOutput(
-        await runStopReview(deps.prompts.stop, context),
-        hookInput.stop_hook_active ?? false
-      );
+      const review = await runStopReview(deps.prompts.stop, context);
+      const output = stopOutput(review, hookInput.stop_hook_active ?? false);
+      if (
+        output === null ||
+        "decision" in output ||
+        review.verdict !== "nudge" ||
+        review.additionalContext === "" ||
+        !hookInput.session_id
+      ) {
+        return output;
+      }
+      const target = nudgeStatePath(hookInput.session_id);
+      let raw = "{}";
+      try {
+        raw = await readFile(target, "utf-8");
+      } catch (error) {
+        if (!z.object({ code: z.literal("ENOENT") }).safeParse(error).success) {
+          throw error;
+        }
+      }
+      const stored = jsonString(NudgeState).safeParse(raw);
+      const state = stored.success ? stored.data : {};
+      const key = review.additionalContext;
+      const last = state[key];
+      const now = Date.now();
+      if (last !== undefined && now - last < NUDGE_COOLDOWN_MS) {
+        return null;
+      }
+      await writeFile(target, JSON.stringify({ ...state, [key]: now }), {
+        mode: 0o600,
+      });
+      return output;
     } catch (error) {
       console.error(
         `correctionguy stop review failed: ${error instanceof Error ? error.message : String(error)}`

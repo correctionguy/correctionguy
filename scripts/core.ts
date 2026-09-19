@@ -110,6 +110,9 @@ export const StopReview = z.object({
 });
 export type StopReview = z.output<typeof StopReview>;
 
+export const NUDGE_COOLDOWN_MS = 1_800_000;
+export const NudgeState = z.record(z.string(), z.number());
+
 const TodoItem = z.object({ content: z.string(), status: z.string() });
 const LiveMonitorContext = z.object({
   current_tool_batch: z.array(PostToolBatchToolCall),

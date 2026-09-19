@@ -70,6 +70,7 @@ export default function correctionguy(pi: ExtensionAPI): void {
 
   pi.on("agent_end", async (_event, ctx) => {
     const hookInput: HookInput = {
+      session_id: ctx.sessionManager.getSessionId(),
       stop_hook_active: blockCount > 0,
       transcript_path: ctx.sessionManager.getSessionFile() ?? "",
     };
