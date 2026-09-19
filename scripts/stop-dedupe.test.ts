@@ -46,7 +46,7 @@ test("a repeated nudge for the same correction fires once inside the cooldown", 
   await unlink(nudgeStatePath(sessionId));
   expect(first).toEqual({
     continue: true,
-    systemMessage: "(Correction Guy) Run tests before claiming fixed",
+    systemMessage: `(Correction Guy) [for ${sessionId}] Run tests before claiming fixed`,
   });
   expect(second).toBeNull();
 });
@@ -65,7 +65,7 @@ test("a nudge with different correction text still fires inside the cooldown", a
   expect(first).not.toBeNull();
   expect(second).toEqual({
     continue: true,
-    systemMessage: "(Correction Guy) Fix the red typecheck before stopping",
+    systemMessage: `(Correction Guy) [for ${sessionId}] Fix the red typecheck before stopping`,
   });
 });
 
@@ -74,7 +74,8 @@ test("a nudge fires again once the cooldown has passed", async () => {
   await writeFile(
     nudgeStatePath(sessionId),
     JSON.stringify({
-      "Run tests before claiming fixed": Date.now() - NUDGE_COOLDOWN_MS - 1,
+      [`[for ${sessionId}] Run tests before claiming fixed`]:
+        Date.now() - NUDGE_COOLDOWN_MS - 1,
     })
   );
   stopReview = () => Promise.resolve(noReviews);
@@ -82,7 +83,7 @@ test("a nudge fires again once the cooldown has passed", async () => {
   await unlink(nudgeStatePath(sessionId));
   expect(output).toEqual({
     continue: true,
-    systemMessage: "(Correction Guy) Run tests before claiming fixed",
+    systemMessage: `(Correction Guy) [for ${sessionId}] Run tests before claiming fixed`,
   });
 });
 
@@ -90,7 +91,9 @@ test("a block is never held back by an earlier notice for the same text", async 
   const sessionId = crypto.randomUUID();
   await writeFile(
     nudgeStatePath(sessionId),
-    JSON.stringify({ "Run tests before claiming fixed": Date.now() })
+    JSON.stringify({
+      [`[for ${sessionId}] Run tests before claiming fixed`]: Date.now(),
+    })
   );
   stopReview = () => Promise.resolve({ ...noReviews, verdict: "block" });
   const first = await runHook("Stop", { session_id: sessionId }, 10, deps);

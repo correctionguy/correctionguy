@@ -88,6 +88,7 @@ const PostToolBatchToolCall = z.object({
 export type PostToolBatchToolCall = z.output<typeof PostToolBatchToolCall>;
 
 export const HookInput = z.object({
+  agent_id: z.string().optional(),
   last_assistant_message: z.string().optional(),
   session_id: z.string().optional(),
   stop_hook_active: z.boolean().optional(),

@@ -41,6 +41,7 @@ interface HookContext {
   cadence: number;
   deps: HookDeps;
   hookInput: HookInput;
+  origin: string;
 }
 
 const SESSION_START_OUTPUT: ContextOutput = {
@@ -57,7 +58,7 @@ const handlers: Record<
   Command,
   (ctx: HookContext) => Promise<HookOutput | null>
 > = {
-  PostToolBatch: async ({ cadence, deps, hookInput }) => {
+  PostToolBatch: async ({ cadence, deps, hookInput, origin }) => {
     const { lines, records } = await deps.readTranscript();
     const context = liveMonitorContext({
       cadence,
@@ -69,9 +70,11 @@ const handlers: Record<
       return null;
     }
     try {
-      return liveMonitorOutput(
-        await runReview(deps.prompts.liveMonitor, context)
-      );
+      const review = await runReview(deps.prompts.liveMonitor, context);
+      return liveMonitorOutput({
+        ...review,
+        additionalContext: `${origin}${review.additionalContext}`,
+      });
     } catch (error) {
       console.error(
         `correctionguy live-monitor review failed: ${error instanceof Error ? error.message : String(error)}`
@@ -82,7 +85,7 @@ const handlers: Record<
 
   SessionStart: () => Promise.resolve(SESSION_START_OUTPUT),
 
-  Stop: async ({ deps, hookInput }) => {
+  Stop: async ({ deps, hookInput, origin }) => {
     const { lines, records } = await deps.readTranscript();
     const context = stopReviewContext({
       lastAssistantMessage: hookInput.last_assistant_message,
@@ -95,12 +98,16 @@ const handlers: Record<
     }
     try {
       const review = await runStopReview(deps.prompts.stop, context);
-      const output = stopOutput(review, hookInput.stop_hook_active ?? false);
+      const prefixed = {
+        ...review,
+        additionalContext: `${origin}${review.additionalContext}`,
+      };
+      const output = stopOutput(prefixed, hookInput.stop_hook_active ?? false);
       if (
         output === null ||
         "decision" in output ||
-        review.verdict !== "nudge" ||
-        review.additionalContext === "" ||
+        prefixed.verdict !== "nudge" ||
+        prefixed.additionalContext === "" ||
         !hookInput.session_id
       ) {
         return output;
@@ -116,7 +123,7 @@ const handlers: Record<
       }
       const stored = jsonString(NudgeState).safeParse(raw);
       const state = stored.success ? stored.data : {};
-      const key = review.additionalContext;
+      const key = prefixed.additionalContext;
       const last = state[key];
       const now = Date.now();
       if (last !== undefined && now - last < NUDGE_COOLDOWN_MS) {
@@ -140,5 +147,12 @@ export const runHook = (
   hookInput: HookInput,
   cadence: number,
   deps: HookDeps
-): Promise<HookOutput | null> =>
-  handlers[command]({ cadence, deps, hookInput });
+): Promise<HookOutput | null> => {
+  const originId = hookInput.agent_id ?? hookInput.session_id;
+  return handlers[command]({
+    cadence,
+    deps,
+    hookInput,
+    origin: originId ? `[for ${originId}] ` : "",
+  });
+};
