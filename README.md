@@ -96,4 +96,6 @@ Pi loads the skills from the package manifest and exposes them as `/skill:correc
 
 Everything is tuned through `CORRECTIONGUY_*` environment variables — model, reasoning effort, review cadence, and a `CORRECTIONGUY_YOLO` switch that drops the read-only sandbox for the reviews. Defaults live in `scripts/codex.ts`. You're going to ask an agent to do it, so I'm not going to write it out here 😏
 
+On a host with [tokenmaxxing](https://github.com/anaclumos/tokenmaxxing) pooling your Codex logins, the reviews draw from the pool instead of the one ambient login: each review borrows a usable pooled account (`tokenmaxxing seat --codex`) for its own run, so a maxed-out ambient account no longer silences Correction Guy. No setup beyond installing tokenmaxxing; `CORRECTIONGUY_TOKENMAXXING=0` keeps the ambient login.
+
 Licensed under [MIT](LICENSE).
