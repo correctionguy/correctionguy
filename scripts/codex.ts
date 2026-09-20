@@ -60,25 +60,28 @@ const borrowTokenmaxxingSeat = (): string | null => {
   if (borrowedSeat !== undefined) {
     return borrowedSeat;
   }
-  const enabled = z
-    .stringbool()
-    .default(true)
-    .parse(process.env.CORRECTIONGUY_TOKENMAXXING);
-  if (!enabled) {
-    borrowedSeat = null;
-    return borrowedSeat;
-  }
   try {
+    const enabled = z
+      .stringbool()
+      .default(true)
+      .parse(process.env.CORRECTIONGUY_TOKENMAXXING);
+    if (!enabled) {
+      borrowedSeat = null;
+      return borrowedSeat;
+    }
     const r = spawnSync(
       "tokenmaxxing",
       ["seat", "--codex", String(process.pid)],
       {
         encoding: "utf-8",
-        stdio: ["ignore", "pipe", "ignore"],
+        stdio: ["ignore", "pipe", "pipe"],
         timeout: SEAT_TIMEOUT_MS,
       }
     );
     const dir = r.status === 0 ? r.stdout.trim() : "";
+    if (typeof r.status === "number" && r.status !== 0 && r.stderr) {
+      console.error(`correctionguy: tokenmaxxing seat: ${r.stderr.trim()}`);
+    }
     borrowedSeat = dir === "" ? null : dir;
   } catch {
     borrowedSeat = null;
