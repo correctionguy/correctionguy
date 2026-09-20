@@ -6,13 +6,13 @@ import { z } from "zod/v4";
 import { correctionguyMessage, jsonString } from "./core.ts";
 import type { Command, HookInput, HookOutput } from "./core.ts";
 
-export const CursorHookEvent = z.enum([
+export const CursorHookEventSchema = z.enum([
   "postToolUse",
   "preToolUse",
   "sessionStart",
   "stop",
 ]);
-export type CursorHookEvent = z.output<typeof CursorHookEvent>;
+export type CursorHookEvent = z.output<typeof CursorHookEventSchema>;
 export type CursorReviewEvent = Exclude<CursorHookEvent, "preToolUse">;
 
 const CURSOR_EVENTS: Record<CursorReviewEvent, Command> = {
@@ -24,20 +24,20 @@ const CURSOR_EVENTS: Record<CursorReviewEvent, Command> = {
 export const toCommand = (event: CursorReviewEvent): Command =>
   CURSOR_EVENTS[event];
 
-export const CursorHookPayload = z.looseObject({
+export const CursorHookPayloadSchema = z.looseObject({
   conversation_id: z.string().optional(),
   generation_id: z.string().optional(),
   hook_event_name: z.string().optional(),
   last_assistant_message: z.string().optional(),
   loop_count: z.number().optional(),
   session_id: z.string().optional(),
-  tool_input: z.json().optional(),
+  tool_input: z.unknown().optional(),
   tool_name: z.string().optional(),
   tool_output: z.string().optional(),
   tool_use_id: z.string().optional(),
   transcript_path: z.string().nullish(),
 });
-export type CursorHookPayload = z.output<typeof CursorHookPayload>;
+export type CursorHookPayload = z.output<typeof CursorHookPayloadSchema>;
 
 export const mapCursorInput = (
   payload: CursorHookPayload,
@@ -80,13 +80,13 @@ export const mapCursorInput = (
   return hookInput;
 };
 
-export const PendingCorrection = z.object({
+export const PendingCorrectionSchema = z.object({
   generation_id: z.string(),
   message: z.string(),
 });
-export type PendingCorrection = z.output<typeof PendingCorrection>;
+export type PendingCorrection = z.output<typeof PendingCorrectionSchema>;
 
-export const parsePendingCorrection = jsonString(PendingCorrection);
+export const parsePendingCorrection = jsonString(PendingCorrectionSchema);
 
 export const pendingCorrectionPath = (conversationId: string) =>
   path.join(

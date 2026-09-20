@@ -70,17 +70,11 @@ Use these when you want the sidecar reviews (session prelude, live monitor, stop
 
 **Cursor**
 
-Cursor never executes plugin-shipped hooks (they appear under Settings but do not run), so install the hooks directly after the Agent Plugins skills are in place (or instead, if you only want the hook path):
+Install the plugin from the [Cursor Marketplace](https://cursor.com/marketplace), or add this repository as a local plugin. Cursor executes plugin-shipped command hooks, so the session prelude, live monitor, and stop check run from the plugin. Bun is required for those hook commands.
 
-```sh
-git clone https://github.com/correctionguy/correctionguy ~/.cursor/correctionguy
-cd ~/.cursor/correctionguy && bun install
-bun scripts/cursor-install.ts
-```
+If you previously ran `scripts/cursor-install.ts`, remove the correctionguy entries from `~/.cursor/hooks.json` so they do not fire twice.
 
-The installer merges Correction Guy's `sessionStart`, `preToolUse`, `postToolUse`, and `stop` entries into `~/.cursor/hooks.json` with absolute paths and preserves everything else in that file; re-running it always converges. Update later with `git pull` in the same folder, then re-run the installer so new hook entries land. The [Cursor Marketplace](https://cursor.com/marketplace) plugin still provides the skills and `/cursor-setup`, which walks the agent through these exact steps.
-
-Cursor injects hook context where the running generation never reads it, so live-monitor corrections would otherwise sit unread until the next turn. The `preToolUse` hook fixes that: when a review flags the session, Correction Guy holds the very next tool call and delivers the correction through the denial message, which the agent reads immediately. The correction still lands in conversation context as well, so installs that have not re-run the installer keep the older next-turn delivery instead of losing corrections. Note that Cursor launches hooks with a constructed environment, not your shell's, so `CORRECTIONGUY_*` variables exported in your shell do not reach the reviews there; defaults apply. Cursor's User Rules live in Cursor settings, not on disk, so the reviewer judges instruction files there against `.cursor/rules` and AGENTS.md only.
+Cursor injects hook context where the running generation never reads it, so live-monitor corrections would otherwise sit unread until the next turn. The `preToolUse` hook fixes that: when a review flags the session, Correction Guy holds the very next tool call and delivers the correction through the denial message, which the agent reads immediately. The correction still lands in conversation context as well, so older installs that only have `additional_context` keep next-turn delivery instead of losing corrections. Note that Cursor launches hooks with a constructed environment, not your shell's, so `CORRECTIONGUY_*` variables exported in your shell do not reach the reviews there; defaults apply. Cursor's User Rules live in Cursor settings, not on disk, so the reviewer judges instruction files there against `.cursor/rules` and AGENTS.md only.
 
 **Pi**
 

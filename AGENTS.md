@@ -2,7 +2,7 @@
 
 Repo-specific notes only. General working discipline is not repeated here. Background facts live in `.memory/`, indexed by `.memory/MEMORY.md`; load one when its topic comes up.
 
-correctionguy ships one plugin for three hosts: Claude Code, Cursor, and Pi (pi.dev), plus an [Agent Plugins](https://agent-plugins.org/) 1.0.0 portable core (root `plugin.json` + `skills/`) for other compatible clients. The Claude and Cursor hooks run as subprocesses; the Pi extension runs in-process. Cursor exposes neither todos nor chat title to hooks, so both degrade to empty. Cursor delivery is `scripts/cursor-install.ts`, which merges `hooks/cursor-hooks.json` (with `${CURSOR_PLUGIN_ROOT}` replaced by the checkout path) into `~/.cursor/hooks.json`. Cursor's CLI executes plugin-shipped command hooks since its 2026-08-11 release (source-traced on build 2026.09.15, not yet live-probed); moving delivery to the plugin manifest and retiring the installer is issue #19. See `.memory/cursor-plugin-hooks-never-execute.md` and `.memory/agent-plugins-portable-core.md`.
+correctionguy ships one plugin for three hosts: Claude Code, Cursor, and Pi (pi.dev), plus an [Agent Plugins](https://agent-plugins.org/) 1.0.0 portable core (root `plugin.json` + `skills/`) for other compatible clients. The Claude and Cursor hooks run as subprocesses; the Pi extension runs in-process. Cursor exposes neither todos nor chat title to hooks, so both degrade to empty. Cursor delivery is `.cursor-plugin/plugin.json` `hooks` pointing at `hooks/cursor-hooks.json`. Cursor's CLI executes plugin-shipped command hooks (live-probed on build 2026.09.18-9a7762b). See `.memory/cursor-plugin-hooks-never-execute.md` and `.memory/agent-plugins-portable-core.md`.
 
 # Traps
 

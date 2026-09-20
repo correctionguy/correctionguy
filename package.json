@@ -1,6 +1,6 @@
 {
   "name": "correctionguy",
-  "version": "3.24.0",
+  "version": "3.25.0",
   "description": "Agents often drift and waste time on the wrong work. Correction Guy watches from the sidelines and steers them back on track.",
   "keywords": [
     "codex",
@@ -19,19 +19,19 @@
     "validate": "bun scripts/validate.ts"
   },
   "dependencies": {
-    "@openai/codex-sdk": "0.153.4",
-    "es-toolkit": "1.49.0",
-    "zod": "^4.4.3"
+    "@openai/codex-sdk": "0.155.1",
+    "es-toolkit": "1.52.0",
+    "zod": "^4.6.5"
   },
   "devDependencies": {
-    "@earendil-works/pi-coding-agent": "^0.80.6",
+    "@earendil-works/pi-coding-agent": "^0.86.0",
     "@types/bun": "latest",
-    "lefthook": "^2.1.10",
-    "oxfmt": "^0.58.0",
-    "oxlint": "^1.73.0",
-    "oxlint-plugin-eslint": "^1.73.0",
+    "lefthook": "^2.1.14",
+    "oxfmt": "^0.68.0",
+    "oxlint": "^1.83.0",
+    "oxlint-plugin-eslint": "^1.83.0",
     "typescript": "^7.0.2",
-    "ultracite": "7.9.3"
+    "ultracite": "7.12.0"
   },
   "peerDependencies": {
     "@earendil-works/pi-coding-agent": "*"

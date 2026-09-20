@@ -11,5 +11,5 @@ The Codex model catalog (`codex debug models`, cached at `~/.codex/models_cache.
 
 **How to apply:**
 
-- The `ModelReasoningEffort` type in `@openai/codex-sdk` 0.153.4 is minimal, low, medium, high, xhigh, max, ultra, persistent. Mirror it in the `scripts/codex.ts` enum whenever the SDK is bumped so every catalog effort is settable from `CORRECTIONGUY_MODEL_REASONING_EFFORT`.
+- The `ModelReasoningEffort` type in `@openai/codex-sdk` 0.155.1 is minimal, low, medium, high, xhigh, max, ultra, persistent. Mirror it in the `scripts/codex.ts` enum whenever the SDK is bumped so every catalog effort is settable from `CORRECTIONGUY_MODEL_REASONING_EFFORT`.
 - Set `CORRECTIONGUY_SERVICE_TIER` to a tier id the model advertises (`priority` for Fast). `fast` is the legacy alias that maps to `priority`. See [[codex-standard-tier-is-absent-key]] and [[codex-sdk-version-gates-new-models]].

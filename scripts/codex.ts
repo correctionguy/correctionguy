@@ -4,7 +4,8 @@ import { Codex } from "@openai/codex-sdk";
 import type { CodexOptions, ThreadOptions } from "@openai/codex-sdk";
 import { z } from "zod/v4";
 
-import { Review, StopReview, jsonString } from "./core.ts";
+import { ReviewSchema, StopReviewSchema, jsonString } from "./core.ts";
+import type { Review, StopReview } from "./core.ts";
 
 const env = z
   .object({
@@ -116,9 +117,9 @@ const runJsonReview = async <T>(
 };
 
 export const runReview = (prompt: string, context: string): Promise<Review> =>
-  runJsonReview(prompt, context, Review);
+  runJsonReview(prompt, context, ReviewSchema);
 
 export const runStopReview = (
   prompt: string,
   context: string
-): Promise<StopReview> => runJsonReview(prompt, context, StopReview);
+): Promise<StopReview> => runJsonReview(prompt, context, StopReviewSchema);
