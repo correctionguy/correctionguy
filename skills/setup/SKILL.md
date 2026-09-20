@@ -18,7 +18,7 @@ Establishes the memory layout Correction Guy expects, then back-fills `.memory` 
 
 ## 2. Symlink the traditional dir into it
 
-Traditional memory dir = `~/.claude/projects/<slug>/memory`, where slug = project absolute path with every non-alphanumeric character replaced by `-` (confirm with `ls ~/.claude/projects | grep -i <basename>`). Direction always: real files live in `.memory`, the traditional path is the symlink — never the reverse.
+Traditional memory dir = `~/.claude/projects/<slug>/memory`, where slug = the main checkout's absolute path with every non-alphanumeric character replaced by `-` (confirm with `ls ~/.claude/projects | grep -i <basename>`). In a linked worktree (`git worktree add`), `<root>` for this step is the main checkout, `dirname "$(git rev-parse --path-format=absolute --git-common-dir)"`, never the worktree's cwd: the harness maps a worktree's memory to the main checkout's slug, the worktree's own `~/.claude/projects/<worktree slug>/` holds transcripts only, and a `memory` symlink placed there is read by nothing. Direction always: real files live in `.memory`, the traditional path is the symlink — never the reverse.
 
 - Already a symlink resolving to `<root>/.memory` -> done.
 - Path absent but `~/.claude/projects/<slug>` exists -> `ln -s <root>/.memory ~/.claude/projects/<slug>/memory`.
@@ -75,6 +75,6 @@ Glanceable bullets, no wall: layout actions taken, transcripts mined and skipped
 
 ## Sources
 
-- Transcript location `~/.claude/projects/<slug>/<uuid>.jsonl`: the `transcript_path` examples in https://code.claude.com/docs/en/hooks.md. Slug shape (non-alphanumeric -> `-`) is observed behavior — always confirm with `ls ~/.claude/projects`.
+- Transcript location `~/.claude/projects/<slug>/<uuid>.jsonl`: the `transcript_path` examples in https://code.claude.com/docs/en/hooks.md. Slug shape (non-alphanumeric -> `-`) is observed behavior — always confirm with `ls ~/.claude/projects`. A linked worktree's memory dir resolving to the main checkout's slug, with only its transcripts under the worktree's own slug, is observed behavior as well: the memory path a session reports from a worktree names the main checkout's slug.
 - Per-stage model routing ("Every agent in a workflow uses your session's model unless the script routes a stage to a different one"): https://code.claude.com/docs/en/workflows
 - `ln -sfn` for repointing (`-n`/`-h` treats a symlink-to-dir target as the link itself instead of descending into it): https://www.gnu.org/software/coreutils/manual/html_node/ln-invocation.html (GNU `-n`), https://github.com/apple-oss-distributions/file_cmds/blob/main/ln/ln.c#L106-L108 (macOS: `-n` is an alias of `-h`)
