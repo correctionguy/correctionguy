@@ -10,6 +10,8 @@ import {
 } from "./pi-adapter.ts";
 import { PI_PROMPTS, SESSION_START } from "./prompts.ts";
 
+process.env.CORRECTIONGUY_TOKENMAXXING ??= "0";
+
 const CUSTOM_TYPE = "correctionguy";
 
 const cadence = MonitorCadence.parse(

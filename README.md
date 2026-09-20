@@ -96,4 +96,6 @@ Pi loads the skills from the package manifest and exposes them as `/skill:correc
 
 Everything is tuned through `CORRECTIONGUY_*` environment variables — model, reasoning effort, review cadence, and a `CORRECTIONGUY_YOLO` switch that drops the read-only sandbox for the reviews. Defaults live in `scripts/codex.ts`. You're going to ask an agent to do it, so I'm not going to write it out here 😏
 
+On a host with [tokenmaxxing](https://github.com/anaclumos/tokenmaxxing) pooling your Codex logins, the Claude Code and Cursor reviews draw from the pool instead of the one ambient login: each review borrows a usable pooled account (`tokenmaxxing seat --codex`) for its own run and passes its store as `CODEX_HOME`, so a maxed-out ambient account no longer silences Correction Guy. The borrow needs `tokenmaxxing` on the hook process's `PATH`; when it is not there, or no pooled account is usable, the review runs on the ambient login as before. `CORRECTIONGUY_TOKENMAXXING=0` keeps the ambient login. Pi keeps the ambient login by default, because a borrow keyed to its long-lived process would pin one pooled account for the whole chat; `CORRECTIONGUY_TOKENMAXXING=1` opts in.
+
 Licensed under [MIT](LICENSE).

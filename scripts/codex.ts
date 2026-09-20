@@ -1,3 +1,5 @@
+import { spawnSync } from "node:child_process";
+
 import { Codex } from "@openai/codex-sdk";
 import type { CodexOptions, ThreadOptions } from "@openai/codex-sdk";
 import { z } from "zod/v4";
@@ -50,13 +52,61 @@ const codexOptions: CodexOptions = {
 };
 
 const REVIEW_TIMEOUT_MS = 120_000;
+const SEAT_TIMEOUT_MS = 10_000;
+
+let borrowedSeat: string | null | undefined;
+
+const borrowTokenmaxxingSeat = (): string | null => {
+  if (borrowedSeat !== undefined) {
+    return borrowedSeat;
+  }
+  try {
+    const enabled = z
+      .stringbool()
+      .default(true)
+      .parse(process.env.CORRECTIONGUY_TOKENMAXXING);
+    if (!enabled) {
+      borrowedSeat = null;
+      return borrowedSeat;
+    }
+    const r = spawnSync(
+      "tokenmaxxing",
+      ["seat", "--codex", String(process.pid)],
+      {
+        encoding: "utf-8",
+        stdio: ["ignore", "pipe", "pipe"],
+        timeout: SEAT_TIMEOUT_MS,
+      }
+    );
+    const dir = r.status === 0 ? r.stdout.trim() : "";
+    if (typeof r.status === "number" && r.status !== 0 && r.stderr) {
+      console.error(`correctionguy: tokenmaxxing seat: ${r.stderr.trim()}`);
+    }
+    borrowedSeat = dir === "" ? null : dir;
+  } catch {
+    borrowedSeat = null;
+  }
+  return borrowedSeat;
+};
 
 const runJsonReview = async <T>(
   prompt: string,
   context: string,
   schema: z.ZodType<T>
 ): Promise<T> => {
-  const { finalResponse } = await new Codex(codexOptions)
+  const seat = borrowTokenmaxxingSeat();
+  const seatEnv: Record<string, string> = {};
+  if (seat !== null) {
+    for (const [key, value] of Object.entries(process.env)) {
+      if (value !== undefined) {
+        seatEnv[key] = value;
+      }
+    }
+    seatEnv.CODEX_HOME = seat;
+  }
+  const { finalResponse } = await new Codex(
+    seat === null ? codexOptions : { ...codexOptions, env: seatEnv }
+  )
     .startThread(threadOptions)
     .run(`${prompt}\n\n\`\`\`json\n${context}\n\`\`\``, {
       outputSchema: z.toJSONSchema(schema),
