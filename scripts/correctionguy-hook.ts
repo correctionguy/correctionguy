@@ -1,13 +1,18 @@
 import { readdir } from "node:fs/promises";
 import path from "node:path";
 
-import { Command, HookInput, MonitorCadence, parseTranscript } from "./core.ts";
+import {
+  CommandSchema,
+  HookInputSchema,
+  MonitorCadence,
+  parseTranscript,
+} from "./core.ts";
 import { runHook } from "./correctionguy.ts";
 import { CLAUDE_PROMPTS } from "./prompts.ts";
 
 try {
-  const command = Command.parse(Bun.argv.at(2));
-  const hookInput = HookInput.parse(await Bun.stdin.json());
+  const command = CommandSchema.parse(Bun.argv.at(2));
+  const hookInput = HookInputSchema.parse(await Bun.stdin.json());
   const cadence = MonitorCadence.parse(
     Bun.env.CORRECTIONGUY_MONITOR_EVERY_BATCHES ?? 10
   );

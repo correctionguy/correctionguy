@@ -1,7 +1,7 @@
 {
   "name": "correctionguy",
   "displayName": "Correction Guy",
-  "version": "3.24.0",
+  "version": "3.25.0",
   "description": "Agents often drift and waste time on the wrong work. Correction Guy watches from the sidelines and steers them back on track.",
   "author": {
     "name": "correctionguy"
@@ -9,5 +9,6 @@
   "repository": "https://github.com/correctionguy/correctionguy",
   "license": "MIT",
   "keywords": ["codex", "discipline", "review", "workflow", "cursor"],
-  "logo": "images/logo.jpg"
+  "logo": "images/logo.jpg",
+  "hooks": "./hooks/cursor-hooks.json"
 }

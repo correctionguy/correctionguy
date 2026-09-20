@@ -3,8 +3,8 @@ import { rename, rm, writeFile } from "node:fs/promises";
 import { MonitorCadence, parseTranscript } from "./core.ts";
 import { runHook } from "./correctionguy.ts";
 import {
-  CursorHookEvent,
-  CursorHookPayload,
+  CursorHookEventSchema,
+  CursorHookPayloadSchema,
   mapCursorInput,
   mapCursorOutput,
   parsePendingCorrection,
@@ -15,8 +15,8 @@ import {
 import { CURSOR_PROMPTS } from "./prompts.ts";
 
 try {
-  const event = CursorHookEvent.parse(Bun.argv.at(2));
-  const payload = CursorHookPayload.parse(await Bun.stdin.json());
+  const event = CursorHookEventSchema.parse(Bun.argv.at(2));
+  const payload = CursorHookPayloadSchema.parse(await Bun.stdin.json());
 
   if (event === "preToolUse") {
     if (payload.conversation_id && payload.generation_id) {

@@ -20,7 +20,7 @@ const TranscriptContent = z.union([
   z.string().transform((text) => [{ text, type: "text" }]),
 ]);
 const TranscriptMessage = z.looseObject({ content: TranscriptContent });
-const TranscriptRecord = z
+const transcriptRecordSchema = z
   .looseObject({
     message: TranscriptMessage.optional(),
     role: z.string().optional(),
@@ -30,9 +30,9 @@ const TranscriptRecord = z
     ...record,
     type: record.type ?? record.role ?? "",
   }));
-export type TranscriptRecord = z.output<typeof TranscriptRecord>;
+export type TranscriptRecord = z.output<typeof transcriptRecordSchema>;
 
-const TranscriptLine = jsonString(TranscriptRecord);
+const TranscriptLine = jsonString(transcriptRecordSchema);
 export interface Transcript {
   lines: string[];
   records: TranscriptRecord[];
@@ -76,47 +76,49 @@ export const parseTranscript = (text: string): Transcript => {
   return { lines, records };
 };
 
-export const Command = z.enum(["SessionStart", "PostToolBatch", "Stop"]);
-export type Command = z.output<typeof Command>;
+export const CommandSchema = z.enum(["SessionStart", "PostToolBatch", "Stop"]);
+export type Command = z.output<typeof CommandSchema>;
 
-const PostToolBatchToolCall = z.object({
-  tool_input: z.json().optional(),
+const postToolBatchToolCallSchema = z.object({
+  tool_input: z.unknown().optional(),
   tool_name: z.string(),
-  tool_response: z.json().optional(),
+  tool_response: z.unknown().optional(),
   tool_use_id: z.string().optional(),
 });
-export type PostToolBatchToolCall = z.output<typeof PostToolBatchToolCall>;
+export type PostToolBatchToolCall = z.output<
+  typeof postToolBatchToolCallSchema
+>;
 
-export const HookInput = z.object({
+export const HookInputSchema = z.object({
   agent_id: z.string().optional(),
   last_assistant_message: z.string().optional(),
   session_id: z.string().optional(),
   stop_hook_active: z.boolean().optional(),
-  tool_calls: z.array(PostToolBatchToolCall).optional(),
+  tool_calls: z.array(postToolBatchToolCallSchema).optional(),
   transcript_path: z.string().optional(),
 });
-export type HookInput = z.output<typeof HookInput>;
+export type HookInput = z.output<typeof HookInputSchema>;
 
 export const MonitorCadence = z.coerce.number().int().min(0);
 
-export const Review = z.object({
+export const ReviewSchema = z.object({
   additionalContext: z.string(),
   lgtm: z.boolean(),
 });
-export type Review = z.output<typeof Review>;
+export type Review = z.output<typeof ReviewSchema>;
 
-export const StopReview = z.object({
+export const StopReviewSchema = z.object({
   additionalContext: z.string(),
   verdict: z.enum(["ok", "nudge", "block"]),
 });
-export type StopReview = z.output<typeof StopReview>;
+export type StopReview = z.output<typeof StopReviewSchema>;
 
 export const NUDGE_COOLDOWN_MS = 1_800_000;
 export const NudgeState = z.record(z.string(), z.number());
 
 const TodoItem = z.object({ content: z.string(), status: z.string() });
 const LiveMonitorContext = z.object({
-  current_tool_batch: z.array(PostToolBatchToolCall),
+  current_tool_batch: z.array(postToolBatchToolCallSchema),
   latest_assistant_message: z.string(),
   recent_transcript: z.string(),
   todos: z.array(TodoItem),
