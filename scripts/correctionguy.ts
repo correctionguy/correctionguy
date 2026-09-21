@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
-import { readFile, writeFile } from "node:fs/promises";
+import { existsSync } from "node:fs";
+import { readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 
@@ -32,6 +33,12 @@ export const nudgeStatePath = (sessionId: string) =>
     `correctionguy-nudges-${createHash("sha256").update(sessionId).digest("hex")}.json`
   );
 
+export const skipStatePath = (sessionId: string) =>
+  path.join(
+    tmpdir(),
+    `correctionguy-skipped-${createHash("sha256").update(sessionId).digest("hex")}`
+  );
+
 interface HookDeps {
   prompts: HostPrompts;
   readTranscript: () => Promise<Transcript>;
@@ -59,6 +66,12 @@ const handlers: Record<
   (ctx: HookContext) => Promise<HookOutput | null>
 > = {
   PostToolBatch: async ({ cadence, deps, hookInput, origin }) => {
+    if (
+      hookInput.session_id &&
+      existsSync(skipStatePath(hookInput.session_id))
+    ) {
+      return null;
+    }
     const { lines, records } = await deps.readTranscript();
     const context = liveMonitorContext({
       cadence,
@@ -79,13 +92,32 @@ const handlers: Record<
       console.error(
         `correctionguy live-monitor review failed: ${error instanceof Error ? error.message : String(error)}`
       );
+      if (hookInput.session_id) {
+        await writeFile(skipStatePath(hookInput.session_id), "", {
+          mode: 0o600,
+        });
+        console.error(
+          "correctionguy: reviews skipped for the rest of this session"
+        );
+      }
       return null;
     }
   },
 
-  SessionStart: () => Promise.resolve(SESSION_START_OUTPUT),
+  SessionStart: async ({ hookInput }) => {
+    if (hookInput.session_id) {
+      await rm(skipStatePath(hookInput.session_id), { force: true });
+    }
+    return SESSION_START_OUTPUT;
+  },
 
   Stop: async ({ deps, hookInput, origin }) => {
+    if (
+      hookInput.session_id &&
+      existsSync(skipStatePath(hookInput.session_id))
+    ) {
+      return null;
+    }
     const { lines, records } = await deps.readTranscript();
     const context = stopReviewContext({
       lastAssistantMessage: hookInput.last_assistant_message,
@@ -137,6 +169,14 @@ const handlers: Record<
       console.error(
         `correctionguy stop review failed: ${error instanceof Error ? error.message : String(error)}`
       );
+      if (hookInput.session_id) {
+        await writeFile(skipStatePath(hookInput.session_id), "", {
+          mode: 0o600,
+        });
+        console.error(
+          "correctionguy: reviews skipped for the rest of this session"
+        );
+      }
       return null;
     }
   },
