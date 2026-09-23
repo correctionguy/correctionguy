@@ -153,8 +153,7 @@ const handlers: Record<
           throw error;
         }
       }
-      const stored = jsonString(NudgeState).safeParse(raw);
-      const state = stored.success ? stored.data : {};
+      const state = jsonString(NudgeState).parse(raw);
       const key = prefixed.additionalContext;
       const last = state[key];
       const now = Date.now();
