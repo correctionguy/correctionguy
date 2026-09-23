@@ -1,7 +1,0 @@
-{
-  "plugins": {
-    "create-plugin": {
-      "enabled": true
-    }
-  }
-}

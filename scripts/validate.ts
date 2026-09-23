@@ -14,7 +14,6 @@ const AGENT_PLUGINS_SCHEMA_URL =
 const legacyManifests = [
   ".claude-plugin/plugin.json",
   ".claude-plugin/marketplace.json",
-  ".cursor-plugin/marketplace.json",
 ] as const;
 
 const procs = legacyManifests.map((manifest) =>
@@ -92,9 +91,6 @@ const versions = [
   z
     .object({ version: z.string() })
     .parse(await Bun.file(".claude-plugin/plugin.json").json()).version,
-  z
-    .object({ version: z.string() })
-    .parse(await Bun.file(".cursor-plugin/plugin.json").json()).version,
 ] as const;
 
 if (new Set(versions).size === 1) {

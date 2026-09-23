@@ -1,12 +1,10 @@
 ---
 name: one-ondemand-surface-skill-not-command
-description: On-demand Correction Guy reminder is skills/correctionguy/SKILL.md only; do not keep a same-named commands/correctionguy.md
+description: Skills are the only on-demand surfaces; never add a commands/ directory, since a same-named command and skill collapse into one slash command
 metadata:
   type: feedback
 ---
 
-The on-demand discipline reminder lives only at `skills/correctionguy/SKILL.md` (`/correctionguy`). Do not re-add `commands/correctionguy.md`.
+`/correctionguy` is `skills/correctionguy/SKILL.md`, `/correctionguy:setup` is `skills/setup/SKILL.md`, and `/correctionguy:actually` is `skills/actually/SKILL.md` (user-only through `disable-model-invocation`). Claude Code registers a same-named command and skill as one slash command, so a `commands/` copy is duplicate surface plus sync burden. Pi loads the same skills through `package.json` `pi.skills` as `/skill:<name>`.
 
-**Why:** Owner (2026-08-01): having both a command and a skill for Correction Guy was very confusing. Claude Code and Cursor both register a same-named command and skill as one `/correctionguy` (skill wins on Claude Code), so the pair was duplicate surface plus sync burden. Skills are the current host format for this kind of reminder; the repo ships no `commands/` directory since `/cursor-setup` retired with the Cursor installer, see [[cursor-plugin-hooks-never-execute]].
-
-**How to apply:** When changing agent-facing discipline, sync `scripts/prompts.ts` (SESSION_START) with `skills/correctionguy/SKILL.md` only. Setup remains `skills/setup/SKILL.md` (`correctionguy:setup`). Convention overrides remain `skills/actually/SKILL.md` (`correctionguy:actually`; user-only). See [[release-process]], [[correctionguy-actually-overrides-rooted-conventions]].
+**How to apply:** Do not add `commands/correctionguy.md` or `commands/actually.md`. When agent-facing discipline changes, sync `SESSION_START` in `scripts/prompts.ts` with `skills/correctionguy/SKILL.md` only. The actually skill records an override in `.memory` as `type: feedback` and updates the conflicting memory in place; `SESSION_START` does not mention it. See [[pi-extension-integration]].

@@ -37,10 +37,7 @@ const threadOptions: ThreadOptions = {
   skipGitRepoCheck: true,
   webSearchEnabled: true,
   webSearchMode: "live",
-  workingDirectory:
-    process.env.CLAUDE_PROJECT_DIR ??
-    process.env.CURSOR_PROJECT_DIR ??
-    process.cwd(),
+  workingDirectory: process.env.CLAUDE_PROJECT_DIR ?? process.cwd(),
 };
 
 const codexOptions: CodexOptions = {
