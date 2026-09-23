@@ -9,7 +9,6 @@ import {
   NUDGE_COOLDOWN_MS,
   NudgeState,
   correctionguyMessage,
-  jsonString,
   liveMonitorContext,
   liveMonitorOutput,
   stopOutput,
@@ -143,8 +142,17 @@ const handlers: Record<
         return output;
       }
       const target = nudgeStatePath(hookInput.session_id);
-      const raw = existsSync(target) ? await readFile(target, "utf-8") : "{}";
-      const stored = jsonString(NudgeState).safeParse(raw);
+      let raw: unknown = {};
+      try {
+        raw = JSON.parse(
+          existsSync(target) ? await readFile(target, "utf-8") : "{}"
+        );
+      } catch (error) {
+        if (!(error instanceof SyntaxError)) {
+          throw error;
+        }
+      }
+      const stored = NudgeState.safeParse(raw);
       const state = stored.success ? stored.data : {};
       const key = prefixed.additionalContext;
       const last = state[key];

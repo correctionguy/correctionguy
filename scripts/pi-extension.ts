@@ -15,7 +15,7 @@ process.env.CORRECTIONGUY_TOKENMAXXING ??= "0";
 const CUSTOM_TYPE = "correctionguy";
 
 const cadence = MonitorCadence.parse(
-  process.env.CORRECTIONGUY_MONITOR_EVERY_BATCHES ?? 10
+  process.env.CORRECTIONGUY_MONITOR_EVERY_BATCHES
 );
 
 export default function correctionguy(pi: ExtensionAPI): void {
