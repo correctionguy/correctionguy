@@ -1,19 +1,6 @@
 import { compact, takeRight } from "es-toolkit";
 import { z } from "zod/v4";
 
-export const jsonString = <T extends z.ZodType>(schema: T) =>
-  z
-    .string()
-    .transform((text, ctx) => {
-      try {
-        return JSON.parse(text) as unknown;
-      } catch {
-        ctx.addIssue("Invalid JSON");
-        return z.NEVER;
-      }
-    })
-    .pipe(schema);
-
 const TranscriptContentBlock = z.looseObject({ type: z.string() });
 const TranscriptContent = z.union([
   z.array(TranscriptContentBlock),
@@ -26,7 +13,6 @@ const transcriptRecordSchema = z.looseObject({
 });
 export type TranscriptRecord = z.output<typeof transcriptRecordSchema>;
 
-const TranscriptLine = jsonString(transcriptRecordSchema);
 export interface Transcript {
   lines: string[];
   records: TranscriptRecord[];
@@ -66,7 +52,9 @@ const TaskUpdateInput = z.looseObject({
 
 export const parseTranscript = (text: string): Transcript => {
   const lines = text.trim().split("\n").filter(Boolean);
-  const records = z.array(TranscriptLine).parse(lines);
+  const records = z
+    .array(transcriptRecordSchema)
+    .parse(lines.map((line) => JSON.parse(line) as unknown));
   return { lines, records };
 };
 
