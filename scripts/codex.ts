@@ -2,7 +2,6 @@ import { spawnSync } from "node:child_process";
 
 import { Codex } from "@openai/codex-sdk";
 import type { CodexOptions, ThreadOptions } from "@openai/codex-sdk";
-import { isUndefined, omitBy } from "es-toolkit";
 import { z } from "zod/v4";
 
 import { ReviewSchema, StopReviewSchema, jsonString } from "./core.ts";
@@ -99,7 +98,7 @@ const runJsonReview = async <T>(
       ? codexOptions
       : {
           ...codexOptions,
-          env: { ...omitBy(process.env, isUndefined), CODEX_HOME: seat },
+          env: { ...process.env, CODEX_HOME: seat },
         }
   )
     .startThread(threadOptions)
