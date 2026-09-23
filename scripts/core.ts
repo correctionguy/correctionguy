@@ -20,16 +20,10 @@ const TranscriptContent = z.union([
   z.string().transform((text) => [{ text, type: "text" }]),
 ]);
 const TranscriptMessage = z.looseObject({ content: TranscriptContent });
-const transcriptRecordSchema = z
-  .looseObject({
-    message: TranscriptMessage.optional(),
-    role: z.string().optional(),
-    type: z.string().optional(),
-  })
-  .transform((record) => ({
-    ...record,
-    type: record.type ?? record.role ?? "",
-  }));
+const transcriptRecordSchema = z.looseObject({
+  message: TranscriptMessage.optional(),
+  type: z.string().optional(),
+});
 export type TranscriptRecord = z.output<typeof transcriptRecordSchema>;
 
 const TranscriptLine = jsonString(transcriptRecordSchema);

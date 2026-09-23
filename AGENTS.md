@@ -33,7 +33,7 @@ No CI, by design. `bun run check`, `bun run typecheck`, and `bun run validate` r
 
 `bun run test` round-trips a real Codex review against the live API on every pre-commit. That spend is pre-approved; no other metered run here is. The Codex SDK reads `~/.codex/auth.json`, not `OPENAI_API_KEY`, so an unauthenticated machine fails every commit until `codex login` runs there. The other test files cover the Stop nudge dedupe and the session review breaker and need no network. Hook logic is validated in the owner's live sessions, so never kill a running Claude Code or Pi process.
 
-To exercise a hook without a host, pipe a JSON payload on stdin: `echo '{}' | bun scripts/correctionguy-hook.ts SessionStart` prints the preamble. `HookInput` rejects `transcript_path: null`; omit the key instead. `bun run check` needs Node 22.18 or later to load the `.ts` config files, and `bun run validate` shells out to the `claude` CLI.
+To exercise a hook without a host, pipe a JSON payload on stdin: `echo '{}' | bun scripts/correctionguy-hook.ts SessionStart` prints the preamble. `HookInput` rejects `transcript_path: null`; omit the key instead. `bun run check` needs Node 22.18 or later to load the `.ts` config files, and `bun run validate` shells out to the `claude` CLI, which is not a bun dependency and is installed separately.
 
 # Changing prompt behavior
 
