@@ -14,7 +14,7 @@ try {
   const command = CommandSchema.parse(Bun.argv.at(2));
   const hookInput = HookInputSchema.parse(await Bun.stdin.json());
   const cadence = MonitorCadence.parse(
-    Bun.env.CORRECTIONGUY_MONITOR_EVERY_BATCHES ?? 10
+    Bun.env.CORRECTIONGUY_MONITOR_EVERY_BATCHES
   );
   const output = await runHook(command, hookInput, cadence, {
     prompts: CLAUDE_PROMPTS,
