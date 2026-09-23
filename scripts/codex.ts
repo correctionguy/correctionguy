@@ -93,17 +93,13 @@ const runJsonReview = async <T>(
   schema: z.ZodType<T>
 ): Promise<T> => {
   const seat = borrowTokenmaxxingSeat();
-  const seatEnv: Record<string, string> = {};
-  if (seat !== null) {
-    for (const [key, value] of Object.entries(process.env)) {
-      if (value !== undefined) {
-        seatEnv[key] = value;
-      }
-    }
-    seatEnv.CODEX_HOME = seat;
-  }
   const { finalResponse } = await new Codex(
-    seat === null ? codexOptions : { ...codexOptions, env: seatEnv }
+    seat === null
+      ? codexOptions
+      : {
+          ...codexOptions,
+          env: { ...process.env, CODEX_HOME: seat },
+        }
   )
     .startThread(threadOptions)
     .run(`${prompt}\n\n\`\`\`json\n${context}\n\`\`\``, {
