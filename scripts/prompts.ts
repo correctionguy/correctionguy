@@ -64,23 +64,12 @@ export const CLAUDE_PROMPTS: HostPrompts = {
   liveMonitor: liveMonitorPrompt({
     agentName: "Claude",
     instructionFiles:
-      "AGENTS.md, CLAUDE.md, .claude/CLAUDE.md, CLAUDE.local.md, .claude/rules/, ~/.claude/CLAUDE.md, ~/.claude/rules/",
+      "AGENTS.md, .claude/AGENTS.md, CLAUDE.md, .claude/CLAUDE.md, CLAUDE.local.md, .claude/rules/, ~/.claude/CLAUDE.md, ~/.claude/rules/",
   }),
   stop: stopPrompt({
     agentName: "Claude",
     instructionFiles:
-      "AGENTS.md, CLAUDE.md, .claude/CLAUDE.md, CLAUDE.local.md, .claude/rules/, ~/.claude/CLAUDE.md, ~/.claude/rules/",
-  }),
-};
-
-export const CURSOR_PROMPTS: HostPrompts = {
-  liveMonitor: liveMonitorPrompt({
-    agentName: "Cursor Agent",
-    instructionFiles: "AGENTS.md, .cursor/rules",
-  }),
-  stop: stopPrompt({
-    agentName: "Cursor Agent",
-    instructionFiles: "AGENTS.md, .cursor/rules",
+      "AGENTS.md, .claude/AGENTS.md, CLAUDE.md, .claude/CLAUDE.md, CLAUDE.local.md, .claude/rules/, ~/.claude/CLAUDE.md, ~/.claude/rules/",
   }),
 };
 

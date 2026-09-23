@@ -1,21 +1,12 @@
 ---
 name: agent-plugins-portable-core
-description: correctionguy ships Agent Plugins 1.0.0 at root plugin.json; skills are portable; Claude/Cursor manifests remain host compatibility layers
+description: Root plugin.json is the Agent Plugins 1.0.0 manifest and a closed schema; hooks and the Pi manifest stay in host layers
 metadata:
   type: project
 ---
 
-As of v3.17.0, the repo is an [Agent Plugins](https://agent-plugins.org/) 1.0.0 package:
+Root `plugin.json` follows `https://agent-plugins.org/schemas/1.0.0/plugin.schema.json`: identity and metadata only, closed schema, no `hooks`, `commands`, or `skills` paths. Portable components are the skills under immediate children of `skills/`. Hooks and the Pi extension are not portable components: Claude Code hooks stay in `.claude-plugin/plugin.json` plus `hooks/hooks.json`, and Pi loads `package.json` `pi.extensions` and `pi.skills`.
 
-- Root `plugin.json` declares `$schema` `https://agent-plugins.org/schemas/1.0.0/plugin.schema.json` and portable identity/metadata only (closed schema; no hooks/commands/skills paths).
-- Portable components: Agent Skills under immediate children of `skills/` (already the layout). No MCP servers, so no root `mcp.json`.
-- Hooks, Claude marketplace, and Pi `package.json#pi.extensions` are **not** portable v1 components. Keep them as host compatibility:
-  - Claude Code: `.claude-plugin/plugin.json` + `hooks/hooks.json`
-  - Cursor: `.cursor-plugin/plugin.json` `hooks` -> `hooks/cursor-hooks.json` (Cursor executes plugin command hooks; see [[cursor-plugin-hooks-never-execute]])
-  - Pi: `package.json` `pi.extensions` -> `scripts/pi-extension.ts`, and `pi.skills` -> `skills/` (exposed as `/skill:<name>`)
-- Do not invent a reverse-domain extension namespace (`com.*`) unless that client documents one. Cursor still uses `.cursor-plugin/`; Claude still uses `.claude-plugin/`.
-- Version bumps must include root `plugin.json` with the other three manifests. `bun run validate` checks Agent Plugins shape, skill directory/name match, legacy Claude/Cursor marketplace manifests, and version lockstep. See [[release-process]].
+**Why:** The portable manifest rejects unknown keys, and Agent Plugins clients load skills only.
 
-**Why:** Agent Plugins 1.0.0 (2026-08-06) is the cross-client package for skills/MCP; converting additively keeps Claude/Cursor/Pi working while portable skills load on Agent Plugins clients.
-
-**How to apply:** Treat root `plugin.json` + `skills/` as the portable source of truth for reusable discipline skills. Never move hooks/commands into the portable manifest. Prefer additive changes over deleting host manifests.
+**How to apply:** Never move hooks or commands into the portable manifest. Do not invent a reverse-domain extension namespace unless a client documents one. See [[release-process]].
