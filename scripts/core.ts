@@ -93,7 +93,7 @@ export const HookInputSchema = z.object({
 });
 export type HookInput = z.output<typeof HookInputSchema>;
 
-export const MonitorCadence = z.coerce.number().int().min(0);
+export const MonitorCadence = z.coerce.number().int().min(0).default(10);
 
 export const ReviewSchema = z.object({
   additionalContext: z.string(),
