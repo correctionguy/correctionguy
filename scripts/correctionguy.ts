@@ -142,18 +142,9 @@ const handlers: Record<
         return output;
       }
       const target = nudgeStatePath(hookInput.session_id);
-      let raw: unknown = {};
-      try {
-        raw = JSON.parse(
-          existsSync(target) ? await readFile(target, "utf-8") : "{}"
-        );
-      } catch (error) {
-        if (!(error instanceof SyntaxError)) {
-          throw error;
-        }
-      }
-      const stored = NudgeState.safeParse(raw);
-      const state = stored.success ? stored.data : {};
+      const state = NudgeState.parse(
+        JSON.parse(existsSync(target) ? await readFile(target, "utf-8") : "{}")
+      );
       const key = prefixed.additionalContext;
       const last = state[key];
       const now = Date.now();

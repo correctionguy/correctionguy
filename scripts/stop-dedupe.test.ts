@@ -1,5 +1,6 @@
 import { expect, mock, test } from "bun:test";
-import { unlink, writeFile } from "node:fs/promises";
+import { existsSync } from "node:fs";
+import { rm, unlink, writeFile } from "node:fs/promises";
 
 import { NUDGE_COOLDOWN_MS, parseTranscript } from "./core.ts";
 import type { StopReview } from "./core.ts";
@@ -13,7 +14,8 @@ mock.module("./codex.ts", () => ({
   runStopReview: () => stopReview(),
 }));
 
-const { nudgeStatePath, runHook } = await import("./correctionguy.ts");
+const { nudgeStatePath, runHook, skipStatePath } =
+  await import("./correctionguy.ts");
 
 const transcript = parseTranscript(
   [
@@ -85,6 +87,18 @@ test("a nudge fires again once the cooldown has passed", async () => {
     continue: true,
     systemMessage: `(Correction Guy) [for ${sessionId}] Run tests before claiming fixed`,
   });
+});
+
+test("a corrupt nudge state file drops the nudge and turns reviews off for the session", async () => {
+  const sessionId = crypto.randomUUID();
+  await writeFile(nudgeStatePath(sessionId), "not json");
+  stopReview = () => Promise.resolve(noReviews);
+  const output = await runHook("Stop", { session_id: sessionId }, 10, deps);
+  await unlink(nudgeStatePath(sessionId));
+  const marked = existsSync(skipStatePath(sessionId));
+  await rm(skipStatePath(sessionId), { force: true });
+  expect(output).toBeNull();
+  expect(marked).toBe(true);
 });
 
 test("a block is never held back by an earlier notice for the same text", async () => {
