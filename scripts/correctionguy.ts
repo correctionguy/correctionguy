@@ -4,8 +4,6 @@ import { readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 
-import { z } from "zod/v4";
-
 import { runReview, runStopReview } from "./codex.ts";
 import {
   NUDGE_COOLDOWN_MS,
@@ -145,14 +143,7 @@ const handlers: Record<
         return output;
       }
       const target = nudgeStatePath(hookInput.session_id);
-      let raw = "{}";
-      try {
-        raw = await readFile(target, "utf-8");
-      } catch (error) {
-        if (!z.object({ code: z.literal("ENOENT") }).safeParse(error).success) {
-          throw error;
-        }
-      }
+      const raw = existsSync(target) ? await readFile(target, "utf-8") : "{}";
       const stored = jsonString(NudgeState).safeParse(raw);
       const state = stored.success ? stored.data : {};
       const key = prefixed.additionalContext;
