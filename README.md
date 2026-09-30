@@ -40,15 +40,7 @@ To opt a repo out, say so in an instruction file the host loads (for example, "`
 
 ### Agent Plugins (recommended)
 
-Correction Guy ships as an [Agent Plugins](https://agent-plugins.org/) 1.0.0 package: root `plugin.json` plus portable skills under `skills/`. Install into your agent tools with either:
-
-```sh
-npx plugins add correctionguy/correctionguy
-```
-
-```sh
-bunx plugins add correctionguy/correctionguy
-```
+Correction Guy ships as an [Agent Plugins](https://agent-plugins.org/) 1.0.0 package: root `plugin.json` plus portable skills under `skills/`. Agent Plugins leaves installation to each client. Install `correctionguy/correctionguy` through your client's plugin install flow; the [compatible clients](https://agent-plugins.org/compatible-clients) page links each client's setup instructions.
 
 Then in a project, run the `setup` skill (`/correctionguy:setup` or your client's equivalent) to lay out `.memory`. Use `/correctionguy` on demand whenever you want the discipline restated; use `/correctionguy:actually` when Correction Guy rooted on a wrong convention.
 

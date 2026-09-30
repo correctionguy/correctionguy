@@ -1,5 +1,5 @@
 - [Claude Code reads AGENTS.md](claude-code-reads-agents-md.md) — native since v2.1.277 when no project CLAUDE.md exists; a `.claude/CLAUDE.md` counts as one; never add the import shim back
-- [Agent Plugins portable core](agent-plugins-portable-core.md) — root plugin.json is a closed Agent Plugins 1.0.0 schema; hooks and the Pi manifest stay in host layers
+- [Agent Plugins portable core](agent-plugins-portable-core.md) — root plugin.json is a closed Agent Plugins 1.0.0 schema; hooks and the Pi manifest stay in host layers; installation is client-owned, never `npx plugins add`
 - [Release process](release-process.md) — bump plugin.json, package.json, .claude-plugin/plugin.json in lockstep; annotated tag; GitHub-only release, no npm
 - [Reviewer six failures](reviewer-six-failures.md) — six generic failures and nothing else; retired flags stay retired; per-host instructionFiles list is how the reviewer reaches rules
 - [Reviewer corrections are imperatives](reviewer-corrections-are-imperatives.md) — verb-first imperative to the agent; tenseless fragments invert; a secret is a token-shaped value, not a variable name
