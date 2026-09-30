@@ -49,7 +49,6 @@ test("a taste reply writes its file under .taste in the project dir", async () =
       prompt: "stop writing comments, I never want them",
       session_id: crypto.randomUUID(),
     },
-    10,
     deps
   );
   const written = await readFile(
@@ -68,7 +67,6 @@ test("a no-taste reply leaves .taste untouched", async () => {
   const output = await runHook(
     "UserPromptSubmit",
     { prompt: "run the tests", session_id: crypto.randomUUID() },
-    10,
     deps
   );
   const created = existsSync(path.join(project, ".taste"));
@@ -88,7 +86,6 @@ test("a symlinked taste file is replaced, never written through", async () => {
   await runHook(
     "UserPromptSubmit",
     { prompt: "no comments ever", session_id: crypto.randomUUID() },
-    10,
     deps
   );
   const target = path.join(project, ".taste", noComments.file);
@@ -111,7 +108,6 @@ test("a symlinked .taste directory is refused", async () => {
   const run = runHook(
     "UserPromptSubmit",
     { prompt: "no comments ever", session_id: crypto.randomUUID() },
-    10,
     deps
   );
   await expect(run).rejects.toThrow("is not a directory");
@@ -129,7 +125,6 @@ test("a judgment that finishes after a newer one on the same taste is dropped", 
   const first = runHook(
     "UserPromptSubmit",
     { prompt: "use tabs", session_id: crypto.randomUUID() },
-    10,
     deps
   );
   await Bun.sleep(5);
@@ -137,7 +132,6 @@ test("a judgment that finishes after a newer one on the same taste is dropped", 
   const second = runHook(
     "UserPromptSubmit",
     { prompt: "no, use spaces", session_id: crypto.randomUUID() },
-    10,
     deps
   );
   newer.resolve({ content: "spaces", file: "indentation.md" });
@@ -161,7 +155,6 @@ test("a failed taste write surfaces and leaves the other reviews on", async () =
   const run = runHook(
     "UserPromptSubmit",
     { prompt: "no comments ever", session_id: sessionId },
-    10,
     deps
   );
   await expect(run).rejects.toThrow();

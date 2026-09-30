@@ -1,6 +1,5 @@
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 
-import { MonitorCadence } from "./core.ts";
 import type { HookInput } from "./core.ts";
 import { runHook } from "./correctionguy.ts";
 import {
@@ -13,10 +12,6 @@ import { PI_PROMPTS, SESSION_START } from "./prompts.ts";
 process.env.CORRECTIONGUY_TOKENMAXXING ??= "0";
 
 const CUSTOM_TYPE = "correctionguy";
-
-const cadence = MonitorCadence.parse(
-  process.env.CORRECTIONGUY_MONITOR_EVERY_BATCHES
-);
 
 export default function correctionguy(pi: ExtensionAPI): void {
   let preludeInjected = false;
@@ -39,7 +34,7 @@ export default function correctionguy(pi: ExtensionAPI): void {
     };
     (async () => {
       try {
-        await runHook("UserPromptSubmit", hookInput, cadence, {
+        await runHook("UserPromptSubmit", hookInput, {
           prompts: PI_PROMPTS,
           readTranscript: () =>
             Promise.resolve(
@@ -77,7 +72,7 @@ export default function correctionguy(pi: ExtensionAPI): void {
       tool_calls: turnToolCalls(event.message, event.toolResults),
       transcript_path: ctx.sessionManager.getSessionFile() ?? "",
     };
-    const output = await runHook("PostToolBatch", hookInput, cadence, {
+    const output = await runHook("PostToolBatch", hookInput, {
       prompts: PI_PROMPTS,
       readTranscript: () =>
         Promise.resolve(piBranchToTranscript(ctx.sessionManager.getBranch())),
@@ -97,7 +92,7 @@ export default function correctionguy(pi: ExtensionAPI): void {
       stop_hook_active: blockCount > 0,
       transcript_path: ctx.sessionManager.getSessionFile() ?? "",
     };
-    const output = await runHook("Stop", hookInput, cadence, {
+    const output = await runHook("Stop", hookInput, {
       prompts: PI_PROMPTS,
       readTranscript: () =>
         Promise.resolve(piBranchToTranscript(ctx.sessionManager.getBranch())),
