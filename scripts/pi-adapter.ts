@@ -3,13 +3,8 @@ import type {
   TurnEndEvent,
 } from "@earendil-works/pi-coding-agent";
 
-import { correctionguyMessage, parseTranscript } from "./core.ts";
-import type {
-  Command,
-  HookOutput,
-  PostToolBatchToolCall,
-  Transcript,
-} from "./core.ts";
+import { parseTranscript } from "./core.ts";
+import type { PostToolBatchToolCall, Transcript } from "./core.ts";
 
 type PiMessage = TurnEndEvent["message"];
 type PiToolResult = TurnEndEvent["toolResults"][number];
@@ -124,37 +119,4 @@ export const turnToolCalls = (
       },
     ];
   });
-};
-
-export interface PiAction {
-  kind: "block" | "nudge" | "steer";
-  text: string;
-}
-
-export const mapPiOutput = (
-  output: HookOutput | null,
-  command: Command
-): PiAction | null => {
-  if (output === null) {
-    return null;
-  }
-  if (command === "Stop") {
-    if ("decision" in output && output.decision === "block") {
-      return { kind: "block", text: correctionguyMessage(output.reason) };
-    }
-    if ("continue" in output) {
-      return { kind: "nudge", text: output.systemMessage };
-    }
-    return null;
-  }
-  if (
-    "hookSpecificOutput" in output &&
-    output.hookSpecificOutput.additionalContext
-  ) {
-    return {
-      kind: "steer",
-      text: correctionguyMessage(output.hookSpecificOutput.additionalContext),
-    };
-  }
-  return null;
 };
