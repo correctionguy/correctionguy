@@ -12,6 +12,7 @@ let stopReview: () => Promise<StopReview> = () =>
 mock.module("./codex.ts", () => ({
   runReview: () => Promise.resolve({ additionalContext: "", lgtm: true }),
   runStopReview: () => stopReview(),
+  runTasteReview: () => Promise.resolve({ content: "", file: "" }),
 }));
 
 const { nudgeStatePath, runHook, skipStatePath } =

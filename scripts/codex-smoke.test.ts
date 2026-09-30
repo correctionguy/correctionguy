@@ -1,6 +1,7 @@
 import { expect, test } from "bun:test";
+import path from "node:path";
 
-import { runStopReview } from "./codex.ts";
+import { runStopReview, runTasteReview } from "./codex.ts";
 import {
   StopReviewSchema,
   stopReviewContext,
@@ -37,4 +38,16 @@ test("stop review round-trips a realistic payload against the configured codex m
   expect(context?.length).toBeGreaterThan(50_000);
   const review = await runStopReview(CLAUDE_PROMPTS.stop, context ?? "");
   expect(StopReviewSchema.parse(review)).toEqual(review);
+}, 150_000);
+
+test("taste judge records a clear taste against the configured codex model", async () => {
+  const taste = await runTasteReview(
+    CLAUDE_PROMPTS.taste,
+    JSON.stringify({
+      user_prompt:
+        "No, redo that table. Every time you print a table of numbers for me, right-align the numeric columns and use thousands separators. Left-aligned numbers are unreadable and I never want them again, in this project or any other.",
+    })
+  );
+  expect(taste.file).not.toBe("");
+  expect(taste.content).toContain(`name: ${path.basename(taste.file, ".md")}`);
 }, 150_000);
