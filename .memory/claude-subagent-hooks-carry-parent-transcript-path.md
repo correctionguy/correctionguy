@@ -9,4 +9,4 @@ Claude Code fires `PreToolUse`, `PostToolUse`, and `PostToolBatch` inside subage
 
 **Why:** Reading the parent log from a subagent reviews every sibling of a fan-out against the parent's context and fires them all on the parent's batch count.
 
-**How to apply:** `scripts/correctionguy-hook.ts` searches `<dirname(transcript_path)>/<basename>/subagents/` recursively for `agent-<agent_id>.jsonl` when `agent_id` is present; a missing file throws and the entry point exits 0. Every correction is prefixed `[for <agent_id or session_id>]` as a forensic marker; a recipient does not know its own id, so the tag is never a discard key. See [[live-monitor-todos-title-sources]].
+**How to apply:** `scripts/correctionguy-hook.ts` searches `<dirname(transcript_path)>/<basename>/subagents/` recursively for `agent-<agent_id>.jsonl` when `agent_id` is present; a missing file throws and the entry point exits 0. Every correction is prefixed `[for <agent_id or session_id>]` as a forensic marker; a recipient does not know its own id, so the tag is never a discard key. See [[session-title-unreachable]].

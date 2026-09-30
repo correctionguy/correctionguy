@@ -1,16 +1,16 @@
 - [Claude Code reads AGENTS.md](claude-code-reads-agents-md.md) — native since v2.1.277 when no project CLAUDE.md exists; a `.claude/CLAUDE.md` counts as one; never add the import shim back
 - [Agent Plugins portable core](agent-plugins-portable-core.md) — root plugin.json is a closed Agent Plugins 1.0.0 schema; hooks and the Pi manifest stay in host layers
 - [Release process](release-process.md) — bump plugin.json, package.json, .claude-plugin/plugin.json in lockstep; annotated tag; GitHub-only release, no npm
-- [Reviewer six failures](reviewer-six-failures.md) — six generic failures and nothing else; retired flags stay retired; per-host instructionFiles list is how the reviewer reaches rules
+- [Reviewer six failures](reviewer-six-failures.md) — six generic failures plus the user's recorded taste and nothing else; retired flags stay retired; per-host instructionFiles list is how the reviewer reaches rules
 - [Reviewer corrections are imperatives](reviewer-corrections-are-imperatives.md) — verb-first imperative to the agent; tenseless fragments invert; a secret is a token-shaped value, not a variable name
 - [One on-demand surface is the skill](one-ondemand-surface-skill-not-command.md) — skills only, never a commands/ directory; sync SESSION_START with the correctionguy skill
 - [Pi extension integration](pi-extension-integration.md) — in-process under Node via jiti; process.env only; peerDependencies "*"; skills via pi.skills; no $ARGUMENTS placeholder
-- [Live monitor todos and title sources](live-monitor-todos-title-sources.md) — todos come from hook tool_input/tool_response plus transcript reconstruction; session title unreachable, prompts never mention it
+- [Session title unreachable](session-title-unreachable.md) — no hook sets the session title; prompts never mention it
 - [SessionStart systemMessage is model context](sessionstart-systemmessage-is-model-context.md) — same text in both fields injects twice per fire; preamble in additionalContext only
 - [Claude subagent hooks carry the parent transcript path](claude-subagent-hooks-carry-parent-transcript-path.md) — agent_id set but transcript_path names the parent; resolve subagents/**/agent-<id>.jsonl; Stop never fires there
 - [Claude Code env block hot-applies](claude-code-env-block-hot-applies.md) — settings env additions reach running hooks; removed keys stay until restart; confirm via the codex rollout turn_context
 - [Stop nudge dedupe](stop-nudge-dedupe.md) — one nudge per correction text per session per 30 minutes; blocks never dedupe; memory opt-out is an instruction-file rule
-- [Session review breaker](session-review-breaker.md) — one thrown review silences PostToolBatch and Stop for the session via a tmpdir marker; SessionStart clears it
+- [Session review breaker](session-review-breaker.md) — one thrown review silences UserPromptSubmit, PostToolBatch, and Stop for the session via a tmpdir marker; SessionStart clears it
 - [Codex SDK version gates new models](codex-sdk-version-gates-new-models.md) — API 400-rejects models newer than the vendored CLI, silently, only on realistic payloads; plugin cache needs its own pin
 - [Codex effort levels and speed tiers](codex-effort-levels-and-speed-tiers.md) — codex.ts effort enum mirrors the SDK union or the hooks die silently; standard tier is the absent key
 - [Codex read-only sandbox reads whole FS](codex-read-only-sandbox-reads-whole-fs.md) — read-only blocks writes and network, not reads; lets the stop check read the transcript file

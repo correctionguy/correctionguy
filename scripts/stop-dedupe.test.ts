@@ -12,6 +12,7 @@ let stopReview: () => Promise<StopReview> = () =>
 mock.module("./codex.ts", () => ({
   runReview: () => Promise.resolve({ additionalContext: "", lgtm: true }),
   runStopReview: () => stopReview(),
+  runTasteReview: () => Promise.resolve({ content: "", file: "" }),
 }));
 
 const { nudgeStatePath, runHook, skipStatePath } =
@@ -43,8 +44,8 @@ const noReviews: StopReview = {
 test("a repeated nudge for the same correction fires once inside the cooldown", async () => {
   const sessionId = crypto.randomUUID();
   stopReview = () => Promise.resolve(noReviews);
-  const first = await runHook("Stop", { session_id: sessionId }, 10, deps);
-  const second = await runHook("Stop", { session_id: sessionId }, 10, deps);
+  const first = await runHook("Stop", { session_id: sessionId }, deps);
+  const second = await runHook("Stop", { session_id: sessionId }, deps);
   await unlink(nudgeStatePath(sessionId));
   expect(first).toEqual({
     systemMessage: `(Correction Guy) [for ${sessionId}] Run tests before claiming fixed`,
@@ -59,9 +60,9 @@ test("a nudge with different correction text still fires inside the cooldown", a
     verdict: "nudge",
   };
   stopReview = () => Promise.resolve(noReviews);
-  const first = await runHook("Stop", { session_id: sessionId }, 10, deps);
+  const first = await runHook("Stop", { session_id: sessionId }, deps);
   stopReview = () => Promise.resolve(regression);
-  const second = await runHook("Stop", { session_id: sessionId }, 10, deps);
+  const second = await runHook("Stop", { session_id: sessionId }, deps);
   await unlink(nudgeStatePath(sessionId));
   expect(first).not.toBeNull();
   expect(second).toEqual({
@@ -79,7 +80,7 @@ test("a nudge fires again once the cooldown has passed", async () => {
     })
   );
   stopReview = () => Promise.resolve(noReviews);
-  const output = await runHook("Stop", { session_id: sessionId }, 10, deps);
+  const output = await runHook("Stop", { session_id: sessionId }, deps);
   await unlink(nudgeStatePath(sessionId));
   expect(output).toEqual({
     systemMessage: `(Correction Guy) [for ${sessionId}] Run tests before claiming fixed`,
@@ -90,7 +91,7 @@ test("a corrupt nudge state file drops the nudge and turns reviews off for the s
   const sessionId = crypto.randomUUID();
   await writeFile(nudgeStatePath(sessionId), "not json");
   stopReview = () => Promise.resolve(noReviews);
-  const output = await runHook("Stop", { session_id: sessionId }, 10, deps);
+  const output = await runHook("Stop", { session_id: sessionId }, deps);
   await unlink(nudgeStatePath(sessionId));
   const marked = existsSync(skipStatePath(sessionId));
   await rm(skipStatePath(sessionId), { force: true });
@@ -107,8 +108,8 @@ test("a block is never held back by an earlier notice for the same text", async 
     })
   );
   stopReview = () => Promise.resolve({ ...noReviews, verdict: "block" });
-  const first = await runHook("Stop", { session_id: sessionId }, 10, deps);
-  const second = await runHook("Stop", { session_id: sessionId }, 10, deps);
+  const first = await runHook("Stop", { session_id: sessionId }, deps);
+  const second = await runHook("Stop", { session_id: sessionId }, deps);
   await unlink(nudgeStatePath(sessionId));
   expect(first).toMatchObject({ decision: "block" });
   expect(second).toMatchObject({ decision: "block" });

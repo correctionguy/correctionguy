@@ -1,3 +1,5 @@
+import path from "node:path";
+
 import { compact, takeRight } from "es-toolkit";
 import { z } from "zod/v4";
 
@@ -23,33 +25,6 @@ const TextContentBlock = TranscriptContentBlock.extend({
   type: z.literal("text"),
 });
 
-const ToolUseBlock = z.looseObject({
-  id: z.string().optional(),
-  input: z.unknown(),
-  name: z.string(),
-  type: z.literal("tool_use"),
-});
-const ToolResultBlock = z.looseObject({
-  content: z
-    .union([
-      z.string(),
-      z
-        .array(z.looseObject({ text: z.string().optional() }))
-        .transform((parts) => parts.map((part) => part.text ?? "").join("")),
-    ])
-    .optional(),
-  tool_use_id: z.string().optional(),
-  type: z.literal("tool_result"),
-});
-const TodoWriteInput = z.looseObject({
-  todos: z.array(z.looseObject({ content: z.string(), status: z.string() })),
-});
-const TaskUpdateInput = z.looseObject({
-  status: z.string().optional(),
-  subject: z.string().optional(),
-  taskId: z.string(),
-});
-
 export const parseTranscript = (text: string): Transcript => {
   const lines = text.trim().split("\n").filter(Boolean);
   const records = z
@@ -58,7 +33,12 @@ export const parseTranscript = (text: string): Transcript => {
   return { lines, records };
 };
 
-export const CommandSchema = z.enum(["SessionStart", "PostToolBatch", "Stop"]);
+export const CommandSchema = z.enum([
+  "SessionStart",
+  "UserPromptSubmit",
+  "PostToolBatch",
+  "Stop",
+]);
 export type Command = z.output<typeof CommandSchema>;
 
 const postToolBatchToolCallSchema = z.object({
@@ -74,6 +54,7 @@ export type PostToolBatchToolCall = z.output<
 export const HookInputSchema = z.object({
   agent_id: z.string().optional(),
   last_assistant_message: z.string().optional(),
+  prompt: z.string().optional(),
   session_id: z.string().optional(),
   stop_hook_active: z.boolean().optional(),
   tool_calls: z.array(postToolBatchToolCallSchema).optional(),
@@ -95,27 +76,24 @@ export const StopReviewSchema = z.object({
 });
 export type StopReview = z.output<typeof StopReviewSchema>;
 
+export const TasteSchema = z.object({
+  content: z.string(),
+  file: z
+    .string()
+    .refine(
+      (file) =>
+        file === "" || (path.basename(file) === file && file.endsWith(".md"))
+    ),
+});
+export type Taste = z.output<typeof TasteSchema>;
+
 export const NUDGE_COOLDOWN_MS = 1_800_000;
 export const NudgeState = z.record(z.string(), z.number());
-
-const TodoItem = z.object({ content: z.string(), status: z.string() });
-const LiveMonitorContext = z.object({
-  current_tool_batch: z.array(postToolBatchToolCallSchema),
-  latest_assistant_message: z.string(),
-  recent_transcript: z.string(),
-  todos: z.array(TodoItem),
-});
-const StopContext = z.object({
-  last_assistant_message: z.string().optional(),
-  last_user_request: z.string().optional(),
-  transcript: z.string(),
-  transcript_path: z.string().optional(),
-});
 
 const RECENT_TRANSCRIPT_LINES = 60;
 const STOP_TRANSCRIPT_LINES = 120;
 const MAX_CONTEXT_CHARS = 100_000;
-const MAX_FIELD_CHARS = 32_000;
+export const MAX_FIELD_CHARS = 32_000;
 export const correctionguyMessage = (message: string) =>
   `(Correction Guy) ${message.trim()}`;
 
@@ -139,58 +117,6 @@ export interface ContinueOutput {
 export type HookOutput = ContextOutput | StopBlockOutput | ContinueOutput;
 
 const TRUNCATED_PREFIX = "[earlier review context truncated to fit the model]";
-
-const currentTodos = (
-  records: TranscriptRecord[]
-): z.output<typeof TodoItem>[] => {
-  const tasks = new Map<string, z.output<typeof TodoItem>>();
-  let snapshot: z.output<typeof TodoItem>[] | null = null;
-  for (const record of records) {
-    for (const block of record.message?.content ?? []) {
-      const toolUse = ToolUseBlock.safeParse(block);
-      if (toolUse.success) {
-        const { input, name } = toolUse.data;
-        if (name === "TodoWrite") {
-          const write = TodoWriteInput.safeParse(input);
-          if (write.success) {
-            snapshot = write.data.todos.map((todo) => ({
-              content: todo.content,
-              status: todo.status,
-            }));
-          }
-          continue;
-        }
-        const update = TaskUpdateInput.safeParse(input);
-        const task =
-          name === "TaskUpdate" && update.success
-            ? tasks.get(update.data.taskId)
-            : undefined;
-        if (task && update.success) {
-          if (update.data.status === "deleted") {
-            tasks.delete(update.data.taskId);
-          } else {
-            task.status = update.data.status ?? task.status;
-            task.content = update.data.subject ?? task.content;
-          }
-        }
-        continue;
-      }
-      const result = ToolResultBlock.safeParse(block);
-      if (!result.success) {
-        continue;
-      }
-      const match =
-        /Task #(?<taskId>\d+) created successfully: (?<subject>.+)/u.exec(
-          result.data.content ?? ""
-        );
-      if (match?.groups) {
-        const { subject, taskId } = match.groups;
-        tasks.set(taskId, { content: subject, status: "pending" });
-      }
-    }
-  }
-  return snapshot ?? [...tasks.values()];
-};
 
 export const liveMonitorContext = (input: {
   cadence: number;
@@ -226,16 +152,12 @@ export const liveMonitorContext = (input: {
     }
   }
 
-  const todos = currentTodos(records);
   let recentTranscript = takeRight(lines, RECENT_TRANSCRIPT_LINES).join("\n");
-  let serialized = JSON.stringify(
-    LiveMonitorContext.parse({
-      current_tool_batch: toolCalls,
-      latest_assistant_message: latestAssistant,
-      recent_transcript: recentTranscript,
-      todos,
-    })
-  );
+  let serialized = JSON.stringify({
+    current_tool_batch: toolCalls,
+    latest_assistant_message: latestAssistant,
+    recent_transcript: recentTranscript,
+  });
   let attempts = 0;
   while (
     serialized.length > MAX_CONTEXT_CHARS &&
@@ -248,14 +170,11 @@ export const liveMonitorContext = (input: {
       newLen > 0
         ? `${TRUNCATED_PREFIX}\n${recentTranscript.slice(-newLen)}`
         : TRUNCATED_PREFIX;
-    serialized = JSON.stringify(
-      LiveMonitorContext.parse({
-        current_tool_batch: toolCalls,
-        latest_assistant_message: latestAssistant,
-        recent_transcript: recentTranscript,
-        todos,
-      })
-    );
+    serialized = JSON.stringify({
+      current_tool_batch: toolCalls,
+      latest_assistant_message: latestAssistant,
+      recent_transcript: recentTranscript,
+    });
     attempts += 1;
   }
   return serialized;
@@ -326,14 +245,12 @@ export const stopReviewContext = (input: {
     return null;
   }
 
-  let serialized = JSON.stringify(
-    StopContext.parse({
-      last_assistant_message: lastAssistantMessage,
-      last_user_request: lastUserRequest,
-      transcript,
-      transcript_path: input.transcriptPath,
-    })
-  );
+  let serialized = JSON.stringify({
+    last_assistant_message: lastAssistantMessage,
+    last_user_request: lastUserRequest,
+    transcript,
+    transcript_path: input.transcriptPath,
+  });
   let attempts = 0;
   while (
     serialized.length > MAX_CONTEXT_CHARS &&
@@ -346,14 +263,12 @@ export const stopReviewContext = (input: {
       newLen > 0
         ? `${TRUNCATED_PREFIX}\n${transcript.slice(-newLen)}`
         : TRUNCATED_PREFIX;
-    serialized = JSON.stringify(
-      StopContext.parse({
-        last_assistant_message: lastAssistantMessage,
-        last_user_request: lastUserRequest,
-        transcript,
-        transcript_path: input.transcriptPath,
-      })
-    );
+    serialized = JSON.stringify({
+      last_assistant_message: lastAssistantMessage,
+      last_user_request: lastUserRequest,
+      transcript,
+      transcript_path: input.transcriptPath,
+    });
     attempts += 1;
   }
   return serialized;
