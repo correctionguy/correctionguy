@@ -1,11 +1,7 @@
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync } from "node:fs";
 import path from "node:path";
 
-import {
-  loadSkillsFromDir,
-  parseFrontmatter,
-} from "@earendil-works/pi-coding-agent";
-import type { SkillFrontmatter } from "@earendil-works/pi-coding-agent";
+import { loadSkillsFromDir } from "@earendil-works/pi-coding-agent";
 import { z } from "zod/v4";
 
 const AGENT_PLUGINS_SCHEMA_URL =
@@ -53,15 +49,12 @@ for (const diagnostic of diagnostics) {
 }
 for (const skill of skills) {
   const dirName = path.basename(skill.baseDir);
-  const { frontmatter } = parseFrontmatter<SkillFrontmatter>(
-    readFileSync(skill.filePath, "utf-8")
-  );
-  if (frontmatter.name === dirName) {
+  if (skill.name === dirName) {
     console.log(`skills/${dirName}: ok`);
     continue;
   }
   console.error(
-    `skills/${dirName}: SKILL.md name must match directory (${frontmatter.name})`
+    `skills/${dirName}: SKILL.md name must match directory (${skill.name})`
   );
   failed = true;
 }
