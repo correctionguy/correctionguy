@@ -77,7 +77,6 @@ const runJsonReview = async <T>(
     networkAccessEnabled: env.CORRECTIONGUY_YOLO,
     sandboxMode: env.CORRECTIONGUY_YOLO ? "danger-full-access" : "read-only",
     skipGitRepoCheck: true,
-    webSearchEnabled: true,
     webSearchMode: "live",
     workingDirectory: process.env.CLAUDE_PROJECT_DIR ?? process.cwd(),
   };
