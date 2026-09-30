@@ -242,7 +242,9 @@ export const stopReviewContext = (input: {
   }
 
   const lastAssistantMessage =
-    extractedAssistant || input.lastAssistantMessage?.slice(-MAX_FIELD_CHARS);
+    input.lastAssistantMessage?.slice(-MAX_FIELD_CHARS) ||
+    extractedAssistant ||
+    undefined;
   const lastUserRequest = extractedUser || undefined;
 
   if (
