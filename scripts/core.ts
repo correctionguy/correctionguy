@@ -1,3 +1,5 @@
+import path from "node:path";
+
 import { compact, takeRight } from "es-toolkit";
 import { z } from "zod/v4";
 
@@ -31,7 +33,12 @@ export const parseTranscript = (text: string): Transcript => {
   return { lines, records };
 };
 
-export const CommandSchema = z.enum(["SessionStart", "PostToolBatch", "Stop"]);
+export const CommandSchema = z.enum([
+  "SessionStart",
+  "UserPromptSubmit",
+  "PostToolBatch",
+  "Stop",
+]);
 export type Command = z.output<typeof CommandSchema>;
 
 const postToolBatchToolCallSchema = z.object({
@@ -47,6 +54,7 @@ export type PostToolBatchToolCall = z.output<
 export const HookInputSchema = z.object({
   agent_id: z.string().optional(),
   last_assistant_message: z.string().optional(),
+  prompt: z.string().optional(),
   session_id: z.string().optional(),
   stop_hook_active: z.boolean().optional(),
   tool_calls: z.array(postToolBatchToolCallSchema).optional(),
@@ -68,13 +76,24 @@ export const StopReviewSchema = z.object({
 });
 export type StopReview = z.output<typeof StopReviewSchema>;
 
+export const TasteSchema = z.object({
+  content: z.string(),
+  file: z
+    .string()
+    .refine(
+      (file) =>
+        file === "" || (path.basename(file) === file && file.endsWith(".md"))
+    ),
+});
+export type Taste = z.output<typeof TasteSchema>;
+
 export const NUDGE_COOLDOWN_MS = 1_800_000;
 export const NudgeState = z.record(z.string(), z.number());
 
 const RECENT_TRANSCRIPT_LINES = 60;
 const STOP_TRANSCRIPT_LINES = 120;
 const MAX_CONTEXT_CHARS = 100_000;
-const MAX_FIELD_CHARS = 32_000;
+export const MAX_FIELD_CHARS = 32_000;
 export const correctionguyMessage = (message: string) =>
   `(Correction Guy) ${message.trim()}`;
 
