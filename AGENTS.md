@@ -24,7 +24,7 @@ correctionguy ships one plugin for two hosts, Claude Code and Pi (pi.dev), plus 
 # Local rules that override the global ones
 
 - Never add comments. If you see one, delete it.
-- Never add helper functions to deduplicate, including inline closures created only to dedupe; use es-toolkit or duplicate the few lines. When cyclomatic complexity trips the linter (max 20), hoist repeated `||`/`??` expressions into single consts first. A single-purpose, called-once function is a last resort permitted only when the logic still cannot be inlined under that limit: `currentTodos` in `scripts/core.ts` is the one sanctioned instance. Do not flag it.
+- Never add helper functions to deduplicate, including inline closures created only to dedupe; use es-toolkit or duplicate the few lines. When cyclomatic complexity trips the linter (max 20), hoist repeated `||`/`??` expressions into single consts first. A single-purpose, called-once function is a last resort permitted only when the logic still cannot be inlined under that limit.
 - Model-facing strings in `scripts/prompts.ts` must not contain em-dashes themselves. The sole sanctioned em-dash in this repo is the `MEMORY.md` index line separator defined in the setup skill.
 
 # Verification

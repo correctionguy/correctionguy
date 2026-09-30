@@ -5,7 +5,7 @@
 - [Reviewer corrections are imperatives](reviewer-corrections-are-imperatives.md) — verb-first imperative to the agent; tenseless fragments invert; a secret is a token-shaped value, not a variable name
 - [One on-demand surface is the skill](one-ondemand-surface-skill-not-command.md) — skills only, never a commands/ directory; sync SESSION_START with the correctionguy skill
 - [Pi extension integration](pi-extension-integration.md) — in-process under Node via jiti; process.env only; peerDependencies "*"; skills via pi.skills; no $ARGUMENTS placeholder
-- [Live monitor todos and title sources](live-monitor-todos-title-sources.md) — todos come from hook tool_input/tool_response plus transcript reconstruction; session title unreachable, prompts never mention it
+- [Session title unreachable](session-title-unreachable.md) — no hook sets the session title; prompts never mention it
 - [SessionStart systemMessage is model context](sessionstart-systemmessage-is-model-context.md) — same text in both fields injects twice per fire; preamble in additionalContext only
 - [Claude subagent hooks carry the parent transcript path](claude-subagent-hooks-carry-parent-transcript-path.md) — agent_id set but transcript_path names the parent; resolve subagents/**/agent-<id>.jsonl; Stop never fires there
 - [Claude Code env block hot-applies](claude-code-env-block-hot-applies.md) — settings env additions reach running hooks; removed keys stay until restart; confirm via the codex rollout turn_context
