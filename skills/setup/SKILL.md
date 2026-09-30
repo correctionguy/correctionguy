@@ -1,11 +1,11 @@
 ---
 name: setup
-description: "Set up Correction Guy in a repo: lay out .memory, merge the agent's native memory behind a symlink, mine every past conversation into memory with fanned-out subagents."
+description: "Set up Correction Guy in a repo: lay out .memory, merge the agent's native memory behind a symlink, mine every past conversation into memory and taste with fanned-out subagents."
 ---
 
 # Correction Guy setup
 
-Establishes the memory layout Correction Guy expects, then back-fills `.memory` from every past conversation on this project. Run when `.memory` is missing or still gitignored, the traditional memory dir holds real files or points wrong, or the user asks to set up Correction Guy or re-learn the repo. Idempotent: re-running merges, never duplicates.
+Establishes the memory layout Correction Guy expects, then back-fills `.memory` and `.taste` from every past conversation on this project. Run when `.memory` is missing or still gitignored, the traditional memory dir holds real files or points wrong, or the user asks to set up Correction Guy or re-learn the repo. Idempotent: re-running merges, never duplicates.
 
 ## 1. Lay out `.memory`
 
@@ -15,6 +15,7 @@ Establishes the memory layout Correction Guy expects, then back-fills `.memory` 
 - `.memory` is git-tracked and committed with the repo; its files commit with normal work. `.gitignore` lists `.memory` -> the folder was private until now: review every existing `.memory` file against the public bar below and scrub non-public details first, then delete the line so the folder tracks.
 - Because `.memory` is public, it holds public knowledge only: treat it like a public Wikipedia page. Never record device info, Slack info (conversation, user, workspace, or channel details), or environment info (secret values, local machine paths or file listings). A secret is a value with a token shape (an API key, token, password, or private key string), whatever variable holds it; a variable name alone, such as `CORRECTIONGUY_*`, is public.
 - `<root>/.memory/MEMORY.md` = index only: one line per memory, `- [Title](file.md) — hook`. Create if missing. Memory content never goes in the index.
+- `<root>/.taste/` sits beside `.memory`: one file per user taste, no index, same git tracking and public bar. The Correction Guy hooks add to it from each user prompt. An instruction file the host loads retires `.taste` -> skip every taste step below.
 
 ## 2. Symlink the host memory dir into it
 
@@ -33,7 +34,7 @@ Conversations = top-level `*.jsonl` files in `~/.claude/projects/<slug>/` (subdi
 
 **Triage**: `sonnet`, one per transcript. Skim user turns and assistant `text` blocks; grade the transcript's signal:
 
-- `high`: owner corrections, assumptions exposed as wrong, hard-won discoveries.
+- `high`: owner corrections, taste statements, assumptions exposed as wrong, hard-won discoveries.
 - `low`: routine work, thin durable signal.
 - `none`: trivial or empty session.
 
@@ -42,7 +43,8 @@ Return the grade plus pointers to the hot spots (topics, rough position in file)
 **Mine**: `none` -> skip. `low` -> `sonnet`. `high` -> escalate fast: `opus`, or top tier when the triager flags dense or subtle signal. Miner gets the transcript path plus the triage pointers, and:
 
 - File is JSONL, one JSON object per line; skip any line that fails parse. Read user turns and assistant `text` blocks under `message.content[]`; skip tool dumps. Huge file -> extract with `jq`/grep slices, never read the whole raw file.
-- Hunt high-entropy learnings only: lessons a fresh agent could NOT re-derive from the codebase, git history, AGENTS.md, or docs: owner corrections, assumptions that turned out wrong (record the wrong assumption AND the correction), stated preferences, owner-stated project facts (User's Claims), external gotchas (API/CLI/platform behavior learned the hard way).
+- Hunt high-entropy learnings only: lessons a fresh agent could NOT re-derive from the codebase, git history, AGENTS.md, or docs: owner corrections, assumptions that turned out wrong (record the wrong assumption AND the correction), owner-stated project facts (User's Claims), external gotchas (API/CLI/platform behavior learned the hard way).
+- Hunt taste separately, from user turns only: what the user clearly likes or rejects in how work looks, reads, or gets built (code shape, design, UX, naming, writing voice, tools, workflow, product direction), durable past one task. Skip one-off task detail. Return per taste: the preference, what the user rejects, a short quote of the user's words, and its date.
 - Skip task-local detail, anything readable from the repo, secret values (token-shaped strings; a variable name alone is public), and anything non-public (device info, Slack conversation/user/workspace/channel details, environment info): `.memory` is git-tracked, public-Wikipedia bar.
 - Return per learning: the fact, why it matters, how to apply it, type (`user` | `feedback` | `project` | `reference`), and its date: `user`/`assistant` message lines carry a `timestamp` field (other line types may not); report the latest relevant one so the consolidator can break contradictions.
 
@@ -70,9 +72,20 @@ metadata:
 <the fact; for feedback/project add **Why:** and **How to apply:** lines. Link related memories with [[their-name]].>
 ```
 
+- Taste -> one file per taste in `.taste`, shape below, deduped against every existing `.taste` file. A later taste that refines or contradicts a recorded one rewrites that file in place.
+
+```markdown
+---
+name: <short-kebab-slug>
+description: <one line>
+---
+
+<plain present-tense sentences: what the user wants, what the user rejects, a short quote of the user's words>
+```
+
 ## 5. Report
 
-Glanceable bullets, no wall: layout actions taken, transcripts mined and skipped, memories written, updated, already covered.
+Glanceable bullets, no wall: layout actions taken, transcripts mined and skipped, memories written, updated, already covered, tastes written, updated, already covered.
 
 ## Sources
 

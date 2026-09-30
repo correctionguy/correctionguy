@@ -3,7 +3,7 @@ import { existsSync } from "node:fs";
 import { rm, writeFile } from "node:fs/promises";
 
 import { parseTranscript } from "./core.ts";
-import type { Review, StopReview } from "./core.ts";
+import type { Review, StopReview, Taste } from "./core.ts";
 import { CLAUDE_PROMPTS } from "./prompts.ts";
 
 let reviewCalls = 0;
@@ -11,6 +11,8 @@ let review: () => Promise<Review> = () =>
   Promise.resolve({ additionalContext: "", lgtm: true });
 let stopReview: () => Promise<StopReview> = () =>
   Promise.resolve({ additionalContext: "", verdict: "ok" });
+let tasteReview: () => Promise<Taste> = () =>
+  Promise.resolve({ content: "", file: "" });
 
 mock.module("./codex.ts", () => ({
   runReview: () => {
@@ -20,6 +22,10 @@ mock.module("./codex.ts", () => ({
   runStopReview: () => {
     reviewCalls += 1;
     return stopReview();
+  },
+  runTasteReview: () => {
+    reviewCalls += 1;
+    return tasteReview();
   },
 }));
 
@@ -93,6 +99,41 @@ test("a failed live-monitor review turns the stop check off as well", async () =
   await rm(skipStatePath(sessionId), { force: true });
   expect(batch).toBeNull();
   expect(stop).toBeNull();
+  expect(reviewCalls).toBe(1);
+});
+
+test("a failed taste review turns the live monitor and the stop check off", async () => {
+  const sessionId = crypto.randomUUID();
+  tasteReview = usageLimit;
+  review = okReview;
+  stopReview = okStop;
+  reviewCalls = 0;
+  const taste = await runHook(
+    "UserPromptSubmit",
+    { prompt: "never add code comments", session_id: sessionId },
+    1,
+    deps
+  );
+  const marked = existsSync(skipStatePath(sessionId));
+  const batch = await runHook(
+    "PostToolBatch",
+    { session_id: sessionId, tool_calls: [] },
+    1,
+    deps
+  );
+  const stop = await runHook("Stop", { session_id: sessionId }, 1, deps);
+  const nextTaste = await runHook(
+    "UserPromptSubmit",
+    { prompt: "keep diffs small", session_id: sessionId },
+    1,
+    deps
+  );
+  await rm(skipStatePath(sessionId), { force: true });
+  expect(taste).toBeNull();
+  expect(marked).toBe(true);
+  expect(batch).toBeNull();
+  expect(stop).toBeNull();
+  expect(nextTaste).toBeNull();
   expect(reviewCalls).toBe(1);
 });
 
