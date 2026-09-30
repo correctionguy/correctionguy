@@ -144,13 +144,7 @@ const handlers: Record<
         additionalContext: `${origin}${review.additionalContext}`,
       };
       const output = stopOutput(prefixed, hookInput.stop_hook_active ?? false);
-      if (
-        output === null ||
-        "decision" in output ||
-        prefixed.verdict !== "nudge" ||
-        prefixed.additionalContext === "" ||
-        !hookInput.session_id
-      ) {
+      if (prefixed.verdict !== "nudge" || !hookInput.session_id) {
         return output;
       }
       const target = nudgeStatePath(hookInput.session_id);
