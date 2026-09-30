@@ -126,11 +126,17 @@ export const liveMonitorContext = (input: {
   toolCalls: PostToolBatchToolCall[];
 }): string | null => {
   const { cadence, lines, records, toolCalls } = input;
-  const batchCount = records.filter(
-    (record) =>
-      record.type === "assistant" &&
-      (record.message?.content ?? []).some((block) => block.type === "tool_use")
-  ).length;
+  const batchCount = new Set(
+    records
+      .filter(
+        (record) =>
+          record.type === "assistant" &&
+          (record.message?.content ?? []).some(
+            (block) => block.type === "tool_use"
+          )
+      )
+      .map((record) => record.message?.id ?? record)
+  ).size;
   if (!(batchCount > 0 && cadence > 0 && batchCount % cadence === 0)) {
     return null;
   }
