@@ -29,6 +29,8 @@ mock.module("./codex.ts", () => ({
   },
 }));
 
+process.env.CORRECTIONGUY_MONITOR_EVERY_BATCHES = "1";
+
 const { runHook, skipStatePath } = await import("./correctionguy.ts");
 
 const transcript = parseTranscript(
@@ -66,14 +68,13 @@ test("a failed stop review turns every later review of the session off", async (
   stopReview = usageLimit;
   review = okReview;
   reviewCalls = 0;
-  const first = await runHook("Stop", { session_id: sessionId }, 1, deps);
+  const first = await runHook("Stop", { session_id: sessionId }, deps);
   const marked = existsSync(skipStatePath(sessionId));
   stopReview = okStop;
-  const second = await runHook("Stop", { session_id: sessionId }, 1, deps);
+  const second = await runHook("Stop", { session_id: sessionId }, deps);
   const batch = await runHook(
     "PostToolBatch",
     { session_id: sessionId, tool_calls: [] },
-    1,
     deps
   );
   await rm(skipStatePath(sessionId), { force: true });
@@ -92,10 +93,9 @@ test("a failed live-monitor review turns the stop check off as well", async () =
   const batch = await runHook(
     "PostToolBatch",
     { session_id: sessionId, tool_calls: [] },
-    1,
     deps
   );
-  const stop = await runHook("Stop", { session_id: sessionId }, 1, deps);
+  const stop = await runHook("Stop", { session_id: sessionId }, deps);
   await rm(skipStatePath(sessionId), { force: true });
   expect(batch).toBeNull();
   expect(stop).toBeNull();
@@ -111,21 +111,18 @@ test("a failed taste review turns the live monitor and the stop check off", asyn
   const taste = await runHook(
     "UserPromptSubmit",
     { prompt: "never add code comments", session_id: sessionId },
-    1,
     deps
   );
   const marked = existsSync(skipStatePath(sessionId));
   const batch = await runHook(
     "PostToolBatch",
     { session_id: sessionId, tool_calls: [] },
-    1,
     deps
   );
-  const stop = await runHook("Stop", { session_id: sessionId }, 1, deps);
+  const stop = await runHook("Stop", { session_id: sessionId }, deps);
   const nextTaste = await runHook(
     "UserPromptSubmit",
     { prompt: "keep diffs small", session_id: sessionId },
-    1,
     deps
   );
   await rm(skipStatePath(sessionId), { force: true });
@@ -145,11 +142,10 @@ test("a session start clears the marker so the next review runs", async () => {
   const preamble = await runHook(
     "SessionStart",
     { session_id: sessionId },
-    1,
     deps
   );
   const cleared = !existsSync(skipStatePath(sessionId));
-  const stop = await runHook("Stop", { session_id: sessionId }, 1, deps);
+  const stop = await runHook("Stop", { session_id: sessionId }, deps);
   await rm(skipStatePath(sessionId), { force: true });
   expect(preamble).toMatchObject({
     hookSpecificOutput: { hookEventName: "SessionStart" },
@@ -163,10 +159,10 @@ test("a tripped session leaves other sessions reviewing", async () => {
   const tripped = crypto.randomUUID();
   const other = crypto.randomUUID();
   stopReview = usageLimit;
-  await runHook("Stop", { session_id: tripped }, 1, deps);
+  await runHook("Stop", { session_id: tripped }, deps);
   stopReview = okStop;
   reviewCalls = 0;
-  const output = await runHook("Stop", { session_id: other }, 1, deps);
+  const output = await runHook("Stop", { session_id: other }, deps);
   await rm(skipStatePath(tripped), { force: true });
   expect(output).toBeNull();
   expect(reviewCalls).toBe(1);

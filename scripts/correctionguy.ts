@@ -15,6 +15,7 @@ import path from "node:path";
 import { runReview, runStopReview, runTasteReview } from "./codex.ts";
 import {
   MAX_FIELD_CHARS,
+  MonitorCadence,
   NUDGE_COOLDOWN_MS,
   NudgeState,
   correctionguyMessage,
@@ -52,7 +53,6 @@ interface HookDeps {
 }
 
 interface HookContext {
-  cadence: number;
   deps: HookDeps;
   hookInput: HookInput;
   origin: string;
@@ -72,7 +72,7 @@ const handlers: Record<
   Command,
   (ctx: HookContext) => Promise<HookOutput | null>
 > = {
-  PostToolBatch: async ({ cadence, deps, hookInput, origin }) => {
+  PostToolBatch: async ({ deps, hookInput, origin }) => {
     if (
       hookInput.session_id &&
       existsSync(skipStatePath(hookInput.session_id))
@@ -81,7 +81,9 @@ const handlers: Record<
     }
     const { lines, records } = await deps.readTranscript();
     const context = liveMonitorContext({
-      cadence,
+      cadence: MonitorCadence.parse(
+        process.env.CORRECTIONGUY_MONITOR_EVERY_BATCHES
+      ),
       lines,
       records,
       toolCalls: hookInput.tool_calls ?? [],
@@ -240,12 +242,10 @@ const handlers: Record<
 export const runHook = (
   command: Command,
   hookInput: HookInput,
-  cadence: number,
   deps: HookDeps
 ): Promise<HookOutput | null> => {
   const originId = hookInput.agent_id ?? hookInput.session_id;
   return handlers[command]({
-    cadence,
     deps,
     hookInput,
     origin: originId ? `[for ${originId}] ` : "",
