@@ -14,7 +14,7 @@
     "check": "ultracite check",
     "fix": "ultracite fix",
     "prepare": "lefthook install",
-    "test": "for f in scripts/*.test.ts; do bun test \"$f\" || exit 1; done",
+    "test": "bun test --isolate",
     "typecheck": "tsc",
     "validate": "bun scripts/validate.ts"
   },
