@@ -112,7 +112,6 @@ export interface StopBlockOutput {
   systemMessage: string;
 }
 export interface ContinueOutput {
-  continue: true;
   systemMessage: string;
 }
 export type HookOutput = ContextOutput | StopBlockOutput | ContinueOutput;
@@ -296,7 +295,6 @@ export const stopOutput = (
     };
   }
   return {
-    continue: true,
     systemMessage: correctionguyMessage(review.additionalContext),
   };
 };

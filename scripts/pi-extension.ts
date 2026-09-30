@@ -2,11 +2,7 @@ import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 
 import type { HookInput } from "./core.ts";
 import { runHook } from "./correctionguy.ts";
-import {
-  mapPiOutput,
-  piBranchToTranscript,
-  turnToolCalls,
-} from "./pi-adapter.ts";
+import { piBranchToTranscript, turnToolCalls } from "./pi-adapter.ts";
 import { PI_PROMPTS, SESSION_START } from "./prompts.ts";
 
 process.env.CORRECTIONGUY_TOKENMAXXING ??= "0";
@@ -30,7 +26,7 @@ export default function correctionguy(pi: ExtensionAPI): void {
     const hookInput: HookInput = {
       prompt: event.text,
       session_id: ctx.sessionManager.getSessionId(),
-      transcript_path: ctx.sessionManager.getSessionFile() ?? "",
+      transcript_path: ctx.sessionManager.getSessionFile(),
     };
     (async () => {
       try {
@@ -70,17 +66,19 @@ export default function correctionguy(pi: ExtensionAPI): void {
     const hookInput: HookInput = {
       session_id: ctx.sessionManager.getSessionId(),
       tool_calls: turnToolCalls(event.message, event.toolResults),
-      transcript_path: ctx.sessionManager.getSessionFile() ?? "",
     };
     const output = await runHook("PostToolBatch", hookInput, {
       prompts: PI_PROMPTS,
       readTranscript: () =>
         Promise.resolve(piBranchToTranscript(ctx.sessionManager.getBranch())),
     });
-    const action = mapPiOutput(output, "PostToolBatch");
-    if (action) {
+    if (output) {
       pi.sendMessage(
-        { content: action.text, customType: CUSTOM_TYPE, display: true },
+        {
+          content: output.systemMessage,
+          customType: CUSTOM_TYPE,
+          display: true,
+        },
         { deliverAs: "steer" }
       );
     }
@@ -90,33 +88,36 @@ export default function correctionguy(pi: ExtensionAPI): void {
     const hookInput: HookInput = {
       session_id: ctx.sessionManager.getSessionId(),
       stop_hook_active: blockCount > 0,
-      transcript_path: ctx.sessionManager.getSessionFile() ?? "",
+      transcript_path: ctx.sessionManager.getSessionFile(),
     };
     const output = await runHook("Stop", hookInput, {
       prompts: PI_PROMPTS,
       readTranscript: () =>
         Promise.resolve(piBranchToTranscript(ctx.sessionManager.getBranch())),
     });
-    const action = mapPiOutput(output, "Stop");
-    if (!action) {
+    if (!output) {
       blockCount = 0;
       return;
     }
-    if (action.kind === "block") {
+    if ("decision" in output) {
       blockCount += 1;
       pi.sendMessage(
-        { content: action.text, customType: CUSTOM_TYPE, display: true },
+        {
+          content: output.systemMessage,
+          customType: CUSTOM_TYPE,
+          display: true,
+        },
         { deliverAs: "followUp", triggerTurn: true }
       );
       return;
     }
     blockCount = 0;
     pi.sendMessage(
-      { content: action.text, customType: CUSTOM_TYPE, display: true },
+      { content: output.systemMessage, customType: CUSTOM_TYPE, display: true },
       { deliverAs: "nextTurn" }
     );
     if (ctx.hasUI) {
-      ctx.ui.notify(action.text, "warning");
+      ctx.ui.notify(output.systemMessage, "warning");
     }
   });
 }

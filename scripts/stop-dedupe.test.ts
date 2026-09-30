@@ -48,7 +48,6 @@ test("a repeated nudge for the same correction fires once inside the cooldown", 
   const second = await runHook("Stop", { session_id: sessionId }, deps);
   await unlink(nudgeStatePath(sessionId));
   expect(first).toEqual({
-    continue: true,
     systemMessage: `(Correction Guy) [for ${sessionId}] Run tests before claiming fixed`,
   });
   expect(second).toBeNull();
@@ -67,7 +66,6 @@ test("a nudge with different correction text still fires inside the cooldown", a
   await unlink(nudgeStatePath(sessionId));
   expect(first).not.toBeNull();
   expect(second).toEqual({
-    continue: true,
     systemMessage: `(Correction Guy) [for ${sessionId}] Fix the red typecheck before stopping`,
   });
 });
@@ -85,7 +83,6 @@ test("a nudge fires again once the cooldown has passed", async () => {
   const output = await runHook("Stop", { session_id: sessionId }, deps);
   await unlink(nudgeStatePath(sessionId));
   expect(output).toEqual({
-    continue: true,
     systemMessage: `(Correction Guy) [for ${sessionId}] Run tests before claiming fixed`,
   });
 });
