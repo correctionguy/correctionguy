@@ -2,6 +2,7 @@ import { spawnSync } from "node:child_process";
 
 import { Codex } from "@openai/codex-sdk";
 import type { CodexOptions, ThreadOptions } from "@openai/codex-sdk";
+import { once } from "es-toolkit";
 import { z } from "zod/v4";
 
 import { ReviewSchema, StopReviewSchema } from "./core.ts";
@@ -37,7 +38,7 @@ const threadOptions: ThreadOptions = {
   skipGitRepoCheck: true,
   webSearchEnabled: true,
   webSearchMode: "live",
-  workingDirectory: process.env.CLAUDE_PROJECT_DIR ?? process.cwd(),
+  workingDirectory: process.env.CLAUDE_PROJECT_DIR,
 };
 
 const codexOptions: CodexOptions = {
@@ -52,20 +53,14 @@ const codexOptions: CodexOptions = {
 const REVIEW_TIMEOUT_MS = 120_000;
 const SEAT_TIMEOUT_MS = 10_000;
 
-let borrowedSeat: string | null | undefined;
-
-const borrowTokenmaxxingSeat = (): string | null => {
-  if (borrowedSeat !== undefined) {
-    return borrowedSeat;
-  }
+const borrowTokenmaxxingSeat = once((): string | null => {
   try {
     const enabled = z
       .stringbool()
       .default(true)
       .parse(process.env.CORRECTIONGUY_TOKENMAXXING);
     if (!enabled) {
-      borrowedSeat = null;
-      return borrowedSeat;
+      return null;
     }
     const r = spawnSync(
       "tokenmaxxing",
@@ -80,12 +75,11 @@ const borrowTokenmaxxingSeat = (): string | null => {
     if (typeof r.status === "number" && r.status !== 0 && r.stderr) {
       console.error(`correctionguy: tokenmaxxing seat: ${r.stderr.trim()}`);
     }
-    borrowedSeat = dir === "" ? null : dir;
+    return dir === "" ? null : dir;
   } catch {
-    borrowedSeat = null;
+    return null;
   }
-  return borrowedSeat;
-};
+});
 
 const runJsonReview = async <T>(
   prompt: string,
