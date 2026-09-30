@@ -1,11 +1,20 @@
-import { createHash } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import { existsSync } from "node:fs";
-import { readFile, rm, writeFile } from "node:fs/promises";
+import {
+  lstat,
+  mkdir,
+  readFile,
+  rename,
+  rm,
+  utimes,
+  writeFile,
+} from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 
-import { runReview, runStopReview } from "./codex.ts";
+import { runReview, runStopReview, runTasteReview } from "./codex.ts";
 import {
+  MAX_FIELD_CHARS,
   NUDGE_COOLDOWN_MS,
   NudgeState,
   correctionguyMessage,
@@ -19,6 +28,7 @@ import type {
   ContextOutput,
   HookInput,
   HookOutput,
+  Taste,
   Transcript,
 } from "./core.ts";
 import { SESSION_START } from "./prompts.ts";
@@ -54,7 +64,7 @@ const SESSION_START_OUTPUT: ContextOutput = {
     hookEventName: "SessionStart",
   },
   systemMessage: correctionguyMessage(
-    "Preamble loaded into context. Six failures hunted: unverified assumption, missed requirement, integration error, regression, wrong file, no reviews. Full rules: correctionguy skill."
+    "Preamble loaded into context. Six failures hunted: unverified assumption, missed requirement, integration error, regression, wrong file, no reviews. Taste in .taste checked too. Full rules: correctionguy skill."
   ),
 };
 
@@ -169,6 +179,61 @@ const handlers: Record<
       }
       return null;
     }
+  },
+
+  UserPromptSubmit: async ({ deps, hookInput }) => {
+    if (
+      !hookInput.prompt ||
+      (hookInput.session_id && existsSync(skipStatePath(hookInput.session_id)))
+    ) {
+      return null;
+    }
+    const startedAt = new Date();
+    let taste: Taste;
+    try {
+      taste = await runTasteReview(
+        deps.prompts.taste,
+        JSON.stringify({
+          transcript_path: hookInput.transcript_path,
+          user_prompt: hookInput.prompt.slice(0, MAX_FIELD_CHARS),
+        })
+      );
+    } catch (error) {
+      console.error(
+        `correctionguy taste review failed: ${error instanceof Error ? error.message : String(error)}`
+      );
+      if (hookInput.session_id) {
+        await writeFile(skipStatePath(hookInput.session_id), "", {
+          mode: 0o600,
+        });
+        console.error(
+          "correctionguy: reviews skipped for the rest of this session"
+        );
+      }
+      return null;
+    }
+    if (taste.file === "") {
+      return null;
+    }
+    const dir = path.join(
+      process.env.CLAUDE_PROJECT_DIR ?? process.cwd(),
+      ".taste"
+    );
+    await mkdir(dir, { recursive: true });
+    const dirStats = await lstat(dir);
+    if (!dirStats.isDirectory()) {
+      throw new Error(`${dir} is not a directory`);
+    }
+    const target = path.join(dir, taste.file);
+    const existing = existsSync(target) ? await lstat(target) : null;
+    if (existing && existing.mtime > startedAt) {
+      return null;
+    }
+    const staged = path.join(dir, `.${taste.file}.${randomUUID()}`);
+    await writeFile(staged, taste.content, { flag: "wx" });
+    await utimes(staged, startedAt, startedAt);
+    await rename(staged, target);
+    return null;
   },
 };
 
