@@ -26,7 +26,7 @@ export default function correctionguy(pi: ExtensionAPI): void {
     const hookInput: HookInput = {
       prompt: event.text,
       session_id: ctx.sessionManager.getSessionId(),
-      transcript_path: ctx.sessionManager.getSessionFile() ?? "",
+      transcript_path: ctx.sessionManager.getSessionFile(),
     };
     (async () => {
       try {
