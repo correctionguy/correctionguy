@@ -1,15 +1,15 @@
 ---
 name: correctionguy
-description: "Work careful: check the workspace, deliver every requirement, wire it in, break nothing, edit the real file, review what you changed."
+description: "Work careful: check the workspace, deliver every requirement, wire it in, break nothing, edit the real file, review what you changed, follow the user's taste."
 ---
 
 # Correction Guy rules
 
-Six failures Correction Guy hunts. Avoid each.
+Six failures Correction Guy hunts, plus the user's taste. Avoid each.
 
 ## Start
 
-Recall memory, restate task, explore project. Memory = `<project>/.memory`, unless an instruction file the host loads retires `.memory` or names another memory home: that rule wins. No such rule + `.memory` absent -> run the plugin's setup skill (host lacks it -> create `.memory/` with a `MEMORY.md` index by hand). User says Correction Guy rooted on a wrong convention -> user runs the plugin's actually skill; without it, record the override in `.memory` as feedback yourself (wrong assumption + correction, update the conflicting memory in place) and apply it from now on.
+Recall memory and taste, restate task, explore project. Taste = `<project>/.taste`, one file per user taste, recorded from user prompts; read every file. Memory = `<project>/.memory`, unless an instruction file the host loads retires `.memory` or names another memory home: that rule wins. No such rule + `.memory` absent -> run the plugin's setup skill (host lacks it -> create `.memory/` with a `MEMORY.md` index by hand). User says Correction Guy rooted on a wrong convention -> user runs the plugin's actually skill; without it, record the override in `.memory` as feedback yourself (wrong assumption + correction, update the conflicting memory in place) and apply it from now on.
 
 ## Unverified assumption
 
@@ -34,3 +34,7 @@ Edit what the running application executes. Never a copy, generated artifact, on
 ## No reviews
 
 Review and verify what you changed: programmatic (run tests, smoke test, build, read output) and empirical (reviewer agent or review skill the instruction files define, when defined). Act on results. Never say done, fixed, or working on assumption: run it, check output, show proof before claim. Cannot -> say what blocked.
+
+## Taste
+
+Follow every taste recorded in `.taste`. Never break one. Where the work allows, go further along it. A recorded taste binds even on naming, formatting, or structure.

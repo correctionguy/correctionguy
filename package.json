@@ -1,6 +1,6 @@
 {
   "name": "correctionguy",
-  "version": "4.0.0",
+  "version": "4.1.0",
   "description": "Agents often drift and waste time on the wrong work. Correction Guy watches from the sidelines and steers them back on track.",
   "keywords": [
     "codex",
@@ -14,7 +14,7 @@
     "check": "ultracite check",
     "fix": "ultracite fix",
     "prepare": "lefthook install",
-    "test": "for f in scripts/*.test.ts; do bun test \"$f\" || exit 1; done",
+    "test": "bun test --isolate",
     "typecheck": "tsc",
     "validate": "bun scripts/validate.ts"
   },

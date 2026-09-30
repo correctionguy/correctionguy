@@ -1,6 +1,6 @@
 ---
 name: agent-plugins-portable-core
-description: Root plugin.json is the Agent Plugins 1.0.0 manifest and a closed schema; hooks and the Pi manifest stay in host layers
+description: Root plugin.json is the Agent Plugins 1.0.0 manifest and a closed schema; hooks and the Pi manifest stay in host layers; each client owns installation
 metadata:
   type: project
 ---
@@ -9,4 +9,4 @@ Root `plugin.json` follows `https://agent-plugins.org/schemas/1.0.0/plugin.schem
 
 **Why:** The portable manifest rejects unknown keys, and Agent Plugins clients load skills only.
 
-**How to apply:** Never move hooks or commands into the portable manifest. Do not invent a reverse-domain extension namespace unless a client documents one. See [[release-process]].
+**How to apply:** Never move hooks or commands into the portable manifest. Do not invent a reverse-domain extension namespace unless a client documents one. Agent Plugins defines no installer, so the README points at each client's install flow through `https://agent-plugins.org/compatible-clients`; never document `npx plugins add` as the Agent Plugins install, because the `plugins` npm CLI reads only `.plugin/`, `.claude-plugin/`, `.cursor-plugin/`, and `.codex-plugin/` manifests and never root `plugin.json`. See [[release-process]].
