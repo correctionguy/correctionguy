@@ -30,6 +30,7 @@ jobs:
         env:
           CODEX_HOME: ${{ runner.temp }}/codex
           CORRECTIONGUY_MODEL: openai/gpt-5.6-terra
+          CORRECTIONGUY_TOKENMAXXING: "0"
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
         run: |
           mkdir -p "$CODEX_HOME"
@@ -50,5 +51,5 @@ jobs:
             echo "== $f"
             jq -c 'select(.type == "turn_context") | .payload | {model, effort, summary}' "$f"
             jq -c 'select(.type == "event_msg" and .payload.type == "token_count") | .payload.info.total_token_usage' "$f" | tail -1
-            jq -c 'select(.type == "event_msg" and .payload.type == "agent_message") | .payload.message' "$f" | tail -1
+            jq -c 'select(.type == "response_item" and .payload.type == "message" and .payload.role == "assistant") | .payload.content[0].text' "$f" | tail -1
           done
