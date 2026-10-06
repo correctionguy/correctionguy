@@ -42,3 +42,13 @@ jobs:
           env_key = "OPENROUTER_API_KEY"
           EOF
           bun run test
+      - if: always()
+        env:
+          CODEX_HOME: ${{ runner.temp }}/codex
+        run: |
+          find "$CODEX_HOME/sessions" -name '*.jsonl' | while read -r f; do
+            echo "== $f"
+            jq -c 'select(.type == "turn_context") | .payload | {model, effort, summary}' "$f"
+            jq -c 'select(.type == "event_msg" and .payload.type == "token_count") | .payload.info.total_token_usage' "$f" | tail -1
+            jq -c 'select(.type == "event_msg" and .payload.type == "agent_message") | .payload.message' "$f" | tail -1
+          done
