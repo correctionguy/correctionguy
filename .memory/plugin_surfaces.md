@@ -1,0 +1,6 @@
+# Plugin surfaces
+
+- Root `plugin.json` follows `https://agent-plugins.org/schemas/1.0.0/plugin.schema.json`, a closed schema: identity and metadata only, no `hooks`, `commands`, or `skills` paths. Hooks stay in `.claude-plugin/plugin.json` plus `hooks/hooks.json`, and Pi loads `package.json` `pi.extensions` and `pi.skills`. Never invent a reverse-domain extension namespace unless a client documents one
+- Agent Plugins defines no installer, so the README points at each client's install flow through `https://agent-plugins.org/compatible-clients`. Never document `npx plugins add` as the Agent Plugins install: the `plugins` npm CLI reads only `.plugin/`, `.claude-plugin/`, `.cursor-plugin/`, and `.codex-plugin/` manifests and never root `plugin.json`
+- Skills are the only on-demand surfaces: `/correctionguy` is `skills/correctionguy/SKILL.md`, `/correctionguy:setup` is `skills/setup/SKILL.md`, and `/correctionguy:actually` is `skills/actually/SKILL.md` (user-only through `disable-model-invocation`). Claude Code registers a same-named command and skill as one slash command, so never add `commands/correctionguy.md` or `commands/actually.md`
+- When agent-facing discipline changes, sync `SESSION_START` in `scripts/prompts.ts` with `skills/correctionguy/SKILL.md` only. `SESSION_START` does not mention the actually skill
