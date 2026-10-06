@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ${{ vars.CI_RUNNER == 'github' && 'ubuntu-24.04' || fromJSON('["self-hosted","linux","x64","check"]') }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - uses: oven-sh/setup-bun@v2
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - name: Install Claude Code
+        run: |
+          npm install --global --prefix "$RUNNER_TEMP/claude" @anthropic-ai/claude-code
+          echo "$RUNNER_TEMP/claude/bin" >> "$GITHUB_PATH"
+      - run: bun install --frozen-lockfile
+      - run: bun run check
+      - run: bun run typecheck
+      - run: bun run validate
+      - name: Test
+        env:
+          CODEX_API_KEY: ${{ secrets.CODEX_API_KEY }}
+          CODEX_HOME: ${{ runner.temp }}/codex
+        run: |
+          mkdir -p "$CODEX_HOME"
+          bun run test

@@ -13,7 +13,6 @@
   "scripts": {
     "check": "ultracite check",
     "fix": "ultracite fix",
-    "prepare": "lefthook install",
     "test": "bun test --isolate",
     "typecheck": "tsc",
     "validate": "bun scripts/validate.ts"
@@ -26,7 +25,6 @@
   "devDependencies": {
     "@earendil-works/pi-coding-agent": "^0.86.0",
     "@types/bun": "latest",
-    "lefthook": "^2.1.14",
     "oxfmt": "^0.68.0",
     "oxlint": "^1.83.0",
     "typescript": "^7.0.2",
