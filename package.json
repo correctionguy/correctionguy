@@ -18,7 +18,7 @@
     "validate": "bun scripts/validate.ts"
   },
   "dependencies": {
-    "@openai/codex-sdk": "0.155.1",
+    "@openai/codex-sdk": "0.160.1",
     "es-toolkit": "1.52.0",
     "zod": "^4.6.5"
   },
