@@ -172,3 +172,16 @@ test("a taste file name that leaves .taste or is not markdown fails the schema",
     TasteSchema.safeParse({ ...noComments, file: "no-code-comments" }).success
   ).toBe(false);
 });
+
+test("a reply with content but no file, or a file but no content, fails the schema", () => {
+  expect(TasteSchema.safeParse({ content: "", file: "" }).success).toBe(true);
+  expect(
+    TasteSchema.safeParse({
+      content: JSON.stringify(noComments),
+      file: "",
+    }).success
+  ).toBe(false);
+  expect(TasteSchema.safeParse({ ...noComments, content: "" }).success).toBe(
+    false
+  );
+});
