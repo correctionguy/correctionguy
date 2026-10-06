@@ -1,0 +1,4 @@
+# CI
+
+- CI reaches the reviewer through OpenRouter, whose `ReasoningEffort` enum is `max`, `xhigh`, `high`, `medium`, `low`, `minimal`, and `none`. `ultra` and `persistent`, which the `CORRECTIONGUY_MODEL_REASONING_EFFORT` enum in `scripts/codex.ts` accepts, have no OpenRouter value, so CI cannot exercise a default effort of either. Read the enum from `https://openrouter.ai/openapi.yaml`, not the Reasoning or Parameters guide pages, which list stale subsets [source: https://github.com/correctionguy/correctionguy/pull/70]
+- The `bun run test` log prints "correctionguy stop review failed: You've hit your usage limit" and "reviews skipped for the rest of this session" on a passing run: the text comes from the `scripts/session-breaker.test.ts` fixture. Judge a real usage-limit or Codex failure by a failed `scripts/codex-smoke.test.ts` case, not by that text
