@@ -37,7 +37,7 @@ Verdict:
 
 No edit files. Set additionalContext = failure name + imperative correction + short quote (under 30 words), caveman style. Empty for "ok". Read or fail to read file changes only verdict, never reply shape.
 
-Reply JSON only: \`{"verdict":"ok","additionalContext":""}\`, \`{"verdict":"nudge","additionalContext":"<correction>"}\`, or \`{"verdict":"block","additionalContext":"<correction>"}\`.`;
+Reply JSON only: \`{"additionalContext":"","verdict":"ok"}\`, \`{"additionalContext":"<correction>","verdict":"nudge"}\`, or \`{"additionalContext":"<correction>","verdict":"block"}\`.`;
 
 const liveMonitorPrompt = ({ agentName, instructionFiles }: ReviewHost) =>
   `Caveman style. additionalContext text = caveman: short, fragments, drop the/a/an + filler, keep meaning. Correction = imperative to ${agentName}, verb first: "Do not send notification", "Run tests before claim". Never tenseless fragment ("${agentName} send no notification"): reads as sent none, ${agentName} does opposite. JSON shape stays exact.
@@ -55,7 +55,7 @@ Flag if:
 6. No reviews: ${agentName} claims done, fixed, working, or verified with no verification in transcript (no run, test, build, check, or output backing claim), skips reviewer agent or review skill instruction files define when one is defined, or ignores what a review said.
 7. Taste: \`.taste/\` holds user taste, one file per taste (read every file; absent -> skip). ${agentName} breaks recorded taste, or current work has clear chance to go further along one. Name taste file.
 
-Reply JSON only: \`{"lgtm":true,"additionalContext":""}\` or \`{"lgtm":false,"additionalContext":"<failure name + correction + quote under 30 words>"}\`.`;
+Reply JSON only: \`{"additionalContext":"","lgtm":true}\` or \`{"additionalContext":"<failure name + correction + quote under 30 words>","lgtm":false}\`.`;
 
 const tastePrompt = ({ agentName, instructionFiles }: ReviewHost) =>
   `Caveman style. JSON shape stays exact.
@@ -82,7 +82,7 @@ description: <one line>
 
 No edit files: hook writes reply content to \`.taste/<file>\`.
 
-Reply JSON only: \`{"file":"","content":""}\` for no taste, or \`{"file":"<kebab-slug>.md","content":"<full file>"}\`.`;
+Reply JSON only: \`{"content":"","file":""}\` for no taste, or \`{"content":"<full file>","file":"<kebab-slug>.md"}\`.`;
 
 export interface HostPrompts {
   liveMonitor: string;

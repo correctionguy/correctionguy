@@ -76,15 +76,17 @@ export const StopReviewSchema = z.object({
 });
 export type StopReview = z.output<typeof StopReviewSchema>;
 
-export const TasteSchema = z.object({
-  content: z.string(),
-  file: z
-    .string()
-    .refine(
-      (file) =>
-        file === "" || (path.basename(file) === file && file.endsWith(".md"))
-    ),
-});
+export const TasteSchema = z
+  .object({
+    content: z.string(),
+    file: z
+      .string()
+      .refine(
+        (file) =>
+          file === "" || (path.basename(file) === file && file.endsWith(".md"))
+      ),
+  })
+  .refine((taste) => (taste.file === "") === (taste.content === ""));
 export type Taste = z.output<typeof TasteSchema>;
 
 export const NUDGE_COOLDOWN_MS = 1_800_000;
