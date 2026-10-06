@@ -14,4 +14,3 @@
 - [Codex SDK version gates new models](codex-sdk-version-gates-new-models.md) — API 400-rejects models newer than the vendored CLI, silently, only on realistic payloads; plugin cache needs its own pin
 - [Codex effort levels and speed tiers](codex-effort-levels-and-speed-tiers.md) — codex.ts effort enum mirrors the SDK union or the hooks die silently; standard tier is the absent key
 - [Codex read-only sandbox reads whole FS](codex-read-only-sandbox-reads-whole-fs.md) — read-only blocks writes and network, not reads; lets the stop check read the transcript file
-- [Codex usage limit blocks commits](codex-usage-limit-blocks-commits.md) — smoke test fails on the account's usage limit, every commit fails; owner logs another account in; never bypass the gate

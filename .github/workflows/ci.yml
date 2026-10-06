@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ${{ vars.CI_RUNNER == 'github' && 'ubuntu-24.04' || fromJSON('["self-hosted","linux","x64","check"]') }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - uses: oven-sh/setup-bun@v2
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - name: Install Claude Code
+        run: |
+          npm install --global --prefix "$RUNNER_TEMP/claude" @anthropic-ai/claude-code
+          echo "$RUNNER_TEMP/claude/bin" >> "$GITHUB_PATH"
+      - run: bun install --frozen-lockfile
+      - run: bun run check
+      - run: bun run typecheck
+      - run: bun run validate
+      - name: Test
+        env:
+          CODEX_HOME: ${{ runner.temp }}/codex
+          CORRECTIONGUY_MODEL: openai/gpt-5.6-terra
+          CORRECTIONGUY_TOKENMAXXING: "0"
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+        run: |
+          mkdir -p "$CODEX_HOME"
+          cat > "$CODEX_HOME/config.toml" <<'EOF'
+          model_provider = "openrouter"
+
+          [model_providers.openrouter]
+          name = "OpenRouter"
+          base_url = "https://openrouter.ai/api/v1"
+          env_key = "OPENROUTER_API_KEY"
+          EOF
+          bun run test
