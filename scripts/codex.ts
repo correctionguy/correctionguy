@@ -10,7 +10,7 @@ import type { Review, StopReview, Taste } from "./core.ts";
 
 const EnvSchema = z.object({
   CORRECTIONGUY_FAST_MODE: z.stringbool().default(false),
-  CORRECTIONGUY_MODEL: z.string().default("gpt-5.6-terra"),
+  CORRECTIONGUY_MODEL: z.string().default("gpt-6-luna"),
   CORRECTIONGUY_MODEL_REASONING_EFFORT: z
     .enum([
       "minimal",
@@ -22,7 +22,7 @@ const EnvSchema = z.object({
       "ultra",
       "persistent",
     ])
-    .default("xhigh"),
+    .default("max"),
   CORRECTIONGUY_SERVICE_TIER: z.string().optional(),
   CORRECTIONGUY_YOLO: z.stringbool().default(false),
 });
