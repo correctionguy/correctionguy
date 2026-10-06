@@ -28,8 +28,17 @@ jobs:
       - run: bun run validate
       - name: Test
         env:
-          CODEX_API_KEY: ${{ secrets.CODEX_API_KEY }}
           CODEX_HOME: ${{ runner.temp }}/codex
+          CORRECTIONGUY_MODEL: openai/gpt-5.6-terra
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
         run: |
           mkdir -p "$CODEX_HOME"
+          cat > "$CODEX_HOME/config.toml" <<'EOF'
+          model_provider = "openrouter"
+
+          [model_providers.openrouter]
+          name = "OpenRouter"
+          base_url = "https://openrouter.ai/api/v1"
+          env_key = "OPENROUTER_API_KEY"
+          EOF
           bun run test
