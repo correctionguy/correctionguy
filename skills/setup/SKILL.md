@@ -14,7 +14,7 @@ Establishes the memory layout Correction Guy expects, then back-fills `.memory` 
 - Create `<root>/.memory/` if missing.
 - `.memory` is git-tracked and committed with the repo; its files commit with normal work. `.gitignore` lists `.memory` -> the folder was private until now: review every existing `.memory` file against the public bar below and scrub non-public details first, then delete the line so the folder tracks.
 - Because `.memory` is public, it holds public knowledge only: treat it like a public Wikipedia page. Never record device info, Slack info (conversation, user, workspace, or channel details), or environment info (secret values, local machine paths or file listings). A secret is a value with a token shape (an API key, token, password, or private key string), whatever variable holds it; a variable name alone, such as `CORRECTIONGUY_*`, is public.
-- `<root>/.memory/MEMORY.md` = index only: one line per memory, `- [Title](file.md) — hook`. Create if missing. Memory content never goes in the index.
+- `<root>/.memory/MEMORY.md` follows the [Agent Memory Repo](https://github.com/AgentMemoryRepo/agentmemoryrepo) format: it starts with `# Memory: <project>`, holds the few entries every session needs, then `## Index` listing every other file as `- [[file]]`. Create `# Memory: <project>` plus an empty `## Index` if missing. A `[[file]]` link is a path from `.memory`, without `.md` for a Markdown file.
 - `<root>/.taste/` sits beside `.memory`: one file per user taste, no index, same git tracking and public bar. The Correction Guy hooks add to it from each user prompt. An instruction file the host loads retires `.taste` -> skip every taste step below.
 
 ## 2. Symlink the host memory dir into it
@@ -24,7 +24,7 @@ Host memory dir (Claude Code) = `~/.claude/projects/<slug>/memory`, where slug =
 - Already a symlink resolving to `<root>/.memory` -> done.
 - Path absent but `~/.claude/projects/<slug>` exists -> `ln -s <root>/.memory ~/.claude/projects/<slug>/memory`.
 - Symlink elsewhere -> repoint with `ln -sfn` (plain `-sf` follows a symlink-to-dir and drops the new link inside the old target).
-- Real directory -> merge every file including dotfiles into `.memory` (same name on both sides: keep the `.memory` file, fold in any fact the other copy has that it lacks). Its `MEMORY.md`: index-shaped lines merge into the index; freeform memory content -> file each fact as its own `.memory/*.md` with its own index line, never drop it. The public bar from step 1 applies to everything merged in: the traditional dir was written under no such rule, so scrub device, Slack, and environment details on the way in (keep the lesson, drop the non-public specifics). Then remove the emptied dir and `ln -s <root>/.memory ~/.claude/projects/<slug>/memory`.
+- Real directory -> merge every file including dotfiles into `.memory` (same name on both sides: keep the `.memory` file, fold in any fact the other copy has that it lacks). Its `MEMORY.md`: index-shaped lines merge into the `## Index` as `- [[file]]` bullets; freeform memory content -> file each fact as one bullet in the matching snake_case topic file, never drop it. A frontmatter memory file merges in as bullets: drop the frontmatter, keep the body as one-line entries. The public bar from step 1 applies to everything merged in: the traditional dir was written under no such rule, so scrub device, Slack, and environment details on the way in (keep the lesson, drop the non-public specifics). Then remove the emptied dir and `ln -s <root>/.memory ~/.claude/projects/<slug>/memory`.
 - `~/.claude/projects/<slug>` itself missing (Claude Code never ran here) -> skip this step and step 3; step 1 still stands.
 - Verify before moving on: `readlink ~/.claude/projects/<slug>/memory` resolves to `<root>/.memory` and the real files sit there. Traditional path still a real dir (leftover files blocked removal, `ln` nested the link inside) -> fix now.
 
@@ -56,21 +56,16 @@ Judgment work: main thread or a top-tier stage, never a scan tier.
 
 - Merge miner output; dedupe across miners AND against every existing `.memory` file.
 - Hold the entropy bar: fresh agent could re-derive it from the repo in five minutes -> drop it. Keep the lessons the repo cannot show.
-- Write each memory as a bare present-tense lesson that prevents a future mistake: what holds, why, how to apply. No dates, incident narrative, or superseded text in the body; the date breaks contradictions during consolidation and then stays out of the file.
-- Genuinely new fact -> one file per fact in `.memory`, shape below, plus its index line in `MEMORY.md`.
-- Existing memory contradicted by a newer session -> the later timestamp wins: update that file in place, don't fork a duplicate. Never delete a User's Claim for lacking a link.
-- Frontmatter `name` = file basename minus `.md`; `[[links]]` and index entries resolve by filename.
+- Write each memory as one guardrail: the trap, the correct move, and the exact command, flag, path, or error string that makes it actionable, in present tense. No dates, incident narrative, or superseded text; the date breaks contradictions during consolidation and then stays out of the file.
+- Genuinely new fact -> one bullet on one line in the snake_case topic file that groups it (`ci.md`, `deploy.md`), shape below. A new topic file gets a `- [[file]]` line in the `## Index` of `MEMORY.md`. An entry every session needs goes in `MEMORY.md` above `## Index`.
+- Existing memory contradicted by a newer session -> the later timestamp wins: update that entry in place, don't add a contradicting one. Never delete a User's Claim for lacking a link.
+- Memory files carry no frontmatter. A cross-link is `[[path]]` from `.memory`, without `.md` for a Markdown file.
 
 ```markdown
----
-name: <short-kebab-slug>
-description: <one line, used to judge recall relevance>
-metadata:
-  type: user | feedback | project | reference
----
-
-<the fact; for feedback/project add **Why:** and **How to apply:** lines. Link related memories with [[their-name]].>
+- <the trap, the correct move, and the exact command, flag, path, or error string> [source: <pull request or issue URL>]
 ```
+
+`[source: ...]` is optional trailing metadata, `[key: value; key: value]` when there are several; no entry carries a date.
 
 - Taste -> one file per taste in `.taste`, shape below, deduped against every existing `.taste` file. A later taste that refines or contradicts a recorded one rewrites that file in place.
 
