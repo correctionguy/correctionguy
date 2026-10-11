@@ -7,6 +7,5 @@
   },
   "repository": "https://github.com/correctionguy/correctionguy",
   "license": "MIT",
-  "keywords": ["codex", "discipline", "review", "workflow"],
-  "skills": "./skills/"
+  "keywords": ["codex", "discipline", "review", "workflow"]
 }
