@@ -8,10 +8,16 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: codex-auth
+  cancel-in-progress: false
+
 jobs:
   check:
     runs-on: ubuntu-24.04
     timeout-minutes: 20
+    env:
+      CODEX_HOME: ${{ runner.temp }}/codex
     steps:
       - uses: actions/checkout@v7
       - uses: oven-sh/setup-bun@v2
@@ -26,20 +32,21 @@ jobs:
       - run: bun run check
       - run: bun run typecheck
       - run: bun run validate
+      - name: Restore Codex login
+        id: restore
+        env:
+          CODEX_AUTH_JSON: ${{ secrets.CODEX_AUTH_JSON }}
+        run: |
+          mkdir -m 700 "$CODEX_HOME"
+          echo 'cli_auth_credentials_store = "file"' > "$CODEX_HOME/config.toml"
+          printf '%s' "$CODEX_AUTH_JSON" > "$CODEX_HOME/auth.json"
+          chmod 600 "$CODEX_HOME/auth.json"
       - name: Test
         env:
-          CODEX_HOME: ${{ runner.temp }}/codex
-          CORRECTIONGUY_MODEL: openai/gpt-6-luna
           CORRECTIONGUY_TOKENMAXXING: "0"
-          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
-        run: |
-          mkdir -p "$CODEX_HOME"
-          cat > "$CODEX_HOME/config.toml" <<'EOF'
-          model_provider = "openrouter"
-
-          [model_providers.openrouter]
-          name = "OpenRouter"
-          base_url = "https://openrouter.ai/api/v1"
-          env_key = "OPENROUTER_API_KEY"
-          EOF
-          bun run test
+        run: bun run test
+      - name: Save Codex login
+        if: always() && steps.restore.outcome == 'success'
+        env:
+          GH_TOKEN: ${{ secrets.CODEX_AUTH_WRITEBACK_TOKEN }}
+        run: gh secret set CODEX_AUTH_JSON --repo "$GITHUB_REPOSITORY" < "$CODEX_HOME/auth.json"
