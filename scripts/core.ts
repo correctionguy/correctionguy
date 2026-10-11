@@ -166,12 +166,7 @@ export const liveMonitorContext = (input: {
     latest_assistant_message: latestAssistant,
     recent_transcript: recentTranscript,
   });
-  let attempts = 0;
-  while (
-    serialized.length > MAX_CONTEXT_CHARS &&
-    recentTranscript.length > 0 &&
-    attempts < 6
-  ) {
+  if (serialized.length > MAX_CONTEXT_CHARS && recentTranscript.length > 0) {
     const overshoot = serialized.length - MAX_CONTEXT_CHARS;
     const newLen = Math.max(0, recentTranscript.length - overshoot - 256);
     recentTranscript =
@@ -183,7 +178,6 @@ export const liveMonitorContext = (input: {
       latest_assistant_message: latestAssistant,
       recent_transcript: recentTranscript,
     });
-    attempts += 1;
   }
   return serialized;
 };
@@ -261,12 +255,7 @@ export const stopReviewContext = (input: {
     transcript,
     transcript_path: input.transcriptPath,
   });
-  let attempts = 0;
-  while (
-    serialized.length > MAX_CONTEXT_CHARS &&
-    transcript.length > 0 &&
-    attempts < 6
-  ) {
+  if (serialized.length > MAX_CONTEXT_CHARS && transcript.length > 0) {
     const overshoot = serialized.length - MAX_CONTEXT_CHARS;
     const newLen = Math.max(0, transcript.length - overshoot - 256);
     transcript =
@@ -279,7 +268,6 @@ export const stopReviewContext = (input: {
       transcript,
       transcript_path: input.transcriptPath,
     });
-    attempts += 1;
   }
   return serialized;
 };
