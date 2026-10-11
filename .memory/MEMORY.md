@@ -10,4 +10,4 @@
 - [[plugin_surfaces]]
 - [[release]]
 - [[reviewer]]
-- [[ci]]
+- [[tests]]
