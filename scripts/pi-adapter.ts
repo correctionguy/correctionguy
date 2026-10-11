@@ -3,8 +3,11 @@ import type {
   TurnEndEvent,
 } from "@earendil-works/pi-coding-agent";
 
-import { parseTranscript } from "./core.ts";
-import type { PostToolBatchToolCall, Transcript } from "./core.ts";
+import type {
+  PostToolBatchToolCall,
+  Transcript,
+  TranscriptRecord,
+} from "./core.ts";
 
 type PiMessage = TurnEndEvent["message"];
 type PiToolResult = TurnEndEvent["toolResults"][number];
@@ -20,18 +23,18 @@ type TranscriptBlock =
 export const piBranchToTranscript = (
   entries: readonly SessionEntry[]
 ): Transcript => {
-  const lines: string[] = [];
+  const records: TranscriptRecord[] = [];
   for (const entry of entries) {
     if (entry.type === "custom_message") {
       const content =
         typeof entry.content === "string"
-          ? entry.content
+          ? [{ text: entry.content, type: "text" }]
           : entry.content.flatMap((block) =>
               block.type === "text"
-                ? [{ text: block.text, type: "text" as const }]
+                ? [{ text: block.text, type: "text" }]
                 : []
             );
-      lines.push(JSON.stringify({ message: { content }, type: "custom" }));
+      records.push({ message: { content }, type: "custom" });
       continue;
     }
     if (entry.type !== "message") {
@@ -41,13 +44,13 @@ export const piBranchToTranscript = (
     if (message.role === "user") {
       const content =
         typeof message.content === "string"
-          ? message.content
+          ? [{ text: message.content, type: "text" }]
           : message.content.flatMap((block) =>
               block.type === "text"
-                ? [{ text: block.text, type: "text" as const }]
+                ? [{ text: block.text, type: "text" }]
                 : []
             );
-      lines.push(JSON.stringify({ message: { content }, type: "user" }));
+      records.push({ message: { content }, type: "user" });
       continue;
     }
     if (message.role === "assistant") {
@@ -67,30 +70,28 @@ export const piBranchToTranscript = (
         }
         return [];
       });
-      lines.push(JSON.stringify({ message: { content }, type: "assistant" }));
+      records.push({ message: { content }, type: "assistant" });
       continue;
     }
     if (message.role === "toolResult") {
       const text = message.content
         .flatMap((block) => (block.type === "text" ? [block.text] : []))
         .join("");
-      lines.push(
-        JSON.stringify({
-          message: {
-            content: [
-              {
-                content: text,
-                tool_use_id: message.toolCallId,
-                type: "tool_result",
-              },
-            ],
-          },
-          type: "toolResult",
-        })
-      );
+      records.push({
+        message: {
+          content: [
+            {
+              content: text,
+              tool_use_id: message.toolCallId,
+              type: "tool_result",
+            },
+          ],
+        },
+        type: "toolResult",
+      });
     }
   }
-  return parseTranscript(lines.join("\n"));
+  return { lines: records.map((record) => JSON.stringify(record)), records };
 };
 
 export const turnToolCalls = (
