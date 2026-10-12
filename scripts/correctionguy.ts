@@ -238,10 +238,12 @@ export const runHook = (
   hookInput: HookInput,
   deps: HookDeps
 ): Promise<HookOutput | null> => {
-  const originId = hookInput.agent_id ?? hookInput.session_id;
+  if (hookInput.agent_id) {
+    return Promise.resolve(null);
+  }
   return handlers[command]({
     deps,
     hookInput,
-    origin: originId ? `[for ${originId}] ` : "",
+    origin: hookInput.session_id ? `[for ${hookInput.session_id}] ` : "",
   });
 };
