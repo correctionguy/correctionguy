@@ -5,8 +5,8 @@ import type { CodexOptions, ThreadOptions } from "@openai/codex-sdk";
 import { once } from "es-toolkit";
 import { z } from "zod/v4";
 
-import { ReviewSchema, StopReviewSchema, TasteSchema } from "./core.ts";
-import type { Review, StopReview, Taste } from "./core.ts";
+import { ReviewSchema, StopReviewSchema } from "./core.ts";
+import type { Review, StopReview } from "./core.ts";
 
 const EnvSchema = z.object({
   CORRECTIONGUY_FAST_MODE: z.stringbool().default(false),
@@ -110,8 +110,3 @@ export const runStopReview = (
   prompt: string,
   context: string
 ): Promise<StopReview> => runJsonReview(prompt, context, StopReviewSchema);
-
-export const runTasteReview = (
-  prompt: string,
-  context: string
-): Promise<Taste> => runJsonReview(prompt, context, TasteSchema);

@@ -14,21 +14,6 @@
         ]
       }
     ],
-    "UserPromptSubmit": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bun",
-            "args": [
-              "${CLAUDE_PLUGIN_ROOT}/scripts/correctionguy-hook.ts",
-              "UserPromptSubmit"
-            ],
-            "async": true
-          }
-        ]
-      }
-    ],
     "PostToolBatch": [
       {
         "hooks": [
