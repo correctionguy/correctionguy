@@ -22,7 +22,7 @@ const EnvSchema = z.object({
       "ultra",
       "persistent",
     ])
-    .default("max"),
+    .default("low"),
   CORRECTIONGUY_SERVICE_TIER: z.string().optional(),
   CORRECTIONGUY_YOLO: z.stringbool().default(false),
 });
@@ -71,12 +71,16 @@ const runJsonReview = async <T>(
     networkAccessEnabled: env.CORRECTIONGUY_YOLO,
     sandboxMode: env.CORRECTIONGUY_YOLO ? "danger-full-access" : "read-only",
     skipGitRepoCheck: true,
-    webSearchMode: "live",
+    webSearchMode: "disabled",
     workingDirectory: process.env.CLAUDE_PROJECT_DIR,
   };
   const codexOptions: CodexOptions = {
     config: {
-      features: { fast_mode: env.CORRECTIONGUY_FAST_MODE },
+      agents: { enabled: false },
+      features: {
+        fast_mode: env.CORRECTIONGUY_FAST_MODE,
+        multi_agent_v2: false,
+      },
       ...(env.CORRECTIONGUY_SERVICE_TIER === undefined
         ? {}
         : { service_tier: env.CORRECTIONGUY_SERVICE_TIER }),

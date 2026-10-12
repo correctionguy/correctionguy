@@ -1,6 +1,3 @@
-import { readdir } from "node:fs/promises";
-import path from "node:path";
-
 import { CommandSchema, HookInputSchema, parseTranscript } from "./core.ts";
 import { runHook } from "./correctionguy.ts";
 import { CLAUDE_PROMPTS } from "./prompts.ts";
@@ -11,28 +8,10 @@ try {
   const output = await runHook(command, hookInput, {
     prompts: CLAUDE_PROMPTS,
     readTranscript: async () => {
-      const { agent_id, transcript_path } = hookInput;
-      if (!transcript_path) {
+      if (!hookInput.transcript_path) {
         throw new Error("transcript_path missing from hook input");
       }
-      if (!agent_id) {
-        return parseTranscript(await Bun.file(transcript_path).text());
-      }
-      const root = path.join(
-        path.dirname(transcript_path),
-        path.basename(transcript_path, ".jsonl"),
-        "subagents"
-      );
-      const entries = await readdir(root, { recursive: true });
-      const entry = entries.find(
-        (candidate) => path.basename(candidate) === `agent-${agent_id}.jsonl`
-      );
-      if (!entry) {
-        throw new Error(
-          `subagent transcript agent-${agent_id}.jsonl missing under ${root}`
-        );
-      }
-      return parseTranscript(await Bun.file(path.join(root, entry)).text());
+      return parseTranscript(await Bun.file(hookInput.transcript_path).text());
     },
   });
   if (output !== null) {
