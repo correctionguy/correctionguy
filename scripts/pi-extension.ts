@@ -18,31 +18,11 @@ export default function correctionguy(pi: ExtensionAPI): void {
     blockCount = 0;
   });
 
-  pi.on("input", (event, ctx) => {
+  pi.on("input", (event) => {
     if (event.source === "extension") {
       return;
     }
     blockCount = 0;
-    const hookInput: HookInput = {
-      prompt: event.text,
-      session_id: ctx.sessionManager.getSessionId(),
-      transcript_path: ctx.sessionManager.getSessionFile(),
-    };
-    (async () => {
-      try {
-        await runHook("UserPromptSubmit", hookInput, {
-          prompts: PI_PROMPTS,
-          readTranscript: () =>
-            Promise.resolve(
-              piBranchToTranscript(ctx.sessionManager.getBranch())
-            ),
-        });
-      } catch (error) {
-        console.error(
-          `correctionguy taste hook error: ${error instanceof Error ? error.message : String(error)}`
-        );
-      }
-    })();
   });
 
   pi.on("before_agent_start", () => {
